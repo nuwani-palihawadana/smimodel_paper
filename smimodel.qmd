@@ -1,0 +1,693 @@
+---
+title: "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting"
+author:
+- familyname: Palihawadana
+  othernames: Nuwani
+  address:
+    - Department of Econometrics & Business Statistics
+    - Clayton VIC 3800
+    - Australia
+  email: nuwani.kodikarapalihawadana@monash.edu
+  correspondingauthor: true
+- familyname: Hyndman
+  othernames: Rob J
+  address:
+    - Department of Econometrics & Business Statistics
+    - Clayton VIC 3800
+    - Australia
+  email: rob.hyndman@monash.edu
+- familyname: Wang
+  othernames: Xiaoqian
+  address:
+    - Department of Econometrics & Business Statistics
+    - Clayton VIC 3800
+    - Australia
+  email: xiaoqian.wang@monash.edu
+abstract: High-dimensionality is a common phenomenon in real-world forecasting problems. Oftentimes, forecasts are contingent on a long history of predictors, while the relationships between some predictors and the response of interest exhibit complex nonlinear patterns. In such a situation, a nonlinear "transfer function" model, with additivity constraints to mitigate the issue of *curse of dimensionality*, is a conspicuous choice. Particularly, nonparametric *Group-wise Additive Index Models (GAIM)* that incorporate prior knowledge of natural groupings in the predictors into the estimation process enhance the interpretability of the estimated model, while greatly reducing the number of parameters to be estimated in comparison to a general additive model. In this paper, we present a novel algorithm for variable selection in high-dimensional nonparametric GAIMs, which we call ***SGAIM*** (***S***parse ***G***roup-wise ***A***dditive ***I***ndex ***M***odel). The SGAIM algorithm is based on an iterative procedure that applies mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares problem. We illustrate the use of the SGAIM algorithm in two empirical applications related to forecasting half-hourly electricity demand and heat exposure related daily mortality. The implementation of the modelling framework is available in the open source R package *smoothlags* \textcolor{purple}{(currently in development)}.
+keywords: "Additive index models, Variable selection, Dimension reduction, Mixed integer programming"
+wpnumber: no/yr
+jelcodes: C10,C14,C22
+blind: false
+cover: true
+toc: false
+number-sections: true
+fig-height: 5
+fig-width: 8
+cite-method: biblatex
+bibliography: references.bib
+biblio-style: authoryear-comp
+keep-tex: true
+format:
+  wp-pdf:
+    knitr:
+      opts_chunk:
+        dev: "CairoPDF"
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: true
+---
+
+```{r}
+#| label: load
+#| cache: false
+# Load all required packages
+library(tsibble)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+
+theme_set(theme_get() + theme(text = element_text(family = "Source Sans Pro")))
+```
+
+# Introduction {#sec-introduction}
+
+Forecasts are often contingent on a very long history of predictors. For example, when forecasting half-hourly electricity demand, it is common to use at least a week of historical half-hourly temperatures and other weather observations [@HF2010]. Similarly, when forecasting bore levels, rainfall data from up to thousand days earlier can impact the result [@Bakker2019] due to the complex flow dynamics of rainfall into aquifers.
+
+On the other hand, in most of these applications, the relationships between the predictors and the response variable exhibit complex nonlinear patterns. For instance, the relationship between electricity demand and temperature is often nonlinear [@HF2010; @FH2012].
+
+These examples suggest a possible nonlinear "*transfer function*" model of the form
+$$
+ y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
+$$
+where $y_{t}$ is the observation of the response variable at time $t$, $\bm{x}_{t}$ is a vector of predictors at time $t$, and $\varepsilon_{t}$ is the random error. By including lagged values of $y_{t}$ along with the lagged predictors, we allow for any serial correlation in the data. However, it makes the resulting function hard to interpret. An alternative formulation is
+$$
+ y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}) + g(\varepsilon_{t}, \varepsilon_{t-1},\dots,\varepsilon_{t-k}),
+$$
+which is more difficult to estimate, but makes it simpler to interpret the effect of the predictors on the response variable.
+
+When applying the transfer function model to forecast lengthy time series with complex patterns, such as half-hourly electricity demand data and groundwater level data, the form of $f$ is nonlinear, involving complicated interactions, and with a high value of $p$.
+
+Typically, the form of $f$ involves many ad hoc model choices. It is essentially impossible to estimate a $p$-dimensional function for large $p$ due to the curse of dimensionality [@Bellman57; @Stone82]. Instead, we normally impose some form of additivity, along with some low-order interactions.
+
+For example, @FH2012 proposed a ***semi-parametric additive model*** to obtain short-term forecasts of the half-hourly electricity demand for power systems in the Australian National Electricity Market. In this model, $f$ is assumed to be fully additive, and is used to capture the effects of recent predictor values on the demand. The main objective behind the use of this proposed semi-parametric model is to allow nonparametric components in a regression-based modelling framework with serially correlated errors [@FH2012]. The model fitted for each half-hourly period ($q$) can be written as
+$$
+ \log(y_{t,q}) = h_{q}(t) + f_{q}(w_{1,t},w_{2,t}) + a_{q}(y_{t-,p}) + \varepsilon_{t},
+$$
+where the response variable is the logarithm of electricity demand at time $t$ (measured in the half-hourly intervals) during period $q$. The term $h_{q}(t)$ models several calendar effects that are included as linear terms. The temperature effects are modelled using the nonparametric component $f_{q}(w_{1,t},w_{2,t})$, while the nonparametric term $a_{q}(y_{t-,p})$ captures the lagged effects of the response. It is important to notice here that the error term $\varepsilon_{t}$ is serially uncorrelated in each half-hourly model, because the serial correlation is eliminated by the inclusion of the lagged responses in the model. However, there will still be some correlation between the residuals from the various half-hourly models [@FH2012].
+
+Similarly, a ***distributed lag model*** was proposed by @Wood2017 to forecast daily death rate in Chicago using measurements of several air pollutants. In this model, the response variable is modelled via a sum of smooth functions of lagged predictor variables, which is quite similar in nature to the semi-parametric additive model used by @FH2012. However, unlike in @FH2012, @Wood2017 suggested to allow the smooth functions for lags of the same covariate to vary smoothly over lags, preventing large differences in estimated effects between adjacent lags. Thus, the model is of the form
+$$
+ \log(y_{t}) = f_{1}(t) + \sum_{k=0}^{K} f_{2}(p_{t-k}, k) + \sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k),
+$$
+where $y_{t}$ is the death rate at day $t$, and $f_{1}$ is a nonparametric term to capture the *time* effect. The model incorporates the current value ($k = 0$) and several lagged values ($k = 1, \dots, K$) of the predictors, where the *distributed lag effect* of a single predictor variable, and of an interaction of two predictor variables are captured by the sum of nonparametric terms $\sum_{k=0}^{K} f_{2}(p_{t-k}, k)$ and $\sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k)$ respectively. The smooth functions $f_{2}$ and $f_{3}$ are proposed to be estimated using *tensor product smooths*.
+
+For more examples, @Ho2020 used semi-paramteric additive models to estimate ground-level $PM_{2.5}$ concentrations in Taiwan, while nonparametric additive models were utilised by @Ibrahim2021 for predicting census survey response rates. Furthermore, @Ravindra2019 provided a comprehensive review of the applications of additive models for environmental data, with a special focus on air pollution, climate change, and human health related studies.
+
+While such models have been used to address problems including electricity demand, air quality related mortality rate and groundwater level forecasting etc. [@FH2012; @HF2010; @Wood2017; @Peterson2014; @Rajaee2019], there are still a number of unresolved issues in their applications. In this paper, we attempt to address two of those issues. Firstly, even though nonparametric additive models act as a remedy to the curse of dimensionality as we discussed earlier, the estimation of the model is still challenging in a high-dimensional setting due to the large number of nonparametric components to be estimated. Secondly, there is a noticeable subjectivity in the selection of predictor variables for the model, where in most of the applications of interest we discussed above, the predictor choices are mainly based on empirical explorations or domain expertise.
+
+There are a number of previous studies that have attempted to address the issue of variable selection in nonparametric/semi-parametric additive models to some extend, using various techniques. For example, @Huang2010 used a *Least Absolute Shrinkage and Selection Operator* [LASSO, @Tibshirani1996] based procedure for variable selection in nonparametric additive models, whereas @FH2012 used a straightforward backward elimination technique to achieve selection. Moreover, @Ibrahim2021 and @Hazimeh2023 used Mixed Integer Programming based methodologies to provide a solution to the *best subset selection* problem in nonparametric additive models. More details of these methods are discussed later in @sec-background.
+
+In this study, however, we are interested in high-dimensional applications that exhibit complicated interactions among predictors (specially in the presence of large number of lagged variables), as well as correlated errors. In such a situation, *"index models"* (refer @sec-background) seem to be useful for improving the flexibility as well as interpretability of the broader class of nonparametric additive models [@Radchenko2015], while mitigating the difficulty of estimating a nonparametric component for each individual predictor. Particularly, *Group-wise Additive Index Models* (GAIM), which incorporate prior knowledge of natural groupings in the predictors into the estimation process, greatly reduce the number of unknown parameters to be estimated, as each index is constructed using only a subset of predictors [@Wang2015-mp; @Masselot2022].
+
+To our knowledge, no previous research has been done to look at how the predictor choices can be made more objective and principled in additive index models. Hence, the goal of this study is to develop a methodology for optimal predictor selection in the context of high-dimensional nonparametric additive index models. Moreover, due to computational advancements in the field, the use of *Mathematical Optimisation* concepts in solving statistical problems has gained a lot of interest in the recent past [@Theusl2020], which motivated us to develop a variable selection algorithm based on mathematical optimisation techniques.
+
+Additionally, it is crucial to point out that any such variable selection methodology naturally renders inferential statistics invalid, since we do not assume the resulting model obtained through the variable selection procedure to represent the true data generating process. Hence, our focus in this paper is only on improving forecasts, but not on making inferences on the resulting parameter estimates.
+
+The rest of this paper is organised as follows. In @sec-background, we provide a concise exposition of related ideas and previous work, while establishing the foundation for this study. @sec-SGAIM presents our proposed model, *Sparse Group-wise Additive Index Model* (SGAIM), and describes the variable selection algorithm and estimation procedure. @sec-application illustrates two empirical applications of the proposed variable selection methodology, related to forecasting half-hourly electricity demand and heat exposure related daily mortality. Concluding remarks are given in @sec-conclusion with suggestions for future research.
+
+# Background {#sec-background}
+
+## Variable Selection in Nonparametric Additive Models
+
+As discussed in @sec-introduction, the estimation of nonparametric function $f$ becomes infeasible in high-dimensional settings (i.e. number of predictors is very large) due to curse of dimensionality. As a result, *nonparametric additive models* have been employed with growing popularity. Let $(y_{i}, \bm{x}_{i}), i = 1, \dots, n$, be independent and identically distributed (i.i.d) observations, and $\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}$ be a $p$-dimensional vector of predictor values. Then a nonparametric additive model can be written as
+$$
+ y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$ {#eq-add}
+where $f_{j}$'s are unknown functions (probably non-linear and smooth), and $\varepsilon_{i}$ is the random error [@Lian2012]. Even such an additivity condition is imposed, estimating the optimal predictive model will still be troublesome when $p$ is very large (probably even larger than the sample size $n$) due to over-fitting [@Lian2012]. Thus, it is natural to bring in the sparsity assumption, and assume that some of $f_{j}$'s are zero, which gives rise to the need of a variable selection method to differentiate between zero and non-zero components, while estimating the non-zero components [@Huang2010].
+
+### Backward Elimination
+
+In the problem of forecasting long-term peak electricity demand, @HF2010 used a stepwise procedure for variable selection through cross-validation. In the each half-hourly model fitted, the data is split into training and validation sets, and the predictors are selected into the model based on the Mean Squared Error (MSE) calculated for the validation set. Starting from the full model, the predictive power of each variable is evaluated by dropping one at a time. A predictor, the removal of which contributed to a decrease in the validation MSE, is omitted from the model in subsequent steps [@HF2010]. @FH2012 used a similar method except for the fact that they considered the Mean Absolute Percentage Error (MAPE) as the selection criterion. Therefore, both of these prior work use stepwise variable selection methodology based on out-of-sample forecasting performance.
+
+### Penalisation Methods
+
+According to @Huang2010, there are numerous penalised methods for variable selection and parameter estimation in high-dimensional settings, including the *bridge estimator* proposed by @Frank1993, the *Least Absolute Shrinkage and Selection Operator (LASSO)* by @Tibshirani1996, the *Smoothly Clipped Absolute Deviation Penalty* (SCAD) by @Fan2001, and the *Minimum Concave Penalty* (MCP) by @Zhang2010. Among them, we observe that the LASSO and the SCAD penalties are appearing popularly in literature.
+
+@Tibshirani1996 introduced the regularisation method, ***LASSO***, for estimating linear models, which minimises the sum of squared residuals subject to the $\ell_{1}$ penalty on the coefficients. Assume the classical linear regression model $y_{i} = \sum_{j=1}^{p} {\beta_{j}x_{ij}} +\varepsilon_{i}$, fitted for the data $(y_{i}, \bm{x_{i}})$, $i = 1, \dots, n$, where $y_{i}$ is the response, $\bm{x_{i}} = (x_{i1}, \dots, x_{ip})^T$ is a $p$-dimensional vector of predictors, $\bm{\beta} = (\beta_{1}, \dots, \beta_{p})^{T}$ is the parameter vector corresponding to $\bm{x_{i}}$, and $\varepsilon_{i}$ is the random error. Then, the LASSO estimator, $\bm{\hat{\beta}}_{LASSO}$, can be obtained by
+$$
+ \bm{\hat{\beta}}_{LASSO} = \min_{\bm{\beta}}\left\{\left\lVert\bm{y} - \sum_{j=1}^{p} {\bm{x_{j}}\beta_{j}}\right\rVert_{2}^{2} + \lambda\sum_{j=1}^{p} {|\beta_{j}|}\right\},
+$$
+where $\bm{x_{j}} = \left (x_{1j}, \dots, x_{nj}\right )^{T}$, and $\lambda$ is a non-negative tuning parameter. The LASSO estimator reduces to the Ordinary Least Squares (OLS) estimator if $\lambda$ is equal to zero [@Konzen2016]. Due to the nature of the penalty applied, LASSO shrinks some of the coefficients towards zero, and sets the others exactly to zero, where the estimation of coefficients and variable selection are performed simultaneously [@Konzen2016].
+
+While showing that the LASSO is not consistent for variable selection in certain situations, @Zou2006 introduced ***Adaptive Lasso*** (popularly known as "adaLASSO"); an extension of the LASSO method, which uses adaptive weights to penalise coefficients using the LASSO (i.e. $\ell_{1}$) penalty. Thus, the adaLASSO objective function can be written as
+$$
+ \bm{\hat{\beta}}_{adaLASSO} = \min_{\bm{\beta}}\left\{\left\lVert\bm{y} - \sum_{j=1}^{p} {\bm{x_{j}}\beta_{j}}\right\rVert_{2}^{2} + \lambda\sum_{j=1}^{p} {w_{j}|\beta_{j}|}\right\},
+$$
+where the vector of weights $\bm{w} = \left (w_{1}, \dots, w_{p} \right )^{T}$ is estimated by $\bm{\hat{w}} = 1/|\bm{\hat{\beta}}|^{\gamma}$ for $\gamma > 0$, which is a tuning parameter, and $\bm{\hat{\beta}}$ being any consistent estimator of $\bm{\beta}$ [@Zou2006].
+
+@Yuan2006 considered the problem of selecting groups of variables, and discussed extensions of three variable selection and estimation methods namely, *LASSO* [@Tibshirani1996], *Least Angle Regression Selection* [LARS, @Efron2004], and *Non-negative Garrotte* [@Breiman1995]. Consider an $n$-dimensional response vector $\bm{y}$, and an $n \times p$ matrix of predictor values $\bm{X}$. Then the ***Group Lasso*** estimator of the coefficients vector $\bm{\beta}$ is obtained by minimising
+$$
+ \frac{1}{2}\left\lVert\bm{y} - \sum_{\ell=1}^{L} {\bm{X}_{\ell}\bm{\beta}_{\ell}}\right\rVert_{2}^{2} + \lambda\sum_{\ell=1}^{L} {\lVert\bm{\beta}_{\ell}\rVert}_{\bm{K}_{\ell}},
+$$
+where $\bm{X}_{\ell}$ is an $n \times p_{\ell}$ sub-matrix in $\bm{X}$ that corresponds to the $\ell^{th}$ group of predictors ($p_{\ell}$ is the number of predictors in $\ell^{th}$ group), $\bm{\beta}_{\ell}$ is the corresponding vector of coefficients, $\ell = 1, \dots, L$, $\lVert\bm{\beta}_{\ell}\rVert_{\bm{K}_{\ell}} = (\bm{\beta}_{\ell}' \bm{K}_{\ell} \bm{\beta}_{\ell})^{\frac{1}{2}}$ with $\bm{K}_{1}, \dots, \bm{K}_{L}$ being a set of given positive definite matrices, and $\lambda$ is a non-negative tuning parameter. Moreover, @Simon2013 proposed ***Sparse-Group Lasso***, which is a convex combination of general Lasso and Group Lasso methods, where the focus is on both "groupwise sparsity" (the number of groups with at least one nonzero coefficient), and "within group sparsity" (the number of nonzero coefficients within each nonzero group).
+
+According to @Fan2001, a penalty function used in penalised least squares approaches should have three properties. Firstly, it should be singular at origin to generate a solution that is sparse. Secondly, it should fulfill certain conditions to be stable in model selection. Finally, it should be able to generate unbiased estimates for large coefficients via being bounded by a constant. They argued that all those three conditions are not satisfied by the penalisation methods such as the bridge regression [@Frank1993] and the LASSO [@Tibshirani1996]. Hence they proposed the ***SCAD*** penalty function, which is defined in terms of its first derivative as
+$$
+ p_{\lambda}'(\theta) = \lambda\left\{I(\theta\le\lambda) + \frac{(a\lambda - \theta)_{+}}{(a - 1)\lambda}I(\theta > \lambda)\right\},
+$$
+for some $a > 2$, and $\theta > 0$ [@Fan2001]. According to @Fan2001, the SCAD penalty function retains the favourable properties of both best subset selection and ridge regression, while having all three desired features, i.e., sparsity, stability, and unbiasedness.
+
+Based on the above penalisation methods that are originally developed for linear models, @Huang2010 proposed a new penalisation method for variable selection in nonparametric additive model (@eq-add), named ***Adaptive Group Lasso***. They approximated $f_{j}$'s using normalised B-spline bases, so that a linear combination of B-spline basis functions is used to represent an individual nonparametric component $f_{j}$. The proposed method is a generalisation of Adaptive Lasso method [@Zou2006] to the Group Lasso method [@Yuan2006].
+
+When the nonparametric additive model in @eq-add is considered, an obvious possibility is that some of the additive components (i.e. $f_{j}$'s) are being linear. For example, recall the electricity demand forecasting problem [@HF2010; @FH2012], where some of the calendar effects are included into the model as linear variables, whereas lagged temperature and lagged demand variables are included using nonlinear additive components. Such situations suggest the use of *semi-parametric partially linear additive models* that can be mathematically represented as
+$$
+ y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \sum_{k=1}^{q} {w_{ik}\beta_{k}} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $\bm{x}_{j}$'s, $j = 1, \dots, p$, are a set of predictors that enter the model as nonparametric components, whereas $\bm{w}_{k}$'s, $k = 1, \dots, q$ are another set of predictors that are included as linear components. While several studies have assumed that the number of nonparametric components are fixed, and performed variable selection only among the linear components of the model [@Lian2012; @Guo2013; @Liu2011], @Wang2014 introduced a methodology for selecting both linear and nonlinear components simultaneously, in the context of correlated, longitudinal data. They proposed the use of a ***Penalised Quadratic Inference Function (PQIF) with double SCAD penalties*** for variable selection and model estimation, where the correlation structure of the data was incorporated into the estimation method (see @Wang2014 for details).
+
+### Time Series Aspect
+
+It is worthwhile to briefly mention that there are extensions of the penalisation methods discussed above, which have specifically proposed to take the autocorrelation and lag structures in time series data into account.
+
+@Wang2007 proposed an extension of the LASSO method for Regression with Autoregressive Error (REGAR) models. @Park2013 and @Konzen2016 proposed modifications to Adaptive Lasso method to incorporate the lag structures presented in Autoregressive Distributed Lag (ADL) models into the variable selection and estimation methodology. The ***Ordered Lasso*** was introduced by @Tibshirani2016 to deal with time-lagged regression problems, where we forecast the response value at time $t$ using the predictor values from $K$ previous time points, assuming that the magnitude of regression coefficients decreases as the lagged predictor moves away from time $t$.
+
+However, it is important to note that all the models considered in the above time series related work are linear; none of them include nonparametric terms.
+
+## Index Models
+
+### Single Index Model
+
+The nonparametric additive model (@eq-add) estimates the relationship between the response and the predictors using a sum of univariate nonlinear functions corresponding to each individual predictor variable. Hence, it is incapable of handling the interactions among the predictors, which are ubiquitous in real-world problems [@Zhang2008].
+
+As a remedy, the ***Single Index Model***, a generalisation of the linear regression model where the linear predictor is replaced by a semi-parametric component, is popularly being used in the literature [@Radchenko2015]. Let $y_{i}$ be the response, and $\bm{x}_{i}$ be a $p$-dimensional predictor vector. Then the Single Index Model can be written as
+$$
+  y_{i} = g \left ( \bm{\alpha}^{T} \bm{x}_{i} \right ) + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $\bm{\alpha}$ is a $p$-dimensional vector of unknown coefficients (i.e. parameters), $g$ is an unknown univariate function, and $\varepsilon_{i}$ is the random error [@Stoker1986; @Hardle1993]. The linear combination $\bm{\alpha}^{T} \bm{x}_{i}$ is called the *index*. SIM is viewed as a viable alternative to the additive model since it offers more flexibility and interpretability [@Radchenko2015].
+
+According to @Radchenko2015, SIMs have widely been used in scenarios with fairly low and moderate dimensionality, where the corresponding estimation and variable selection techniques are not directly applicable to the high-dimensional setting. The error sum of squares of the model being non-convex with respect to index coefficients, is the main reason behind the existence of very limited number of methods in high-dimensional case [@Radchenko2015]. For an extensive summary of available methods, we refer to @Radchenko2015.
+
+### Projection Pursuit Regression
+
+@Friedman1981 introduced ***Projection Pursuit Regression*** (PPR) by extending the nonparametric additive model (@eq-add) to enable the modelling of interactions among predictor variables. On the other hand, PPR is an extension of the single index model to an *"additive index model"*, given by
+$$
+  y_{i} = \sum_{j=1}^{q} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $y_{i}$ is the response, $\bm{x}_{i}$ is a $p$-dimensional predictor vector, $\bm{\alpha}_{j} = \left ( \alpha_{j1}, \dots, \alpha_{jp} \right )^{T}, j = 1, \dots, q$ are $p$-dimensional projection vectors (or vectors of *"index coefficients"*), $g_{j}$'s are unknown univariate functions, and $\varepsilon_{i}$ is the random error.
+
+Instead of estimating a single index, PPR estimates multiple indices and connects them to the response through a sum of univariate nonlinear functions. These indices are constructed through a *Projection Pursuit* [PP, @Kruskal1969; @Friedman1974] algorithm, which is considered to be "interesting" low-dimensional projections of a high-dimensional feature space, obtained through the maximisation of an appropriate objective function or a "projection index" [@Huber1985].
+
+According to @Zhang2008, PPR increases the power of additive models in high-dimensional settings, but it has two major drawbacks. Firstly, since PP increases the freedom of the additive model, it tends to overfit in a situation, where there are a lot of unimportant predictors. Secondly, the interpretation of the model estimated by PPR will be troublesome as many non-zero elements will be present in each projection vector $\bm{\alpha}_{j}$. To overcome these issues, @Zhang2008 introduced an $\ell_{1}$ regularised projection pursuit algorithm, where the resultant regression model is named as ***Sparse Projection Pursuit Regression*** (SpPPR). In SpPPR, an $\ell_{1}$ penalty (i.e. a LASSO penalty) on index coefficients is added to the cost function (the squared error) at each iteration of the PP, thereby performing variable selection and model estimation simultaneously. See @Zhang2008 for more details.
+
+Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations.
+
+### Group-wise Additive Index Model
+
+Even though PPR introduces flexibility and the ability to model interactions among predictors into additive models, the indices obtained through PPR contain all the predictors at hand. Hence, even with a variable selection mechanism like SpPPR [@Zhang2008], PPR creates indices possibly by mixing heterogeneous variables in a single linear combination, making very little sense in terms of interpretability [@Masselot2022].
+
+Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015]. According to @Wang2015, incorporating such group knowledge into dimension reduction/variable selection methodologies will improve the interpretability of the results as well as the estimation accuracy.
+
+This suggests the use of a ***Group-wise Additive Index Model*** (GAIM), which can be written as
+$$
+  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n, 
+$$
+where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictors, which are $p$ non-overlapping subsets of $\bm{x}_{i}$ - the vector of all predictors, $\bm{\alpha}_{j}$ is a $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022].
+
+Since GAIM uses groups of predictors that are naturally or logically belonging together to construct indices, such derived indices will be more expressive and interpretable. At the same time, GAIM contributes towards a greater reduction in the number of unknown parameters, because only a subset of predictors enters into an index, making GAIM a sparser model compared to PPR [@Wang2015-mp; @Masselot2022].
+
+On account of these desirable properties of GAIM as a nonparametric additive model, in this study, we focus on a GAIM framework to propose our variable selection methodology.
+
+## Mathematical Optimisation for Variable Selection
+
+### Mathematical Optimisation
+
+*Optimisation* plays a major role in both decision science and physical systems evaluation. ***Mathematical Optimisation*** or ***Mathematical Programming*** can be defined as the minimisation (or maximisation) of a function subject to restrictions on the unknowns/parameters of that function [@Nocedal2006]. Hence, a mathematical optimisation problem can be written as
+$$
+\begin{aligned}
+  \min_{\bm{x}} \quad & f_{0}(\bm{x})\\
+  \text{s.t.} \quad & f_{i}(\bm{x}) \le b_{i}, \quad i = 1, \dots, m
+\end{aligned}
+$$ {#eq-opt}
+where the vector of unknowns or parameters of the problem is given by $\bm{x} = \left ( x_{1}, \dots, x_{n} \right )^{T}$, the *objective function* is denoted by $f_{0} : \mathbb{R}^{n} \rightarrow \mathbb{R}$, the *constraint functions* are given by $f_{i} : \mathbb{R}^{n} \rightarrow \mathbb{R}$, $i = 1, \dots, m$, and the bounds of the constraints are denoted by $\bm{b} = \left (b_{1}, \dots, b_{m} \right )^{T}$. A vector of values $\bm{x^{*}}$ that results in the smallest value for the objective function among all vectors that satisfy the stated constraints, is called the *optimal* value or the *solution* to the problem [@Boyd2004]. After mathematically formulating the optimisation problem as above (@eq-opt), an appropriate *optimisation algorithm* is used to obtain the solution $\bm{x^{*}}$ [@Nocedal2006].
+
+Based on the form of the objective function and the constraints, various types of optimisation problems are identified.
+
+An optimisation problem is known as a ***Linear Program*** (LP) when both the objective function and the constraints in @eq-opt (i.e. all $f_{i}$, $i = 0, \dots, m$) are linear. Hence, a LP can be written as
+$$
+\begin{aligned}
+  \min_{\bm{x}} \quad & \bm{a_{0}}^{T}\bm{x}\\
+  \text{s.t.} \quad & \bm{A}\bm{x} \le \bm{b},
+\end{aligned}
+$$ {#eq-lp}
+where $\bm{x}$ is the vector that contains the parameters to be optimised, and $\bm{a_{0}} \in \mathbb{R}^{n}$ is the vector of coefficients of the objective function. The matrix of coefficients in the constraints is denoted by $\bm{A} \in \mathbb{R}^{m \times n}$, and $\bm{b}$ is the vector containing the upper bounds of the constraints. All LPs are *convex* optimisation problems [@Theusl2020].
+
+The LP problem given in @eq-lp can be generalised to involve a quadratic term in the objective function, in which case it is called a ***Quadratic Program*** (QP). A QP can be written as
+$$
+\begin{aligned}
+  \min_{\bm{x}} \quad & \frac{1}{2} \bm{x}^{T} \bm{Q_{0}} \bm{x} + \bm{a_{0}}^{T}\bm{x}\\
+  \text{s.t.} \quad & \bm{A}\bm{x} \le \bm{b},
+\end{aligned}
+$$
+where $\bm{Q_{0}} \in \mathbb{R}^{n \times n}$. Unless the matrix $\bm{Q_{0}}$ is positive semi-definite, a QP is non-convex [@Theusl2020].
+
+If a linear objective function is minimised over a *convex cone*, such an optimisation problem is called a ***Conic Program*** (CP), which can be written as
+$$
+\begin{aligned}
+  \min_{\bm{x}} \quad & \bm{a_{0}}^{T}\bm{x} \\
+  \text{s.t.} \quad & \bm{A}\bm{x} + s = \bm{b}, \quad s \in \mathcal{K},
+\end{aligned}
+$$
+where $\mathcal{K}$ denotes a nonempty closed convex cone. CPs are designed to model convex optimisation problems [@Theusl2020].
+
+If we restrict some of the unknowns/parameters in an optimisation problem to take only integer values, then that optimisation problem is called a ***Mixed Integer Program*** (MIP). For example, if we constraint $x_{k} \in \mathbb{Z}$ for at least one $k$, $k \in \{1, \dots, n\}$ in the optimisation problem given by @eq-opt, then the optimisation problem becomes a MIP. If all the unknowns of an optimisation problem are constrained to be integers, such a problem is referred to as a pure ***Integer Program*** (IP), whereas if all the unknowns are bounded between zero and one (i.e. $\bm{x} \in \{ 0, 1 \}^{n}$), the optimisation problem is referred to as a ***Binary (Integer) Program*** [@Theusl2020]. MIPs are hard to solve as they are non-convex due to the integer constraints. However, a growth in the number of commercial as well as non-commercial MIP solvers has made it possible to solve MIP problems conveniently and directly.
+
+### Variable Selection
+
+Mathematical optimisation is fundamentally important in statistics, as many statistical problems including regression, classification, and other types of estimation/approximation problems can be re-interpreted as optimisation problems [@Theusl2020]. Thus, the problem of variable selection - one of the prolonged interests of statisticians, has also benefited from using optimisation concepts, particularly MIP and convex optimisation, in the recent past.
+
+For example, @Bertsimas2016 used a mixed integer optimisation procedure to solve the classical best subset selection problem in a linear regression. They developed a discrete optimisation method by extending modern first-order continuous optimisation techniques. The method can produce near-optimal solutions that would serve as warm starts for a MIP algorithm, which would choose the best $k$ features out of $p$ predictors. Similarly, @Hazimeh2020 developed fast and efficient algorithms based on coordinate descent and local combinatorial optimisation to solve the same best subset selection (or $\ell_{0}$-regularised least squares) problem through re-formulating local combinatorial search problems as structured MIPs.
+
+Furthermore, @Hazimeh2023 proposed a group-wise variable selection methodology, based on discrete mathematical optimisation, which is applicable to both $\ell_{0}$-regularised linear regression and nonparametric additive models in a high-dimensional setting. They formulated the group $\ell_{0}$-based estimation problem as a *Mixed Integer Second Order Cone Program (MISOCP)*, and proposed a new customised Branch-and-Bound (BnB) algorithm [@Land1960; @Little1963] to obtain the global optimal solution to the MISOCP.
+
+Through the study of above literature, we noticed that the mathematical optimisation based algorithms significantly reduce computational cost of variable selection procedures in high-dimensional settings. This is largely due to the availability of efficient commercial solvers such as *Gurobi* and *CPLEX*. This motivated us to focus on a mathematical optimisation based procedure for developing our variable selection methodology.
+
+## Constrained Group-wise Additive Index Model {#sec-CGAIM}
+
+The ***Constrained Group-wise Additive Index Model*** (CGAIM) was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
+$$
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$ {#eq-2}
+where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
+
+This is an extension of the Group-wise Additive Index Model (GAIM) that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
+
+First, considering only the additive index part of the model, and given $(y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n$ be the observed data, where the $q$ predictors are grouped into $p$ groups, the estimation problem of the CGAIM can be formulated as
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
+  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
+\end{aligned}
+$$ {#eq-3}
+where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\beta_{0}$ is the model intercept, $\bm{C} \in \mathbb{R}^{d \times q}$, $d$ is the number of constraints on the index coefficients vector $\bm{\alpha}$, and $m$ is a shape constraint imposed on $g_{j}$ [@Masselot2022].
+
+Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. The algorithm of @Masselot2022 is summarised below.\
+
+***CGAIM Algorithm:***
+
+1.  Initialise index coefficients $\bm{\alpha}_{j}$:
+
+    a.  Estimate $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$ using the quadratic program (QP) given below in @eq-4, or randomly.
+          $$
+          \begin{aligned}
+           \min_{\bm{\alpha}} \quad & \bm{\alpha}^{T}\bm{X}^{T}\bm{X}\bm{\alpha} - 2\bm{\alpha}^{T}\bm{X}^{T}\bm{y} \\
+           \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0,
+          \end{aligned}
+          $$ {#eq-4}
+          where $\bm{y}$ is the vector of responses, and $\bm{X}$ is the matrix of predictors entering indices.
+
+    b.  Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ (the estimated vector of initial values for $\bm{\alpha}_{j}$) to have unit norm.
+
+2.  Update functions $g_{j}$:\
+    Estimate $g_{j}$s by a Shape-Constrained Additive Model [SCAM, @Pya2015] (or a Generalised Additive Model [GAM, @Hastie1986] in unconstrained case) taking $y_{i}$ as the response and the estimated indices $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}$s as predictors.
+
+3.  Update index coefficients $\bm{\alpha}_{j}$:
+
+    a.  Obtain the update $\bm{\delta} = \left ( \bm{\delta}_{1}, \dots, \bm{\delta}_{p}\right )^{T}, \bm{\delta} = \bm{\alpha}_{old} - \bm{\alpha}_{new}$, where $\bm{\alpha}_{old}$ is the current value of $\bm{\alpha}$, and $\bm{\alpha}_{new}$ is the new value of $\bm{\alpha}$ to be computed, using the QP given below in @eq-5.
+          $$
+          \begin{aligned}
+           \min_{\bm{\delta}} \quad & \bm{\delta}^{T}\bm{V}^{T}\bm{V}\bm{\delta} - 2\bm{\delta}^{T}\bm{V}^{T}\bm{r} \\
+           \text{s.t.} \quad & \bm{C}\bm{\delta} + \bm{C}\bm{\alpha}_{old} \ge 0,
+          \end{aligned}
+          $$ {#eq-5}
+          where $\bm{V}$ is the matrix of partial derivatives of the right hand side of @eq-2, with respect to $\bm{\alpha}_{j}$. The $i^{th}$ line of $\bm{V}$ contains $\left [ \bm{v}_{i1}, \dots, \bm{v}_{ip} \right ]$, where $\bm{v}_{ij} = \bm{x}_{ij}g_{j}^{'}(h_{ij})$. The current residual vector, which contains $r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j(old)}^{T}\bm{x}_{ij})$, is denoted by $\bm{r}$.
+
+    b.  Set updated index coefficients $\bm{\alpha}_{new} = \bm{\alpha}_{old} + \bm{\delta}$.
+
+    c.  Scale each estimated index coefficients $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm.
+
+4.  Repeat steps 2 and 3 until convergence or a maximum number of iterations is reached.
+
+Note that the extension of the estimation process to include the additional covariates $w_{ik}$ and $\bm{u}_{i}$ is simple. We can easily add them to the SCAM (or the GAM) in step 2, noticing that they do not enter the step of updating $\bm{\alpha}_{j}$ as they are constants with respect to $\bm{\alpha}_{j}$, and hence vanish from the matrix of partial derivatives $\bm{V}$ [@Masselot2022].
+
+# Sparse Group-wise Additive Index Model {#sec-SGAIM}
+
+In this section, we develop a ***Sparse Group-wise Additive Index Model*** (hereafter referred to as SGAIM) to establish an objective and a principled methodology for optimal predictor selection in high-dimensional nonparametric additive index models.
+
+As reviewed in @sec-CGAIM, the CGAIM algorithm proposed by @Masselot2022 can be used to estimate a semi-parametric group-wise additive index model (with constraints on the index coefficients and the non-linear functions where relevant), which is our model of interest. However, when we provide a group of predictor variables for which an index to be estimated, the CGAIM algorithm estimates a coefficient for each of those predictors, where the estimated index is a linear combination of all the predictors in the corresponding group. In other words, the CGAIM does not perform any variable selection, therein the burden of selecting the most predictive features in a high-dimensional forecasting problem is still on the user.
+
+Our proposed SGAIM can be used to address the issue and enable the estimation of semi-parametric group-wise additive index models with variable selection.
+
+## Optimisation Problem Formulation
+
+The model of interest is the same semi-parametric group-wise additive index model as in @Masselot2022, which can be written as
+$$
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where all the term are as defined in @sec-CGAIM. However, in our method, we allow the possibility for the index coefficient vectors $\bm{\alpha}_{j}$s to have elements that are equal to zero, so that the predictors corresponding to such zero coefficients are dropped out from the model.
+
+Let $q$ be the total number of predictors entering $p$ non-overlapping groups of size $l_{j}$, $j = 1, \dots, p$ (i.e. $\sum_{j = 1}^{p} l_{j} = q$). The algorithm discussed in this paper apply to the CGAIM estimator (@eq-3) (including additional covariates that are not entering indices as well) with an $\ell_{0}$ penalty term and an optional $\ell_{2}$ (ridge) penalty term:
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
+  + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\bm{1}\left(\alpha_{jm} \neq 0\right) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2
+\end{aligned}
+$$ {#eq-sgaim}
+where $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
+
+Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when a low signal-to-noise ratio (SNR) is present.
+
+## MIP Formulation
+
+To solve the optimisation problem (@eq-sgaim), we present a big-M based MIP formulation:
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}} \alpha_{jm}^{2} \\
+  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm}, \\
+  & z_{jm} \in \{0, 1\}, \\
+  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
+\end{aligned}
+$$ {#eq-sgaim-mip}
+where $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jl_{j}} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, l_{j}$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor, which is used to make the *"on-or-off"* decision with respect to that particular predictor. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-sgaim-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, l_{j}\}$.
+
+Here, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection. This modified problem formulation transforms the quadratic optimisation problem in @Masselot2022 (@eq-3) to a *Mixed Integer Quadratic Program (MIQP)*.
+
+Therefore, our main contribution in this paper is two-fold. Firstly, we propose a new algorithm to objectively select variables in a semi-parametric additive index model, while contributing towards an estimated model with a higher forecasting accuracy. Secondly, the proposed variable selection methodology will contribute towards estimating a parsimonious model in a high-dimensional setting, even if the required domain knowledge for selecting the best set of predictors is unavailable.
+
+## Estimation Algorithm
+
+In this section, we show how to efficiently find a minimiser for the problem given in @eq-sgaim-mip.
+
+### Initialising Index Coefficients {#sec-step1}
+
+First, as explained earlier in this section, we introduce $q$ (total number of predictors entering indices) binary variables corresponding to each predictor. Then, we propose to obtain an initial value for the index coefficients $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$ through solving a MIQP as given below.
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}, \bm{z}} \quad & \bm{\alpha}^{T}\bm{X}^{T}\bm{X}\bm{\alpha} - 2\bm{\alpha}^{T}\bm{X}^{T}\bm{y} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm}^{2} \\
+  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm}, \\
+  & z_{jm} \in \{0, 1\}, \\
+  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
+\end{aligned}
+$$ {#eq-6}
+where $\lambda_{0}$ and $\lambda_{2}$ are non-negative tuning parameters, and $M$ is the pre-specified big-M value. This is same as solving a penalised least squares problem, considering only the predictors that are entering indices.
+
+Alternatively, an initial value for $\bm{\alpha}$, without any variable selection or shrinkage, can be obtained by the same QP as in the first step of CGAIM algorithm (@eq-4), which is essentially a multiple linear regression.
+
+Once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficient vector of each index $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ is scaled to have unit norm to ensure identifiability.
+
+### Estimating Nonlinear Functions {#sec-step2}
+
+Once we have an estimate for $\bm{\alpha}$, estimating the SGAIM is equivalent to estimating a GAM as
+$$
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\hat{h}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $y_{i}$ is taken as the response, and the estimated indices $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}$s, and the additional covariates that are not entering any index are taken as predictors.
+
+The R packages ***mgcv*** [@Wood2011], and ***gam*** [@Hastie2023], for example, can be used to fit GAMs.
+
+### Updating Index Coefficients {#sec-step3}
+
+We estimate the new value of index coefficients $\bm{\alpha}_{new}$ through an MIQP given in @eq-7 below, which is again a modification of the QP used in step 3 of the CGAIM algorithm (@eq-5) to achieve variable selection.
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}_{new}, \bm{z}_{new}} \quad & (\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}_{new} - \bm{\alpha}_{old}) - 2(\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{r} \\
+  & + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm(new)} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm(new)}^{2} \\
+  \text{s.t.} \quad & \left |\alpha_{jm(new)}\right | \le Mz_{jm(new)}, \\
+  & z_{jm(new)} \in \{0, 1\}, \\
+  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
+\end{aligned}
+$$ {#eq-7}
+where $z_{jm(new)}$ are binary variables, and all the other terms are as defined in step 3 of the CGAIM algorithm.
+
+Similar to the explanation given by @Masselot2022, the MIQP objective function in above @eq-7 ignores the *Hessian* (or the matrix of second derivatives of @eq-2, with respect to $\bm{\alpha}_{j}$), and considers only the matrix of first derivatives, which is a *quasi-Newton* step. The *Quasi-Newton Method* is an alternative to the *Newton's Method* that avoids the calculation of the Hessian to circumvent its computational burden [@Peng2022]. Therefore, the $\bm{\alpha}$ updating step given in above @eq-7 is assured to be in a *descent direction*.
+
+Moreover, as in the explanation in @sec-CGAIM, the additional covariates $w_{ik}$ and $\bm{u}_{i}$ do not step in to the process of updating $\bm{\alpha}_{j}$, because they are constants with respect to $\bm{\alpha}_{j}$. Therefore, they disappear from $\bm{V}$, the matrix of partial derivatives of the right hand side of @eq-2, with respect to $\bm{\alpha}_{j}$.
+
+Furthermore, similar to @sec-step1, once the new estimate $\bm{\alpha}_{new}$ is obtained, we scale each estimated index coefficient vector $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm.
+
+We iterate the above steps described in @sec-step2 and @sec-step3 until the reduction ratio of the Mean Squared Error (MSE) obtained between two successive iterations reaches a pre-specified convergence tolerance. Alternatively, it is also possible to terminate the algorithm when a pre-specified maximum number of iterations is reached.
+
+Here, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model on a training set over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest MSE on a validation set, which is not used for training the models.
+
+Moreover, it is also crucial to choose a suitable value for the big-M parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
+
+Additionally, the choice of convergence tolerance and the maximum number of iterations will depend on the nature of the problem/data to which the algorithm is applied. In the empirical applications presented in @sec-application, we have used a convergence tolerance of $0.001$, and $50$ maximum iterations, where the algorithm is terminated on whichever is reached first.
+
+The following ***Algorithm 1*** summarises the key steps of the SGAIM algorithm.
+
+***Algorithm 1: SGAIM Algorithm***
+
+1.  Initialise $\bm{\alpha}$:
+    a.   Obtain $\bm{\alpha}_{init}$ using the MIQP in @eq-6 or the QP in @eq-4
+    b.   Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ to have unit norm
+
+2.  Estimate $g_{j}$s:\
+    Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}$s as predictors
+
+3.  Update $\bm{\alpha}$:
+    a.   Estimate the new value $\bm{\alpha}_{new}$ through the MIQP in @eq-7
+    b.   Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm
+
+4.  Iterate:\
+    Repeat steps 2 and 3 until a convergence tolerance or a maximum number of iterations is reached
+    
+
+# Empirical Applications {#sec-application}
+
+## Forecasting Daily Mortality
+
+We apply the SGAIM algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
+
+Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions etc. on human health, is of significant importance in environmental epidemiology. Therefore, forecasting daily deaths taking heat related variables as predictors, and constructing interpretable indices of those predictors that reflect heat-related mortality risk, is an interesting application.
+
+### Description of the Data
+
+For this analysis, we consider daily mortality and heat exposure data for the Metropolitan Area of Montreal, Province of Quebec, Canada, from 1990 to 2014, for the months June, July, and August (i.e. summer season). The daily all-cause mortality data were obtained from the National Institute of Public Health, Province of Quebec, while *"DayMet"* - a 1 km × 1 km gridded data set [@Thornton2021] was used to extract daily temperature and humidity data [@Masselot2022].
+
+@fig-deaths shows the time plots of daily deaths during the summer for the years from 1990 to 1993. The series for only four years are plotted separately as a faceted grid for visual clarity.
+
+```{r}
+#| label: fig-deaths
+#| fig-cap: Daily mortality in summer in Montreal, Canada - from 1990 to 1993
+dataHeat <- readRDS("data/dataHeat.rds")
+dataHeat %>%
+  mutate(
+    Date = as.POSIXct(Date)
+  ) %>%
+  filter(Date <= "1993-08-31") %>%
+  ggplot(aes(x = Date, y = Death_lag_000)) +
+  geom_line(color = "black") +
+  geom_point() +
+  facet_wrap(vars(Year), scales="free_x", ncol = 1, strip.position = "left") +
+  scale_x_datetime(date_breaks = "1 month") +
+  xlab("Date") +
+  ylab("Number of Deaths") +
+  ggtitle("Daily Deaths in Summer in Montreal, Canada - from 1990 to 1993")
+```
+
+The three main predictors considered in this empirical study are maximum temperature, minimum temperature, and vapor pressure (to represent the level of humidity). The number of daily deaths are plotted against each of these predictors in @fig-Tmax, @fig-Tmin, and @fig-Vp respectively, where we can observe that the relationships between all these predictors and the response are slightly non-linear.
+
+```{r}
+#| label: fig-Tmax
+#| fig-cap: Daily mortality in summer (from 1990 to 2014) plotted against maximum temperature
+dataHeat %>%
+  ggplot(aes(x = Tmax_lag_000, y = Death_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5) +
+  xlim(c(0, 35)) +
+  xlab("Maximum Temperature (Degrees Celsius)") +
+  ylab("Number of Deaths") +
+  ggtitle("Number of Deaths against Maximum Temperature")
+```
+
+```{r}
+#| label: fig-Tmin
+#| fig-cap: Daily mortality in summer (from 1990 to 2014) plotted against minimum temperature
+dataHeat %>%
+  ggplot(aes(x = Tmin_lag_000, y = Death_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5) +
+  xlim(c(0, 35)) +
+  xlab("Minimum Temperature (Degrees Celsius)") +
+  ylab("Number of Deaths") +
+  ggtitle("Number of Deaths against Minimum Temperature")
+```
+
+```{r}
+#| label: fig-Vp
+#| fig-cap: Daily mortality in summer (from 1990 to 2014) plotted against vapor pressure
+dataHeat %>%
+  ggplot(aes(x = Vp_lag_000, y = Death_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5) +
+  xlab("Vapor Pressure") +
+  ylab("Number of Deaths") +
+  ggtitle("Number of Deaths against Vapor Pressure")
+```
+
+### Predictors Considered
+
+**1) Current maximum/minimum temperatures and lags:**
+
+In addition to current maximum and minimum temperatures, the temperature measurements up to 14 days prior (i.e. $0^{th}$ to $14^{th}$ lag) are also considered as predictors to the forecasting model, because it is obvious that not only the current temperature, but also the temperatures that were prevailing in the recent past can add up to the adverse level of heat exposure of a person.
+
+**2) Current vapor pressure and lags:**
+
+Similar to temperature variables, the current value and 14 lags of vapor pressure are considered as predictors, as a proxy to the level of humidity.
+
+**3) Calendar effects:**
+
+Finally, a couple of calendar variables; *day of the season (DOS)* and *Year*, are incorporated into the model to capture annual trend and seasonality, and also to control the autocorrelation in residuals, which is a common practice in environmental epidemiology [@Masselot2022].
+
+### Modelling Framework
+
+Maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups of predictors, where we estimate an index for each of those groups using the proposed SGAIM algorithm.
+
+The two calendar variables, *DOS* and *Year*, are included into the model as separate nonparametric components that do not enter any of the indices.
+
+Hence, the relevant SGAIM can be expressed as
+$$
+\begin{aligned}
+  \textbf{Deaths} = & \beta_{0} + g_{1}(\textbf{Tmax\_Lags} * \bm{\alpha}_{1}) + g_{2}(\textbf{Tmin\_Lags} * \bm{\alpha}_{2}) + g_{3}(\textbf{Vp\_Lags} * \bm{\alpha}_{3}) \\
+  & + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
+\end{aligned}
+$$ {#eq-heat}
+where
+
+-   $\textbf{Deaths}$ is the vector containing the observations of number of daily deaths;
+
+-   $\textbf{Tmax\_Lags}$ is a matrix containing lags $0, \dots, 14$ of maximum temperature;
+
+-   $\textbf{Tmin\_Lags}$ is a matrix containing lags $0, \dots, 14$ of minimum temperature;
+
+-   $\textbf{Vp\_Lags}$ is a matrix containing lags $0, \dots, 14$ of vapor pressure;
+
+-   $\bm{\alpha}_{j}, j = 1, 2, 3$ are the index coefficient vectors of length 15 each;
+
+-   $g_{j}, j = 1, 2, 3$, $f_{1}$ and $f_{2}$ are unknown nonparametric functions;
+
+-   $\beta_{0}$ is the model intercept;
+
+-   $\bm{\varepsilon}$ is the vector of errors.
+
+The data from 1990 to 2012 are used as the training set to estimate the model. The data corresponding to the three summer months of year 2013 are kept aside as the validation set, while the data of year 2014 are separated to be the test set to evaluate the forecasting performance of the estimated model.
+
+Then we apply the proposed SGAIM algorithm to estimate the index coefficient vectors $\bm{\alpha}_{j}, j = 1, 2, 3$ (@eq-heat). After obtaining the optimal values for $\bm{\alpha}_{j}$s, we calculate the indices, and fit a GAM on the training data, taking the estimated indices and the calendar variables as predictors. Then the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+
+### Results
+
+\textcolor{purple}{(Work in progress.)}
+
+**Point Forecasts:**
+
+We considered 14 lags of each heat-related predictor variable in the model. However, the CGAIM fitted in @Masselot2022 has considered only up to the 2nd lag of the each predictor. Hence, for comparison purposes, we fitted two sets of models; one set of models with 14 lags and the other set with only 2 lags.
+
+Similar to the previous application, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 15, and 0 to 15 respectively, on the validation set.
+
+***Case 1: SGAIM with 14 lags of each predictor***
+
+The combination $(\lambda_{0} = 15, \lambda_{2} = 0)$ (i.e. without ridge penalty) yielded the lowest MSE and MAE on the validation set (***SGAIM (15, 0)***), where 4 maximum temperature lags (0, 1, 2, 3) were selected by the algorithm for the *maximum temperature index*, 2 lags of minimum temperature (2, 14) was selected for the *minimum temperature index*, and 3 lags of vapor pressure (1, 2, 12) were selected for the *vapor pressure index*. Hence, the algorithm selected only 9 variables for the estimated *SGAIM (15, 0)*, out of the total 45 predictors entering indices. Similar to the previous application, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in estimating all SGAIMs.
+
+We evaluated the forecasting error of the model selected using two different subsets of the original test set:
+
+1. ***Test Set 1:*** original test set of 3 months (June, July and August of 2014); and 
+2. ***Test Set 2:*** a test set of 1 month (June 2014). 
+
+Note that similar to the previous application of electricity demand forecasting, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
+
+The MSE and MAE values obtained on the two variations of the test set for *SGAIM (15, 0)* are presented in @tbl-heat1. The forecasting errors of a CGAIM with the number of predictor lags increased to 14, are also presented for comparison purposes. Here, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an unconstrained GAIM (without variable selection), where the results are presented in @tbl-heat1. The actual series of number of deaths and the predicted series from the *SGAIM (15, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heat14pred for further comparison.
+
+```{r}
+#| label: tbl-heat1
+#| tbl-cap: Daily mortality forecasting (with 14 lags of predictors) - Out-of-sample point forecast results
+results_heat14 <- readr::read_csv("data/NEW_results_heat14_COPY.csv")
+kable(results_heat14,
+      format = "latex",
+      booktabs = TRUE,
+      digits = 3,
+      escape = FALSE,
+      col.names = c("Model", "Predictors", "MSE", "MAE", "MSE", "MAE")) %>%
+  add_header_above(c("", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
+    row_spec(0, align = "c") %>%
+  column_spec(3, bold = if_else(results_heat14$MSE1 == min(results_heat14$MSE1), TRUE, FALSE)) %>%
+  column_spec(4, bold = if_else(results_heat14$MAE1 == min(results_heat14$MAE1), TRUE, FALSE)) %>%
+  column_spec(5, bold = if_else(results_heat14$MSE2 == min(results_heat14$MSE2), TRUE, FALSE)) %>%
+  column_spec(6, bold = if_else(results_heat14$MAE2 == min(results_heat14$MAE2), TRUE, FALSE))
+```
+
+According to @tbl-heat1, in terms of the test MSE, *SGAIM (15, 0)* is unable to outperform either the constrained or unconstrained GAIMs in *Test Set 1*. *SGAIM (15, 0)* reports a slightly lower test MSE than the unconstrained GAIM, and a slightly lower test MAE in comparison to both CGAIM and unconstrained GAIM in *Test Set 2*, but the reductions are not of a considerable magnitude. However, note that *SGAIM (15, 0)* achieves a forecasting performance comparable to the benchmark models with a considerably lesser number of predictors.
+
+```{r}
+#| label: fig-heat14pred
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SGAIM (15, 0)" and benchmark models for Test Set 2
+Heat14Preds <- readr::read_csv("data/Heat14Preds_TestSet2.csv")
+Heat14Preds %>%
+  mutate(
+    Date = as.POSIXct(Date)
+  ) %>%
+  ggplot() +
+  geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
+  geom_line(aes(x = Date, y = Predicted, linetype = "SGAIM (15, 0)", colour = "SGAIM (15, 0)")) +
+  geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
+  geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
+  scale_x_datetime(date_breaks = "5 days") +
+  xlab("Date") +
+  ylab("Number of Deaths") +
+  ggtitle("Actual vs. Predicted Number of Deaths") +
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", "SGAIM (15, 0)" = "solid",
+                                   "CGAIM" = "longdash", "GAIM" = "dotted")) +
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey", "SGAIM (15, 0)" = "black",
+                                                  "CGAIM" = "black", "GAIM" = "black"))
+```
+
+***Case 2: SGAIM with 2 lags of each predictor***
+
+For the SGAIM with only up to 2 lags of the predictors, the combination $(\lambda_{0} = 1, \lambda_{2} = 0)$ (i.e. without ridge penalty) yielded the lowest MSE on the validation set (***SGAIM (1, 0)***). This model selected all the 3 lags (0, 1, 2) of maximum temperature for the *maximum temperature index*, only the current value of minimum temperature for the *minimum temperature index*, and lags 1 and 2 of vapor pressure for the *vapor pressure index*. Hence, the algorithm selected 6 predictors out of the total 9 predictors entering indices.
+
+We evaluated the forecasting error of the estimated *SGAIM (1, 0)* using the same two different subsets of the original test set, where the results are reported in @tbl-heat2. The forecasting errors of CGAIM and unconstrained GAIM with only up to 2 lags for each predictor, are also presented as benchmark models. The actual series of number of deaths and the predicted series from the *SGAIM (1, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heat2pred for further comparison.
+
+```{r}
+#| label: tbl-heat2
+#| tbl-cap: Daily mortality forecasting (with 2 lags of predictors) - Out-of-sample point forecast results
+results_heat2 <- readr::read_csv("data/NEW_results_heat2_COPY.csv")
+kable(results_heat2,
+      format = "latex",
+      booktabs = TRUE,
+      digits = 3,
+      escape = FALSE,
+      col.names = c("Model", "Predictors", "MSE", "MAE", "MSE", "MAE")) %>%
+  add_header_above(c("", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
+    row_spec(0, align = "c") %>%
+  column_spec(3, bold = if_else(results_heat2$MSE1 == min(results_heat2$MSE1), TRUE, FALSE)) %>%
+  column_spec(4, bold = if_else(results_heat2$MAE1 == min(results_heat2$MAE1), TRUE, FALSE)) %>%
+  column_spec(5, bold = if_else(results_heat2$MSE2 == min(results_heat2$MSE2), TRUE, FALSE)) %>%
+  column_spec(6, bold = if_else(results_heat2$MAE2 == min(results_heat2$MAE2), TRUE, FALSE))
+```
+
+According to @tbl-heat2, the SGAIM fitted considering only 2 lags of each predictor too was not able to outperform the corresponding CGAIM or unconstrained GAIM in terms of MSE. Similar to above *Case 1*, the test MAE reported by the *SGAIM (1, 0)* is slightly lower than the CGAIM and unconstrained GAIM in *Test Set 2*, but again the reduction is not considerably large.
+
+```{r}
+#| label: fig-heat2pred
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SGAIM (1, 0)" and benchmark models for Test Set 2
+Heat2Preds <- readr::read_csv("data/Heat2Preds_TestSet2.csv")
+Heat2Preds %>%
+  mutate(
+    Date = as.POSIXct(Date)
+  ) %>%
+  ggplot() +
+  geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
+  geom_line(aes(x = Date, y = Predicted, linetype = "SGAIM (1, 0)", colour = "SGAIM (1, 0)")) +
+  geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
+  geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
+  scale_x_datetime(date_breaks = "5 days") +
+  xlab("Date") +
+  ylab("Number of Deaths") +
+  ggtitle("Actual vs. Predicted Number of Deaths") +
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", "SGAIM (1, 0)" = "solid",
+                                   "CGAIM" = "longdash", "GAIM" = "dotted")) +
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey", "SGAIM (1, 0)" = "black",
+                                                  "CGAIM" = "black", "GAIM" = "black"))
+```
+
+
+Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2023]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.8.42)* [@Wood2011].
+
+# Conclusions and Further Research {#sec-conclusion}
+
+\textcolor{purple}{(To be completed.)} \newline
+
+
+\textbf{\large{Acknowledgement}}
+
+We thank Professor Louise Ryan for joining the discussions during the initial stage of the project, and for her valuable comments and feedback on this research work.
