@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, interior hidden, enhanced]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, interior hidden, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, sharp corners, breakable]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -427,16 +427,15 @@ model of the form \[
 \(t\), \(\bm{x}_{t}\) is a vector of predictors at time \(t\), and
 \(\varepsilon_{t}\) is the random error. By including lagged values of
 \(y_{t}\) along with the lagged predictors, we allow for any serial
-correlation in the data. However, it makes the resulting function hard
-to interpret. An alternative formulation is \[
+correlation in the data. However, it makes the resulting function
+difficult to interpret. An alternative formulation is \[
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}) + g(\varepsilon_{t}, \varepsilon_{t-1},\dots,\varepsilon_{t-k}),
 \] which is more difficult to estimate, but makes it simpler to
 interpret the effect of the predictors on the response variable.
 
 When applying the transfer function model to forecast lengthy time
-series with complex patterns, such as half-hourly electricity demand
-data and groundwater level data, the form of \(f\) is nonlinear,
-involving complicated interactions, and with a high value of \(p\).
+series with complex patterns, the form of \(f\) is nonlinear, involving
+complicated interactions, and with a high value of \(p\).
 
 Typically, the form of \(f\) involves many ad hoc model choices. It is
 essentially impossible to estimate a \(p\)-dimensional function for
@@ -509,48 +508,44 @@ nonparametric additive models act as a remedy to the curse of
 dimensionality as we discussed earlier, the estimation of the model is
 still challenging in a high-dimensional setting due to the large number
 of nonparametric components to be estimated. Secondly, there is a
-noticeable subjectivity in the selection of predictor variables for the
-model, where in most of the applications of interest we discussed above,
-the predictor choices are mainly based on empirical explorations or
-domain expertise.
+noticeable subjectivity in the selection of predictor variables (from
+the available predictors) for the model, where in most of the
+applications of interest we discussed above, the predictor choices in
+the final model are mainly based on empirical explorations or domain
+expertise.
 
 There are a number of previous studies that have attempted to address
 the issue of variable selection in nonparametric/semi-parametric
 additive models to some extend, using various techniques. For example,
 \textcite{Huang2010} used a \emph{Least Absolute Shrinkage and Selection
-Operator} \autocite[LASSO,][]{Tibshirani1996} based procedure for
-variable selection in nonparametric additive models, whereas
-\textcite{FH2012} used a straightforward backward elimination technique
-to achieve selection. Moreover, \textcite{Ibrahim2021} and
-\textcite{Hazimeh2023} used Mixed Integer Programming based
-methodologies to provide a solution to the \emph{best subset selection}
-problem in nonparametric additive models. More details of these methods
-are discussed later in Section~\ref{sec-background}.
+Operator (LASSO)} \autocite{Tibshirani1996} based procedure for variable
+selection in nonparametric additive models, whereas \textcite{FH2012}
+used a straightforward backward elimination technique to achieve
+selection. Moreover, \textcite{Ibrahim2021} and \textcite{Hazimeh2023}
+used Mixed Integer Programming based methodologies to provide a solution
+to the \emph{best subset selection} problem in nonparametric additive
+models. More details of these methods are discussed later in
+Section~\ref{sec-background}.
 
-In this study, however, we are interested in high-dimensional
+In this paper, however, we are interested in high-dimensional
 applications that exhibit complicated interactions among predictors
 (specially in the presence of large number of lagged variables), as well
 as correlated errors. In such a situation, \emph{``index models''}
-(refer Section~\ref{sec-background}) seem to be useful for improving the
-flexibility as well as interpretability of the broader class of
-nonparametric additive models \autocite{Radchenko2015}, while mitigating
-the difficulty of estimating a nonparametric component for each
-individual predictor. Particularly, \emph{Group-wise Additive Index
-Models} (GAIM), which incorporate prior knowledge of natural groupings
-in the predictors into the estimation process, greatly reduce the number
-of unknown parameters to be estimated, as each index is constructed
-using only a subset of predictors \autocite{Wang2015-mp,Masselot2022}.
+(refer Section~\ref{sec-Index}) seem to be useful for improving the
+flexibility of the broader class of nonparametric additive models
+\autocite{Radchenko2015}, while mitigating the difficulty of estimating
+a nonparametric component for each individual predictor.
 
 To our knowledge, no previous research has been done to look at how the
-predictor choices can be made more objective and principled in additive
-index models. Hence, the goal of this study is to develop a methodology
-for optimal predictor selection in the context of high-dimensional
-nonparametric additive index models. Moreover, due to computational
-advancements in the field, the use of \emph{Mathematical Optimisation}
-concepts in solving statistical problems has gained a lot of interest in
-the recent past \autocite{Theusl2020}, which motivated us to develop a
-variable selection algorithm based on mathematical optimisation
-techniques.
+predictor choices can be made more objective and principled in
+nonparametric additive index models. Hence, our goal was to develop a
+methodology for optimal predictor selection in the context of
+high-dimensional nonparametric additive index models. Moreover, due to
+computational advancements in the field, the use of \emph{Mathematical
+Optimisation} concepts in solving statistical problems has gained a lot
+of interest in the recent past \autocite{Theusl2020}. This motivated us
+to develop a variable selection algorithm based on mathematical
+optimisation techniques.
 
 Additionally, it is crucial to point out that any such variable
 selection methodology naturally renders inferential statistics invalid,
@@ -562,14 +557,15 @@ on making inferences on the resulting parameter estimates.
 The rest of this paper is organised as follows. In
 Section~\ref{sec-background}, we provide a concise exposition of related
 ideas and previous work, while establishing the foundation for this
-study. Section~\ref{sec-SGAIM} presents our proposed model, \emph{Sparse
-Group-wise Additive Index Model} (SGAIM), and describes the variable
-selection algorithm and estimation procedure.
-Section~\ref{sec-application} illustrates two empirical applications of
-the proposed variable selection methodology, related to forecasting
-half-hourly electricity demand and heat exposure related daily
-mortality. Concluding remarks are given in Section~\ref{sec-conclusion}
-with suggestions for future research.
+paper. Section~\ref{sec-SMI} presents our proposed model, \emph{Sparse
+Multiple Index Model} (SMI Model), and describes the variable selection
+algorithm and estimation procedure. In Section~\ref{sec-simulation}, we
+demonstrate the functionality and the characteristics of the proposed
+algorithm through a simulation example. Section~\ref{sec-application}
+illustrates two empirical applications of the proposed estimation and
+variable selection methodology, related to forecasting heat exposure
+related daily mortality and daily solar intensity. Concluding remarks
+are given in Section~\ref{sec-conclusion}.
 
 \hypertarget{sec-background}{%
 \section{Background}\label{sec-background}}
@@ -767,8 +763,8 @@ However, it is important to note that all the models considered in the
 above time series related work are linear; none of them include
 nonparametric terms.
 
-\hypertarget{index-models}{%
-\subsection{Index Models}\label{index-models}}
+\hypertarget{sec-Index}{%
+\subsection{Index Models}\label{sec-Index}}
 
 \hypertarget{single-index-model}{%
 \subsubsection{Single Index Model}\label{single-index-model}}
@@ -1172,8 +1168,8 @@ do not enter the step of updating \(\bm{\alpha}_{j}\) as they are
 constants with respect to \(\bm{\alpha}_{j}\), and hence vanish from the
 matrix of partial derivatives \(\bm{V}\) \autocite{Masselot2022}.
 
-\hypertarget{sec-SGAIM}{%
-\section{Sparse Group-wise Additive Index Model}\label{sec-SGAIM}}
+\hypertarget{sec-SMI}{%
+\section{Sparse Multiple Index Model}\label{sec-SMI}}
 
 In this section, we develop a \textbf{\emph{Sparse Group-wise Additive
 Index Model}} (hereafter referred to as SGAIM) to establish an objective
@@ -1446,6 +1442,9 @@ the SGAIM algorithm.
   Repeat steps 2 and 3 until a convergence tolerance or a maximum number
   of iterations is reached
 \end{enumerate}
+
+\hypertarget{sec-simulation}{%
+\section{Simulation Example}\label{sec-simulation}}
 
 \hypertarget{sec-application}{%
 \section{Empirical Applications}\label{sec-application}}
@@ -1792,7 +1791,7 @@ package. Furthermore, the GAMs were fitted using the R package
 \textbf{\emph{mgcv}} \emph{(v1.8.42)} \autocite{Wood2011}.
 
 \hypertarget{sec-conclusion}{%
-\section{Conclusions and Further Research}\label{sec-conclusion}}
+\section{Conclusions}\label{sec-conclusion}}
 
 \textcolor{purple}{(To be completed.)} \newline
 
