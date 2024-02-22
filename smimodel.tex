@@ -382,30 +382,27 @@ predictors, while the relationships between some predictors and the
 response of interest exhibit complex nonlinear patterns. In such a
 situation, a nonlinear ``transfer function'' model, with additivity
 constraints to mitigate the issue of \emph{curse of dimensionality}, is
-a conspicuous choice. Particularly, nonparametric \emph{Group-wise
-Additive Index Models (GAIM)} that incorporate prior knowledge of
-natural groupings in the predictors into the estimation process enhance
-the interpretability of the estimated model, while greatly reducing the
-number of parameters to be estimated in comparison to a general additive
-model. In this paper, we present a novel algorithm for variable
-selection in high-dimensional nonparametric GAIMs, which we call
-\textbf{\emph{SGAIM}} (\textbf{\emph{S}}parse \textbf{\emph{G}}roup-wise
-\textbf{\emph{A}}dditive \textbf{\emph{I}}ndex \textbf{\emph{M}}odel).
-The SGAIM algorithm is based on an iterative procedure that applies
-mixed integer programming to solve an \(\ell_{0}\)-regularised nonlinear
-least squares problem. We illustrate the use of the SGAIM algorithm in
-two empirical applications related to forecasting half-hourly
-electricity demand and heat exposure related daily mortality. The
-implementation of the modelling framework is available in the open
-source R package \emph{smoothlags}
-\textcolor{purple}{(currently in development)}.
+a conspicuous choice. Particularly, nonparametric \emph{additive index
+models} greatly reduce the number of parameters to be estimated in
+comparison to a general additive model. In this paper, we present a
+novel algorithm for estimating high-dimensional nonparametric additive
+index models, with simultaneous variable selection, which we call
+\textbf{\emph{SMI}} (\textbf{\emph{S}}parse \textbf{\emph{M}}ultiple
+\textbf{\emph{I}}ndex) \textbf{\emph{Model}}. The SMI Model algorithm is
+based on an iterative procedure that applies mixed integer programming
+to solve an \(\ell_{0}\)-regularised nonlinear least squares problem. We
+demonstrate the functionality and the characteristics of the proposed
+algorithm through a simple simulation exercise. We also illustrate the
+use of the SMI Model algorithm in two empirical applications related to
+forecasting heat exposure related daily mortality and daily solar
+intensity.
 \end{abstract}
 \begin{keywords}
 Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, breakable, enhanced, borderline west={3pt}{0pt}{shadecolor}, sharp corners, frame hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, interior hidden, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
