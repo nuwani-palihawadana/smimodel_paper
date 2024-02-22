@@ -446,8 +446,12 @@ The following ***Algorithm 1*** summarises the key steps of the SGAIM algorithm.
 
 # Simulation Example {#sec-simulation}
 
+\textcolor{purple}{(To be completed.)} \newline
+
 
 # Empirical Applications {#sec-application}
+
+\textcolor{purple}{(Major editing required.)}
 
 ## Forecasting Daily Mortality
 
@@ -567,8 +571,6 @@ The data from 1990 to 2012 are used as the training set to estimate the model. T
 Then we apply the proposed SGAIM algorithm to estimate the index coefficient vectors $\bm{\alpha}_{j}, j = 1, 2, 3$ (@eq-heat). After obtaining the optimal values for $\bm{\alpha}_{j}$s, we calculate the indices, and fit a GAM on the training data, taking the estimated indices and the calendar variables as predictors. Then the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
-
-\textcolor{purple}{(Work in progress.)}
 
 **Point Forecasts:**
 
