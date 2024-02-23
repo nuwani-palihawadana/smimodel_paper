@@ -106,7 +106,7 @@ To our knowledge, no previous research has been done to look at how the predicto
 
 Additionally, it is crucial to point out that any such variable selection methodology naturally renders inferential statistics invalid, since we do not assume the resulting model obtained through the variable selection procedure to represent the true data generating process. Hence, our focus in this paper is only on improving forecasts, but not on making inferences on the resulting parameter estimates.
 
-The rest of this paper is organised as follows. In @sec-background, we provide a concise exposition of related ideas and previous work, while establishing the foundation for this paper. @sec-SMI presents our proposed model, *Sparse Multiple Index Model* (SMI Model), and describes the variable selection algorithm and estimation procedure. In @sec-simulation, we demonstrate the functionality and the characteristics of the proposed algorithm through a simulation example. @sec-application illustrates two empirical applications of the proposed estimation and variable selection methodology, related to forecasting heat exposure related daily mortality and daily solar intensity. Concluding remarks are given in @sec-conclusion.
+The rest of this paper is organised as follows. In @sec-background, we provide a concise exposition of related ideas and previous work, while establishing the foundation for this paper. @sec-SMI presents our proposed model, *Sparse Multiple Index Model* (SMI Model), and describes the variable selection algorithm and estimation procedure. In @sec-simulation, we demonstrate the functionality and the characteristics of the proposed algorithm through a simulation experiment. @sec-application illustrates two empirical applications of the proposed estimation and variable selection methodology, related to forecasting heat exposure related daily mortality and daily solar intensity. Concluding remarks are given in @sec-conclusion.
 
 # Background {#sec-background}
 
@@ -312,18 +312,18 @@ These assumptions further imply that the index coefficient vectors $\bm{\alpha}_
 
 Most importantly, we allow the possibility for the index coefficient vectors $\bm{\alpha}_{j}$s to have elements that are equal to zero, so that the predictors corresponding to such zero coefficients are dropped out from the model achieveing variable selection. 
 
-In addition to the predictor variables that are entering indices, we also allow for predictors that do not enter any of the indices. These additional predictors are two-fold: a covariate that relates to the response through nonlinear function $f_{k}$ denoted by $w_{ik}$, $k = 1, . . . , d$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
+In addition to the predictor variables that are entering indices, we also allow for predictors that do not enter any of the indices. These additional predictors are two-fold: a covariate that relates to the response through nonlinear function $f_{k}$ denoted by $w_{ik}$, $k = 1, \dots, d$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
 
 ## Optimisation Problem Formulation
 
-The algorithm discussed in this paper apply to the SMI Model estimator given below, where the squared error of the model (@eq-semipara) is minimised together with an $\ell_{0}$ penalty term and an $\ell_{2}$ (ridge) penalty term:
+Let $q$ be the total number of predictors entering $p$ non-overlapping subsets of size $l_{j}$, $j = 1, \dots, p$ (i.e. $\sum_{j = 1}^{p} l_{j} = q$).The algorithm discussed in this paper apply to the SMI Model estimator given below, where the squared error of the model (@eq-semipara) is minimised together with an $\ell_{0}$ penalty term and an $\ell_{2}$ (ridge) penalty term:
 $$
 \begin{aligned}
   \min_{p, \bm{\alpha}, \bm{g}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
   + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\bm{1}\left(\alpha_{jm} \neq 0\right) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2
 \end{aligned}
 $$ {#eq-smi}
-where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, . . ., g_{p}\}$, $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
+where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
 
 Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when a low signal-to-noise ratio (SNR) is present.
 
@@ -332,17 +332,22 @@ Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivate
 To solve the optimisation problem (@eq-smi), we present a big-M based MIP formulation:
 $$
 \begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}} \alpha_{jm}^{2} \\
-  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm}, \\
+  \min_{p, \bm{\alpha}, \bm{g}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q} \alpha_{jm}^{2} \\
+  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm} \quad \forall j, \forall m, \\
+  & \sum_{j = 1}^{p}z_{jm} \le 1 \quad \forall m, \\
   & z_{jm} \in \{0, 1\}, \\
-  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
+  & j = 1, \dots, p, \quad m = 1, \dots, q,
 \end{aligned}
 $$ {#eq-smi-mip}
-where $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jl_{j}} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, l_{j}$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor, which is used to make the *"on-or-off"* decision with respect to that particular predictor. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-smi-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, l_{j}\}$.
+where $p$ is the (unknown) number of indices, $\bm{x}_{i}$ is the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, and $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jq} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, q$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor in each index. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-smi-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, q\}$.
 
-Here, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection. This modified problem formulation transforms the quadratic optimisation problem in @Masselot2022 (@eq-3) to a *Mixed Integer Quadratic Program (MIQP)*.
+Notice that, here we formulate the MIP to include all $q$ predictors in each index so that in this case, $\bm{\alpha}_{j}$ is a $q$-dimensional vector of index coefficients. However at the same time, as mentioned earlier, we introduce a set of binary variables corresponding to each predictor in each index, which serves two main purposes: firstly, these binary variables are used to make the *"on-or-off"* decisions of the predictors in the model; secondly, they contributes to decide which predictors belong to which index. 
 
-Therefore, our main contribution in this paper is two-fold. Firstly, we propose a new algorithm to objectively select variables in a semi-parametric additive index model, while contributing towards an estimated model with a higher forecasting accuracy. Secondly, the proposed variable selection methodology will contribute towards estimating a parsimonious model in a high-dimensional setting, even if the required domain knowledge for selecting the best set of predictors is unavailable.
+To further elaborate, first, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection. 
+
+Next, when the set of binary variables $\bm{Z}_{m} = \{z_{1m}, z_{2m}, \dots, z_{pm}\}$ corresponding to the $m^{th}$, $m = 1, \dots, q$, predictor in all $p$ indices is considered, according to the constraint $\sum_{j = 1}^{p}z_{jm} \le 1$, only one or no binary variables in the set can take the value one, ensuring that the $m^{th}$ predictor does not repeat in more than one index. In other words, if the $j^{th}$ element of $\bm{Z}_{m}$, $z_{jm}$, takes the value one, none of the other elements in the set $\bm{Z}_{m}$ can take the value one, indicating that the $m^{th}$ predictor enter into the $j^{th}$ index in the model. On the other hand, if all the elements of the set $\bm{Z}_{m}$ are zero, then the $m^{th}$ predictor will be dropped out from the model. 
+
+Thus, our main contribution in this paper is two-fold. Firstly, we propose a novel algorithm to objectively estimate a semi-parametric additive index model, while contributing towards an estimated model with a higher forecasting accuracy. Secondly, the proposed variable selection methodology will contribute towards estimating a parsimonious model in a high-dimensional setting, even if the required domain knowledge for selecting the best set of predictors is unavailable.
 
 ## Estimation Algorithm
 
@@ -422,7 +427,7 @@ The following ***Algorithm 1*** summarises the key steps of the SGAIM algorithm.
     Repeat steps 2 and 3 until a convergence tolerance or a maximum number of iterations is reached
     
 
-# Simulation Example {#sec-simulation}
+# Simulation Experiment {#sec-simulation}
 
 \textcolor{purple}{(To be completed.)} \newline
 
