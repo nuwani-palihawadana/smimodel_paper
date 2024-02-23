@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, interior hidden, enhanced, sharp corners, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, sharp corners, enhanced, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable, interior hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -900,23 +900,22 @@ The \textbf{\emph{Constrained Group-wise Additive Index Model (CGAIM)}}
 was proposed by \textcite{Masselot2022} for constructing comprehensive
 and easily interpretable indices from a large set of explanatory
 variables. The model of interest is a \emph{semi-parametric group-wise
-additive index model} given by
-\begin{equation}\protect\hypertarget{eq-2}{}{
+additive index model} given by \[
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-}\label{eq-2}\end{equation} where \(y_{i}\) is the univariate response,
-\(\beta_{0}\) is the model intercept,
-\(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are naturally
-occurring \(p\) groups of predictor vectors (i.e.~it is assumed that the
-predictor groupings are known in advance), which are \(p\) subsets of
-\(\bm{x}_{i}\) - the \(q\)-dimensional vector of all predictors entering
-indices, \(\bm{\alpha}_{j}\) is the vector of index coefficients
-corresponding to the index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\),
-and \(g_{j}\) is the corresponding nonlinear link function (possibly
-estimated by a spline). The additional predictor variables that are
-helpful in predicting \(y_{i}\), but do not enter any of the indices are
-two-fold: a covariate that relates to the response through a nonlinear
-function \(f_{k}\), denoted by \(w_{ik}\), and the vector of linear
-covariates denoted by \(\bm{u}_{i}\).
+\] where \(y_{i}\) is the univariate response, \(\beta_{0}\) is the
+model intercept, \(\bm{x}_{ij} \in \mathbb{R}^{l_{j}}\),
+\(j = 1, \dots, p\) are naturally occurring \(p\) groups of predictor
+vectors (i.e.~it is assumed that the predictor groupings are known in
+advance), which are \(p\) subsets of \(\bm{x}_{i}\) - the
+\(q\)-dimensional vector of all predictors entering indices,
+\(\bm{\alpha}_{j}\) is the vector of index coefficients corresponding to
+the index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\), and \(g_{j}\) is
+the corresponding nonlinear link function (possibly estimated by a
+spline). The additional predictor variables that are helpful in
+predicting \(y_{i}\), but do not enter any of the indices are two-fold:
+a covariate that relates to the response through a nonlinear function
+\(f_{k}\), denoted by \(w_{ik}\), and the vector of linear covariates
+denoted by \(\bm{u}_{i}\).
 
 This is an extension of the GAIM that allows to impose constraints on
 the index coefficients as well as on the nonlinear link functions. In
@@ -1091,56 +1090,79 @@ selection methodology.
 \hypertarget{sec-SMI}{%
 \section{Sparse Multiple Index Model}\label{sec-SMI}}
 
-In this section, we develop a \textbf{\emph{Sparse Group-wise Additive
-Index Model}} (hereafter referred to as SGAIM) to establish an objective
-and a principled methodology for optimal predictor selection in
-high-dimensional nonparametric additive index models.
+In this section, we develop a \textbf{\emph{Sparse Multiple Index
+Model}} (hereafter referred to as SMI Model) to establish an objective
+and a principled methodology for estimating high-dimensional
+nonparametric additive index models, with optimal predictor selection.
 
-As reviewed in the earlier section, the CGAIM algorithm proposed by
-\textcite{Masselot2022} can be used to estimate a semi-parametric
-group-wise additive index model (with constraints on the index
-coefficients and the non-linear functions where relevant), which is our
-model of interest. However, when we provide a group of predictor
-variables for which an index to be estimated, the CGAIM algorithm
-estimates a coefficient for each of those predictors, where the
-estimated index is a linear combination of all the predictors in the
-corresponding group. In other words, the CGAIM does not perform any
-variable selection, therein the burden of selecting the most predictive
-features in a high-dimensional forecasting problem is still on the user.
+\hypertarget{model}{%
+\subsection{Model}\label{model}}
 
-Our proposed SGAIM can be used to address the issue and enable the
-estimation of semi-parametric group-wise additive index models with
-variable selection.
+The model of interest is a semi-parametric additive index model, which
+can be written as \begin{equation}\protect\hypertarget{eq-semipara}{}{
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+}\label{eq-semipara}\end{equation} where \(y_{i}\) is the univariate
+response, \(\beta_{0}\) is the model intercept,
+\(\bm{x}_{ij} \in \mathbb{R}^{l_{j}}\), \(j = 1, \dots, p\) are \(p\)
+subsets of \(\bm{x}_{i}\) - the \(q\)-dimensional vector of all
+predictors entering indices, \(\bm{\alpha}_{j}\) is the
+\(l_{j}\)-dimensional vector of index coefficients corresponding to the
+index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\), and \(g_{j}\) is the
+corresponding nonlinear link function (possibly estimated by a spline).
+
+Based on the above model formulation, we make three main assumptions to
+define the \textbf{SMI Model} as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  The number of indices (i.e.~the number of subsets of predictors) \(p\)
+  is unknown, and will be estimated through the proposed algorithm;
+\item
+  The split of the predictors among indices is unknown, and will be
+  determined by the proposed algorithm; and
+\item
+  A predictor variable (that is entering indices) can only enter one
+  index (i.e.~overlapping of predictors among indices is not allowed).
+\end{enumerate}
+
+These assumptions further imply that the index coefficient vectors
+\(\bm{\alpha}_{j}\)s and the corresponding nonlinear link functions
+\(g_{j}\)s are also unknown, and will be estimated through the proposed
+algorithm.
+
+Most importantly, we allow the possibility for the index coefficient
+vectors \(\bm{\alpha}_{j}\)s to have elements that are equal to zero, so
+that the predictors corresponding to such zero coefficients are dropped
+out from the model achieveing variable selection.
+
+In addition to the predictor variables that are entering indices, we
+also allow for predictors that do not enter any of the indices. These
+additional predictors are two-fold: a covariate that relates to the
+response through nonlinear function \(f_{k}\) denoted by \(w_{ik}\),
+\(k = 1, . . . , d\), and the vector of linear covariates denoted by
+\(\bm{u}_{i}\).
 
 \hypertarget{optimisation-problem-formulation}{%
 \subsection{Optimisation Problem
 Formulation}\label{optimisation-problem-formulation}}
 
-The model of interest is the same semi-parametric group-wise additive
-index model as in \textcite{Masselot2022}, which can be written as \[
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-\] where all the term are as defined in \textbf{?@sec-CGAIM}. However,
-in our method, we allow the possibility for the index coefficient
-vectors \(\bm{\alpha}_{j}\)s to have elements that are equal to zero, so
-that the predictors corresponding to such zero coefficients are dropped
-out from the model.
-
-Let \(q\) be the total number of predictors entering \(p\)
-non-overlapping groups of size \(l_{j}\), \(j = 1, \dots, p\)
-(i.e.~\(\sum_{j = 1}^{p} l_{j} = q\)). The algorithm discussed in this
-paper apply to the CGAIM estimator (Equation~\ref{eq-3}) (including
-additional covariates that are not entering indices as well) with an
-\(\ell_{0}\) penalty term and an optional \(\ell_{2}\) (ridge) penalty
-term: \begin{equation}\protect\hypertarget{eq-sgaim}{}{
+The algorithm discussed in this paper apply to the SMI Model estimator
+given below, where the squared error of the model
+(Equation~\ref{eq-semipara}) is minimised together with an \(\ell_{0}\)
+penalty term and an \(\ell_{2}\) (ridge) penalty term:
+\begin{equation}\protect\hypertarget{eq-smi}{}{
 \begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
+  \min_{p, \bm{\alpha}, \bm{g}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
   + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\bm{1}\left(\alpha_{jm} \neq 0\right) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2
 \end{aligned}
-}\label{eq-sgaim}\end{equation} where \(\bm{1}(\cdot)\) is the indicator
-function, \(\lambda_{0} > 0\) is a tuning parameter that controls the
-number of selected predictors, and \(\lambda_{2} \ge 0\) is another
-tuning parameter that controls the strength of the additional shrinkage
-imposed on the estimated index coefficients.
+}\label{eq-smi}\end{equation} where
+\(\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}\),
+\(\bm{g} = \{g_{1}, g_{2}, . . ., g_{p}\}\), \(\bm{1}(\cdot)\) is the
+indicator function, \(\lambda_{0} > 0\) is a tuning parameter that
+controls the number of selected predictors, and \(\lambda_{2} \ge 0\) is
+another tuning parameter that controls the strength of the additional
+shrinkage imposed on the estimated index coefficients.
 
 Applying an \(\ell_{2}\)-penalty in addition to the \(\ell_{0}\)-penalty
 is motivated by related literature
@@ -1152,16 +1174,16 @@ signal-to-noise ratio (SNR) is present.
 \hypertarget{mip-formulation}{%
 \subsection{MIP Formulation}\label{mip-formulation}}
 
-To solve the optimisation problem (Equation~\ref{eq-sgaim}), we present
-a big-M based MIP formulation:
-\begin{equation}\protect\hypertarget{eq-sgaim-mip}{}{
+To solve the optimisation problem (Equation~\ref{eq-smi}), we present a
+big-M based MIP formulation:
+\begin{equation}\protect\hypertarget{eq-smi-mip}{}{
 \begin{aligned}
   \min_{\bm{\alpha}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}} \alpha_{jm}^{2} \\
   \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm}, \\
   & z_{jm} \in \{0, 1\}, \\
   & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
 \end{aligned}
-}\label{eq-sgaim-mip}\end{equation} where
+}\label{eq-smi-mip}\end{equation} where
 \(\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}\),
 \(\bm{z}_{j} = \left (z_{j1}, \dots, z_{jl_{j}} \right )^{T}\),
 \(j = 1, \dots, p\) such that
@@ -1171,7 +1193,7 @@ each predictor, which is used to make the \emph{``on-or-off''} decision
 with respect to that particular predictor. A pre-specified \emph{big-M
 parameter} is denoted by \(M < \infty\), and it should be sufficiently
 large. If \(\bm{\alpha^{*}}\) is an optimal solution to the problem
-given in Equation~\ref{eq-sgaim-mip}, then the big-M parameter should
+given in Equation~\ref{eq-smi-mip}, then the big-M parameter should
 satisfy \(max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M\),
 where \(j \in \{1, \dots, p\}\), and \(m \in \{1, \dots, l_{j}\}\).
 
@@ -1202,7 +1224,7 @@ is unavailable.
 \subsection{Estimation Algorithm}\label{estimation-algorithm}}
 
 In this section, we show how to efficiently find a minimiser for the
-problem given in Equation~\ref{eq-sgaim-mip}.
+problem given in Equation~\ref{eq-smi-mip}.
 
 \hypertarget{sec-step1}{%
 \subsubsection{Initialising Index Coefficients}\label{sec-step1}}
@@ -1270,21 +1292,21 @@ and all the other terms are as defined in step 3 of the CGAIM algorithm.
 
 Similar to the explanation given by \textcite{Masselot2022}, the MIQP
 objective function in above Equation~\ref{eq-7} ignores the
-\emph{Hessian} (or the matrix of second derivatives of
-Equation~\ref{eq-2}, with respect to \(\bm{\alpha}_{j}\)), and considers
-only the matrix of first derivatives, which is a \emph{quasi-Newton}
-step. The \emph{Quasi-Newton Method} is an alternative to the
-\emph{Newton's Method} that avoids the calculation of the Hessian to
-circumvent its computational burden \autocite{Peng2022}. Therefore, the
-\(\bm{\alpha}\) updating step given in above Equation~\ref{eq-7} is
-assured to be in a \emph{descent direction}.
+\emph{Hessian} (or the matrix of second derivatives of \textbf{?@eq-2},
+with respect to \(\bm{\alpha}_{j}\)), and considers only the matrix of
+first derivatives, which is a \emph{quasi-Newton} step. The
+\emph{Quasi-Newton Method} is an alternative to the \emph{Newton's
+Method} that avoids the calculation of the Hessian to circumvent its
+computational burden \autocite{Peng2022}. Therefore, the \(\bm{\alpha}\)
+updating step given in above Equation~\ref{eq-7} is assured to be in a
+\emph{descent direction}.
 
 Moreover, as in the explanation in \textbf{?@sec-CGAIM}, the additional
 covariates \(w_{ik}\) and \(\bm{u}_{i}\) do not step in to the process
 of updating \(\bm{\alpha}_{j}\), because they are constants with respect
 to \(\bm{\alpha}_{j}\). Therefore, they disappear from \(\bm{V}\), the
-matrix of partial derivatives of the right hand side of
-Equation~\ref{eq-2}, with respect to \(\bm{\alpha}_{j}\).
+matrix of partial derivatives of the right hand side of \textbf{?@eq-2},
+with respect to \(\bm{\alpha}_{j}\).
 
 Furthermore, similar to Section~\ref{sec-step1}, once the new estimate
 \(\bm{\alpha}_{new}\) is obtained, we scale each estimated index

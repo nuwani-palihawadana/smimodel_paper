@@ -217,8 +217,8 @@ In this paper, our aim is to reduce that subjectivity induced by personal judgme
 The ***Constrained Group-wise Additive Index Model (CGAIM)*** was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
 $$
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$ {#eq-2}
-where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
+$$ 
+where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
 
 This is an extension of the GAIM that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
 
@@ -290,34 +290,46 @@ Through the study of above literature, we noticed that the mathematical optimisa
 
 # Sparse Multiple Index Model {#sec-SMI}
 
-In this section, we develop a ***Sparse Group-wise Additive Index Model*** (hereafter referred to as SGAIM) to establish an objective and a principled methodology for optimal predictor selection in high-dimensional nonparametric additive index models.
+In this section, we develop a ***Sparse Multiple Index Model*** (hereafter referred to as SMI Model) to establish an objective and a principled methodology for estimating high-dimensional nonparametric additive index models, with optimal predictor selection.
 
-As reviewed in the earlier section, the CGAIM algorithm proposed by @Masselot2022 can be used to estimate a semi-parametric group-wise additive index model (with constraints on the index coefficients and the non-linear functions where relevant), which is our model of interest. However, when we provide a group of predictor variables for which an index to be estimated, the CGAIM algorithm estimates a coefficient for each of those predictors, where the estimated index is a linear combination of all the predictors in the corresponding group. In other words, the CGAIM does not perform any variable selection, therein the burden of selecting the most predictive features in a high-dimensional forecasting problem is still on the user.
+## Model
 
-Our proposed SGAIM can be used to address the issue and enable the estimation of semi-parametric group-wise additive index models with variable selection.
+The model of interest is a semi-parametric additive index model, which can be written as
+$$
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$ {#eq-semipara}
+where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). 
+
+Based on the above model formulation, we make three main assumptions to define the **SMI Model** as follows:
+
+1.    The number of indices (i.e. the number of subsets of predictors) $p$ is unknown, and will be estimated through the proposed algorithm; 
+
+2.    The split of the predictors among indices is unknown, and will be determined by the proposed algorithm; and
+
+3.    A predictor variable (that is entering indices) can only enter one index (i.e. overlapping of predictors among indices is not allowed).
+
+These assumptions further imply that the index coefficient vectors $\bm{\alpha}_{j}$s and the corresponding nonlinear link functions $g_{j}$s are also unknown, and will be estimated through the proposed algorithm. 
+
+Most importantly, we allow the possibility for the index coefficient vectors $\bm{\alpha}_{j}$s to have elements that are equal to zero, so that the predictors corresponding to such zero coefficients are dropped out from the model achieveing variable selection. 
+
+In addition to the predictor variables that are entering indices, we also allow for predictors that do not enter any of the indices. These additional predictors are two-fold: a covariate that relates to the response through nonlinear function $f_{k}$ denoted by $w_{ik}$, $k = 1, . . . , d$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
 
 ## Optimisation Problem Formulation
 
-The model of interest is the same semi-parametric group-wise additive index model as in @Masselot2022, which can be written as
-$$
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where all the term are as defined in @sec-CGAIM. However, in our method, we allow the possibility for the index coefficient vectors $\bm{\alpha}_{j}$s to have elements that are equal to zero, so that the predictors corresponding to such zero coefficients are dropped out from the model.
-
-Let $q$ be the total number of predictors entering $p$ non-overlapping groups of size $l_{j}$, $j = 1, \dots, p$ (i.e. $\sum_{j = 1}^{p} l_{j} = q$). The algorithm discussed in this paper apply to the CGAIM estimator (@eq-3) (including additional covariates that are not entering indices as well) with an $\ell_{0}$ penalty term and an optional $\ell_{2}$ (ridge) penalty term:
+The algorithm discussed in this paper apply to the SMI Model estimator given below, where the squared error of the model (@eq-semipara) is minimised together with an $\ell_{0}$ penalty term and an $\ell_{2}$ (ridge) penalty term:
 $$
 \begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
+  \min_{p, \bm{\alpha}, \bm{g}, \beta_{0}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
   + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\bm{1}\left(\alpha_{jm} \neq 0\right) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2
 \end{aligned}
-$$ {#eq-sgaim}
-where $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
+$$ {#eq-smi}
+where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, . . ., g_{p}\}$, $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
 
 Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when a low signal-to-noise ratio (SNR) is present.
 
 ## MIP Formulation
 
-To solve the optimisation problem (@eq-sgaim), we present a big-M based MIP formulation:
+To solve the optimisation problem (@eq-smi), we present a big-M based MIP formulation:
 $$
 \begin{aligned}
   \min_{\bm{\alpha}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}} \alpha_{jm}^{2} \\
@@ -325,8 +337,8 @@ $$
   & z_{jm} \in \{0, 1\}, \\
   & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
 \end{aligned}
-$$ {#eq-sgaim-mip}
-where $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jl_{j}} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, l_{j}$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor, which is used to make the *"on-or-off"* decision with respect to that particular predictor. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-sgaim-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, l_{j}\}$.
+$$ {#eq-smi-mip}
+where $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jl_{j}} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, l_{j}$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor, which is used to make the *"on-or-off"* decision with respect to that particular predictor. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-smi-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, l_{j}\}$.
 
 Here, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection. This modified problem formulation transforms the quadratic optimisation problem in @Masselot2022 (@eq-3) to a *Mixed Integer Quadratic Program (MIQP)*.
 
@@ -334,7 +346,7 @@ Therefore, our main contribution in this paper is two-fold. Firstly, we propose 
 
 ## Estimation Algorithm
 
-In this section, we show how to efficiently find a minimiser for the problem given in @eq-sgaim-mip.
+In this section, we show how to efficiently find a minimiser for the problem given in @eq-smi-mip.
 
 ### Initialising Index Coefficients {#sec-step1}
 
