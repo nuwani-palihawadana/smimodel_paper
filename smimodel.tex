@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, breakable, enhanced, interior hidden, boxrule=0pt, sharp corners, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, interior hidden, enhanced, sharp corners, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -421,14 +421,16 @@ nonlinear patterns. For instance, the relationship between electricity
 demand and temperature is often nonlinear \autocite{HF2010,FH2012}.
 
 These examples suggest a possible nonlinear ``\emph{transfer function}''
-model of the form \[
+model of the form
+\begin{equation}\protect\hypertarget{eq-transferfun}{}{
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
-\] where \(y_{t}\) is the observation of the response variable at time
-\(t\), \(\bm{x}_{t}\) is a vector of predictors at time \(t\), and
-\(\varepsilon_{t}\) is the random error. By including lagged values of
-\(y_{t}\) along with the lagged predictors, we allow for any serial
-correlation in the data. However, it makes the resulting function
-difficult to interpret. An alternative formulation is \[
+}\label{eq-transferfun}\end{equation} where \(y_{t}\) is the observation
+of the response variable at time \(t\), \(\bm{x}_{t}\) is a vector of
+predictors at time \(t\), and \(\varepsilon_{t}\) is the random error.
+By including lagged values of \(y_{t}\) along with the lagged
+predictors, we allow for any serial correlation in the data. However, it
+makes the resulting function difficult to interpret. An alternative
+formulation is \[
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}) + g(\varepsilon_{t}, \varepsilon_{t-1},\dots,\varepsilon_{t-k}),
 \] which is more difficult to estimate, but makes it simpler to
 interpret the effect of the predictors on the response variable.
@@ -575,12 +577,12 @@ are given in Section~\ref{sec-conclusion}.
 Models}\label{variable-selection-in-nonparametric-additive-models}}
 
 As discussed in Section~\ref{sec-introduction}, the estimation of
-nonparametric function \(f\) becomes infeasible in high-dimensional
-settings (i.e.~number of predictors is very large) due to curse of
-dimensionality. As a result, \emph{nonparametric additive models} have
-been employed with growing popularity. Let
-\((y_{i}, \bm{x}_{i}), i = 1, \dots, n\), be independent and identically
-distributed (i.i.d) observations, and
+nonparametric function \(f\) (Equation~\ref{eq-transferfun}) becomes
+infeasible in high-dimensional settings (i.e.~number of predictors is
+very large) due to curse of dimensionality. As a result,
+\emph{nonparametric additive models} have been employed with growing
+popularity. Let \((y_{i}, \bm{x}_{i}), i = 1, \dots, n\), be independent
+and identically distributed (i.i.d) observations, and
 \(\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}\) be a \(p\)-dimensional
 vector of predictor values. Then a nonparametric additive model can be
 written as \begin{equation}\protect\hypertarget{eq-add}{}{
@@ -780,33 +782,34 @@ As a remedy, the \textbf{\emph{Single Index Model}}, a generalisation of
 the linear regression model where the linear predictor is replaced by a
 semi-parametric component, is popularly being used in the literature
 \autocite{Radchenko2015}. Let \(y_{i}\) be the response, and
-\(\bm{x}_{i}\) be a \(p\)-dimensional predictor vector. Then the Single
-Index Model can be written as \[
+\(\bm{x}_{i}\) be a \(p\)-dimensional predictor vector. Then the single
+index model can be written as \[
   y_{i} = g \left ( \bm{\alpha}^{T} \bm{x}_{i} \right ) + \varepsilon_{i}, \quad i = 1, \dots, n,
 \] where \(\bm{\alpha}\) is a \(p\)-dimensional vector of unknown
 coefficients (i.e.~parameters), \(g\) is an unknown univariate function,
 and \(\varepsilon_{i}\) is the random error
 \autocite{Stoker1986,Hardle1993}. The linear combination
-\(\bm{\alpha}^{T} \bm{x}_{i}\) is called the \emph{index}. SIM is viewed
-as a viable alternative to the additive model since it offers more
-flexibility and interpretability \autocite{Radchenko2015}.
+\(\bm{\alpha}^{T} \bm{x}_{i}\) is called the \emph{index}. Single index
+model is viewed as a viable alternative to the additive model since it
+offers more flexibility and interpretability \autocite{Radchenko2015}.
 
-According to \textcite{Radchenko2015}, SIMs have widely been used in
-scenarios with fairly low and moderate dimensionality, where the
-corresponding estimation and variable selection techniques are not
-directly applicable to the high-dimensional setting. The error sum of
-squares of the model being non-convex with respect to index
+According to \textcite{Radchenko2015}, single index models have widely
+been used in scenarios with fairly low and moderate dimensionality,
+where the corresponding estimation and variable selection techniques are
+not directly applicable to the high-dimensional setting. The error sum
+of squares of the model being non-convex with respect to index
 coefficients, is the main reason behind the existence of very limited
 number of methods in high-dimensional case \autocite{Radchenko2015}. For
 an extensive summary of available methods, we refer to
 \textcite{Radchenko2015}.
 
-\hypertarget{projection-pursuit-regression}{%
-\subsubsection{Projection Pursuit
-Regression}\label{projection-pursuit-regression}}
+\hypertarget{multiple-index-models}{%
+\subsubsection{Multiple Index Models}\label{multiple-index-models}}
+
+\textbf{Projection Pursuit Regression}
 
 \textcite{Friedman1981} introduced \textbf{\emph{Projection Pursuit
-Regression}} (PPR) by extending the nonparametric additive model
+Regression (PPR)}} by extending the nonparametric additive model
 (Equation~\ref{eq-add}) to enable the modelling of interactions among
 predictor variables. On the other hand, PPR is an extension of the
 single index model to an \emph{``additive index model''}, given by \[
@@ -821,7 +824,7 @@ coefficients''}), \(g_{j}\)'s are unknown univariate functions, and
 Instead of estimating a single index, PPR estimates multiple indices and
 connects them to the response through a sum of univariate nonlinear
 functions. These indices are constructed through a \emph{Projection
-Pursuit} \autocites[PP,][]{Kruskal1969,Friedman1974} algorithm, which is
+Pursuit (PP)} \autocite{Kruskal1969,Friedman1974} algorithm, which is
 considered to be ``interesting'' low-dimensional projections of a
 high-dimensional feature space, obtained through the maximisation of an
 appropriate objective function or a ``projection index''
@@ -845,11 +848,9 @@ simultaneously. See \textcite{Zhang2008} for more details.
 Although \textcite{Zhang2008} claimed that the SpPPR algorithm can
 detect important predictors even in a noisy data set, our experiments
 show that it is not particularly scalable for large data sets with both
-higher number of predictors and observations.
+higher number of predictors and observations. \newline
 
-\hypertarget{group-wise-additive-index-model}{%
-\subsubsection{Group-wise Additive Index
-Model}\label{group-wise-additive-index-model}}
+\textbf{Group-wise Additive Index Model}
 
 Even though PPR introduces flexibility and the ability to model
 interactions among predictors into additive models, the indices obtained
@@ -864,13 +865,10 @@ identified in predictor variables. For example, naturally interacting
 variables can be grouped together, such as several lags of a predictor,
 weather related variables, and genes or proteins that are grouped by
 biological pathways in a biological study
-\autocite{Masselot2022,Wang2015}. According to \textcite{Wang2015},
-incorporating such group knowledge into dimension reduction/variable
-selection methodologies will improve the interpretability of the results
-as well as the estimation accuracy.
+\autocite{Masselot2022,Wang2015}.
 
-This suggests the use of a \textbf{\emph{Group-wise Additive Index
-Model}} (GAIM), which can be written as \[
+This suggests the use of a \textbf{\emph{Group-wise Additive Index Model
+(GAIM)}}, which can be written as \[
   y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n, 
 \] where \(y_{i}\) is the univariate response,
 \(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are naturally
@@ -885,14 +883,75 @@ random error, which is independent of \(\bm{x}_{i}\)
 
 Since GAIM uses groups of predictors that are naturally or logically
 belonging together to construct indices, such derived indices will be
-more expressive and interpretable. At the same time, GAIM contributes
-towards a greater reduction in the number of unknown parameters, because
-only a subset of predictors enters into an index, making GAIM a sparser
-model compared to PPR \autocite{Wang2015-mp,Masselot2022}.
+more expressive and interpretable. However, at the same time, this
+introduces a certain level of subjectivity into the model formulation as
+different users can group the available predictors in different ways
+based on different logical reasoning.
 
-On account of these desirable properties of GAIM as a nonparametric
-additive model, in this study, we focus on a GAIM framework to propose
-our variable selection methodology.
+In this paper, our aim is to reduce that subjectivity induced by
+personal judgment or domain expertise. Hence, we propose a methodology
+that injects more objectivity into the estimation of multiple index
+models by algorithmically grouping predictors into indices, resulting in
+a model with a higher predictive accuracy. \newline
+
+\textbf{Constrained Group-wise Additive Index Model}
+
+The \textbf{\emph{Constrained Group-wise Additive Index Model (CGAIM)}}
+was proposed by \textcite{Masselot2022} for constructing comprehensive
+and easily interpretable indices from a large set of explanatory
+variables. The model of interest is a \emph{semi-parametric group-wise
+additive index model} given by
+\begin{equation}\protect\hypertarget{eq-2}{}{
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+}\label{eq-2}\end{equation} where \(y_{i}\) is the univariate response,
+\(\beta_{0}\) is the model intercept,
+\(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are naturally
+occurring \(p\) groups of predictor vectors (i.e.~it is assumed that the
+predictor groupings are known in advance), which are \(p\) subsets of
+\(\bm{x}_{i}\) - the \(q\)-dimensional vector of all predictors entering
+indices, \(\bm{\alpha}_{j}\) is the vector of index coefficients
+corresponding to the index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\),
+and \(g_{j}\) is the corresponding nonlinear link function (possibly
+estimated by a spline). The additional predictor variables that are
+helpful in predicting \(y_{i}\), but do not enter any of the indices are
+two-fold: a covariate that relates to the response through a nonlinear
+function \(f_{k}\), denoted by \(w_{ik}\), and the vector of linear
+covariates denoted by \(\bm{u}_{i}\).
+
+This is an extension of the GAIM that allows to impose constraints on
+the index coefficients as well as on the nonlinear link functions. In
+CGAIM, linear constraints of the form
+\(\bm{C}_{j}\bm{\alpha}_{j} \ge 0\) can be imposed on the index
+coefficients, where \(\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}\),
+and \(d_{j}\) is the number of constraints. Moreover, shape constraints
+such as monotonicity, convexity or concavity can be imposed on the
+nonparametric functions. This modification allows to incorporate prior
+knowledge or operational requirements into the model estimation.
+
+First, considering only the additive index part of the model, and given
+\((y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n\) be the
+observed data, where the \(q\) predictors are grouped into \(p\) groups,
+the estimation problem of the CGAIM can be formulated as
+\begin{equation}\protect\hypertarget{eq-3}{}{
+\begin{aligned}
+  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
+  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
+\end{aligned}
+}\label{eq-3}\end{equation} where
+\(\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}\),
+\(\beta_{0}\) is the model intercept,
+\(\bm{C} \in \mathbb{R}^{d \times q}\), \(d\) is the number of
+constraints on the index coefficients vector \(\bm{\alpha}\), and \(m\)
+is a shape constraint imposed on \(g_{j}\) \autocite{Masselot2022}.
+
+Notice that \(\bm{\alpha}_{j}\)s behave non-linearly in
+Equation~\ref{eq-3}, and hence, this is a non-linear least squares
+problem. Accordingly, \textcite{Masselot2022} introduced an efficient
+iterative algorithm for estimating the CGAIM based on
+\textbf{\emph{Sequential Quadratic Programming}} (SQP), one of the most
+successful techniques for solving nonlinear constrained optimisation
+problems \autocite{Boggs1995}. For details of the CGAIM algorithm refer
+to \textcite{Masselot2022}.
 
 \hypertarget{mathematical-optimisation-for-variable-selection}{%
 \subsection{Mathematical Optimisation for Variable
@@ -1022,151 +1081,12 @@ new customised Branch-and-Bound (BnB) algorithm
 the MISOCP.
 
 Through the study of above literature, we noticed that the mathematical
-optimisation based algorithms significantly reduce computational cost of
-variable selection procedures in high-dimensional settings. This is
-largely due to the availability of efficient commercial solvers such as
+optimisation based algorithms reduce computational cost of variable
+selection procedures in high-dimensional settings. This is largely due
+to the availability of efficient commercial solvers such as
 \emph{Gurobi} and \emph{CPLEX}. This motivated us to focus on a
 mathematical optimisation based procedure for developing our variable
 selection methodology.
-
-\hypertarget{sec-CGAIM}{%
-\subsection{Constrained Group-wise Additive Index
-Model}\label{sec-CGAIM}}
-
-The \textbf{\emph{Constrained Group-wise Additive Index Model}} (CGAIM)
-was proposed by \textcite{Masselot2022} for constructing comprehensive
-and easily interpretable indices from a large set of explanatory
-variables. The model of interest is a \emph{semi-parametric group-wise
-additive index model} given by
-\begin{equation}\protect\hypertarget{eq-2}{}{
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-}\label{eq-2}\end{equation} where \(y_{i}\) is the univariate response,
-\(\beta_{0}\) is the model intercept,
-\(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are naturally
-occurring \(p\) groups of predictor vectors (i.e.~it is assumed that the
-predictor groupings are known in advance), which are \(p\) subsets of
-\(\bm{x}_{i}\) - the \(q\)-dimensional vector of all predictors entering
-indices, \(\bm{\alpha}_{j}\) is the vector of index coefficients
-corresponding to the index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\),
-and \(g_{j}\) is the corresponding nonlinear link function (possibly
-estimated by a spline). The additional predictor variables that are
-helpful in predicting \(y_{i}\), but do not enter any of the indices are
-two-fold: a covariate that relates to the response through a nonlinear
-function \(f_{k}\), denoted by \(w_{ik}\), and the vector of linear
-covariates denoted by \(\bm{u}_{i}\).
-
-This is an extension of the Group-wise Additive Index Model (GAIM) that
-allows to impose constraints on the index coefficients as well as on the
-nonlinear link functions. In CGAIM, linear constraints of the form
-\(\bm{C}_{j}\bm{\alpha}_{j} \ge 0\) can be imposed on the index
-coefficients, where \(\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}\),
-and \(d_{j}\) is the number of constraints. Moreover, shape constraints
-such as monotonicity, convexity or concavity can be imposed on the
-nonparametric functions. This modification allows to incorporate prior
-knowledge or operational requirements into the model estimation.
-
-First, considering only the additive index part of the model, and given
-\((y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n\) be the
-observed data, where the \(q\) predictors are grouped into \(p\) groups,
-the estimation problem of the CGAIM can be formulated as
-\begin{equation}\protect\hypertarget{eq-3}{}{
-\begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
-  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
-\end{aligned}
-}\label{eq-3}\end{equation} where
-\(\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}\),
-\(\beta_{0}\) is the model intercept,
-\(\bm{C} \in \mathbb{R}^{d \times q}\), \(d\) is the number of
-constraints on the index coefficients vector \(\bm{\alpha}\), and \(m\)
-is a shape constraint imposed on \(g_{j}\) \autocite{Masselot2022}.
-
-Notice that \(\bm{\alpha}_{j}\)s behave non-linearly in
-Equation~\ref{eq-3}, and hence, this is a non-linear least squares
-problem. Accordingly, \textcite{Masselot2022} introduced an efficient
-iterative algorithm for estimating the CGAIM based on
-\textbf{\emph{Sequential Quadratic Programming}} (SQP), one of the most
-successful techniques for solving nonlinear constrained optimisation
-problems \autocite{Boggs1995}. The algorithm of \textcite{Masselot2022}
-is summarised below.\\
-
-\textbf{\emph{CGAIM Algorithm:}}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  Initialise index coefficients \(\bm{\alpha}_{j}\):
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \item
-    Estimate
-    \(\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}\)
-    using the quadratic program (QP) given below in Equation~\ref{eq-4},
-    or randomly. \begin{equation}\protect\hypertarget{eq-4}{}{
-      \begin{aligned}
-       \min_{\bm{\alpha}} \quad & \bm{\alpha}^{T}\bm{X}^{T}\bm{X}\bm{\alpha} - 2\bm{\alpha}^{T}\bm{X}^{T}\bm{y} \\
-       \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0,
-      \end{aligned}
-      }\label{eq-4}\end{equation} where \(\bm{y}\) is the vector of
-    responses, and \(\bm{X}\) is the matrix of predictors entering
-    indices.
-  \item
-    Scale each \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) (the
-    estimated vector of initial values for \(\bm{\alpha}_{j}\)) to have
-    unit norm.
-  \end{enumerate}
-\item
-  Update functions \(g_{j}\):\\
-  Estimate \(g_{j}\)s by a Shape-Constrained Additive Model
-  \autocite[SCAM,][]{Pya2015} (or a Generalised Additive Model
-  \autocite[GAM,][]{Hastie1986} in unconstrained case) taking \(y_{i}\)
-  as the response and the estimated indices
-  \(\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}\)s as
-  predictors.
-\item
-  Update index coefficients \(\bm{\alpha}_{j}\):
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \item
-    Obtain the update
-    \(\bm{\delta} = \left ( \bm{\delta}_{1}, \dots, \bm{\delta}_{p}\right )^{T}, \bm{\delta} = \bm{\alpha}_{old} - \bm{\alpha}_{new}\),
-    where \(\bm{\alpha}_{old}\) is the current value of \(\bm{\alpha}\),
-    and \(\bm{\alpha}_{new}\) is the new value of \(\bm{\alpha}\) to be
-    computed, using the QP given below in Equation~\ref{eq-5}.
-    \begin{equation}\protect\hypertarget{eq-5}{}{
-      \begin{aligned}
-       \min_{\bm{\delta}} \quad & \bm{\delta}^{T}\bm{V}^{T}\bm{V}\bm{\delta} - 2\bm{\delta}^{T}\bm{V}^{T}\bm{r} \\
-       \text{s.t.} \quad & \bm{C}\bm{\delta} + \bm{C}\bm{\alpha}_{old} \ge 0,
-      \end{aligned}
-      }\label{eq-5}\end{equation} where \(\bm{V}\) is the matrix of
-    partial derivatives of the right hand side of Equation~\ref{eq-2},
-    with respect to \(\bm{\alpha}_{j}\). The \(i^{th}\) line of
-    \(\bm{V}\) contains
-    \(\left [ \bm{v}_{i1}, \dots, \bm{v}_{ip} \right ]\), where
-    \(\bm{v}_{ij} = \bm{x}_{ij}g_{j}^{'}(h_{ij})\). The current residual
-    vector, which contains
-    \(r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j(old)}^{T}\bm{x}_{ij})\),
-    is denoted by \(\bm{r}\).
-  \item
-    Set updated index coefficients
-    \(\bm{\alpha}_{new} = \bm{\alpha}_{old} + \bm{\delta}\).
-  \item
-    Scale each estimated index coefficients
-    \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}\) to have unit norm.
-  \end{enumerate}
-\item
-  Repeat steps 2 and 3 until convergence or a maximum number of
-  iterations is reached.
-\end{enumerate}
-
-Note that the extension of the estimation process to include the
-additional covariates \(w_{ik}\) and \(\bm{u}_{i}\) is simple. We can
-easily add them to the SCAM (or the GAM) in step 2, noticing that they
-do not enter the step of updating \(\bm{\alpha}_{j}\) as they are
-constants with respect to \(\bm{\alpha}_{j}\), and hence vanish from the
-matrix of partial derivatives \(\bm{V}\) \autocite{Masselot2022}.
 
 \hypertarget{sec-SMI}{%
 \section{Sparse Multiple Index Model}\label{sec-SMI}}
@@ -1176,7 +1096,7 @@ Index Model}} (hereafter referred to as SGAIM) to establish an objective
 and a principled methodology for optimal predictor selection in
 high-dimensional nonparametric additive index models.
 
-As reviewed in Section~\ref{sec-CGAIM}, the CGAIM algorithm proposed by
+As reviewed in the earlier section, the CGAIM algorithm proposed by
 \textcite{Masselot2022} can be used to estimate a semi-parametric
 group-wise additive index model (with constraints on the index
 coefficients and the non-linear functions where relevant), which is our
@@ -1199,11 +1119,11 @@ Formulation}\label{optimisation-problem-formulation}}
 The model of interest is the same semi-parametric group-wise additive
 index model as in \textcite{Masselot2022}, which can be written as \[
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-\] where all the term are as defined in Section~\ref{sec-CGAIM}.
-However, in our method, we allow the possibility for the index
-coefficient vectors \(\bm{\alpha}_{j}\)s to have elements that are equal
-to zero, so that the predictors corresponding to such zero coefficients
-are dropped out from the model.
+\] where all the term are as defined in \textbf{?@sec-CGAIM}. However,
+in our method, we allow the possibility for the index coefficient
+vectors \(\bm{\alpha}_{j}\)s to have elements that are equal to zero, so
+that the predictors corresponding to such zero coefficients are dropped
+out from the model.
 
 Let \(q\) be the total number of predictors entering \(p\)
 non-overlapping groups of size \(l_{j}\), \(j = 1, \dots, p\)
@@ -1307,7 +1227,7 @@ considering only the predictors that are entering indices.
 
 Alternatively, an initial value for \(\bm{\alpha}\), without any
 variable selection or shrinkage, can be obtained by the same QP as in
-the first step of CGAIM algorithm (Equation~\ref{eq-4}), which is
+the first step of CGAIM algorithm (\textbf{?@eq-4}), which is
 essentially a multiple linear regression.
 
 Once the estimate for \(\bm{\alpha}\) is obtained, the estimated initial
@@ -1336,7 +1256,7 @@ fit GAMs.
 We estimate the new value of index coefficients \(\bm{\alpha}_{new}\)
 through an MIQP given in Equation~\ref{eq-7} below, which is again a
 modification of the QP used in step 3 of the CGAIM algorithm
-(Equation~\ref{eq-5}) to achieve variable selection.
+(\textbf{?@eq-5}) to achieve variable selection.
 \begin{equation}\protect\hypertarget{eq-7}{}{
 \begin{aligned}
   \min_{\bm{\alpha}_{new}, \bm{z}_{new}} \quad & (\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}_{new} - \bm{\alpha}_{old}) - 2(\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{r} \\
@@ -1359,11 +1279,11 @@ circumvent its computational burden \autocite{Peng2022}. Therefore, the
 \(\bm{\alpha}\) updating step given in above Equation~\ref{eq-7} is
 assured to be in a \emph{descent direction}.
 
-Moreover, as in the explanation in Section~\ref{sec-CGAIM}, the
-additional covariates \(w_{ik}\) and \(\bm{u}_{i}\) do not step in to
-the process of updating \(\bm{\alpha}_{j}\), because they are constants
-with respect to \(\bm{\alpha}_{j}\). Therefore, they disappear from
-\(\bm{V}\), the matrix of partial derivatives of the right hand side of
+Moreover, as in the explanation in \textbf{?@sec-CGAIM}, the additional
+covariates \(w_{ik}\) and \(\bm{u}_{i}\) do not step in to the process
+of updating \(\bm{\alpha}_{j}\), because they are constants with respect
+to \(\bm{\alpha}_{j}\). Therefore, they disappear from \(\bm{V}\), the
+matrix of partial derivatives of the right hand side of
 Equation~\ref{eq-2}, with respect to \(\bm{\alpha}_{j}\).
 
 Furthermore, similar to Section~\ref{sec-step1}, once the new estimate
@@ -1415,7 +1335,7 @@ the SGAIM algorithm.
   \tightlist
   \item
     Obtain \(\bm{\alpha}_{init}\) using the MIQP in Equation~\ref{eq-6}
-    or the QP in Equation~\ref{eq-4}
+    or the QP in \textbf{?@eq-4}
   \item
     Scale each \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) to have
     unit norm

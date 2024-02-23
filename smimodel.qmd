@@ -71,7 +71,7 @@ On the other hand, in most of these applications, the relationships between the 
 These examples suggest a possible nonlinear "*transfer function*" model of the form
 $$
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
-$$
+$$ {#eq-transferfun}
 where $y_{t}$ is the observation of the response variable at time $t$, $\bm{x}_{t}$ is a vector of predictors at time $t$, and $\varepsilon_{t}$ is the random error. By including lagged values of $y_{t}$ along with the lagged predictors, we allow for any serial correlation in the data. However, it makes the resulting function difficult to interpret. An alternative formulation is
 $$
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}) + g(\varepsilon_{t}, \varepsilon_{t-1},\dots,\varepsilon_{t-k}),
@@ -112,7 +112,7 @@ The rest of this paper is organised as follows. In @sec-background, we provide a
 
 ## Variable Selection in Nonparametric Additive Models
 
-As discussed in @sec-introduction, the estimation of nonparametric function $f$ becomes infeasible in high-dimensional settings (i.e. number of predictors is very large) due to curse of dimensionality. As a result, *nonparametric additive models* have been employed with growing popularity. Let $(y_{i}, \bm{x}_{i}), i = 1, \dots, n$, be independent and identically distributed (i.i.d) observations, and $\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}$ be a $p$-dimensional vector of predictor values. Then a nonparametric additive model can be written as
+As discussed in @sec-introduction, the estimation of nonparametric function $f$ (@eq-transferfun) becomes infeasible in high-dimensional settings (i.e. number of predictors is very large) due to curse of dimensionality. As a result, *nonparametric additive models* have been employed with growing popularity. Let $(y_{i}, \bm{x}_{i}), i = 1, \dots, n$, be independent and identically distributed (i.i.d) observations, and $\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}$ be a $p$-dimensional vector of predictor values. Then a nonparametric additive model can be written as
 $$
  y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \varepsilon_{i}, \quad i = 1, \dots, n,
 $$ {#eq-add}
@@ -172,43 +172,66 @@ However, it is important to note that all the models considered in the above tim
 
 The nonparametric additive model (@eq-add) estimates the relationship between the response and the predictors using a sum of univariate nonlinear functions corresponding to each individual predictor variable. Hence, it is incapable of handling the interactions among the predictors, which are ubiquitous in real-world problems [@Zhang2008].
 
-As a remedy, the ***Single Index Model***, a generalisation of the linear regression model where the linear predictor is replaced by a semi-parametric component, is popularly being used in the literature [@Radchenko2015]. Let $y_{i}$ be the response, and $\bm{x}_{i}$ be a $p$-dimensional predictor vector. Then the Single Index Model can be written as
+As a remedy, the ***Single Index Model***, a generalisation of the linear regression model where the linear predictor is replaced by a semi-parametric component, is popularly being used in the literature [@Radchenko2015]. Let $y_{i}$ be the response, and $\bm{x}_{i}$ be a $p$-dimensional predictor vector. Then the single index model can be written as
 $$
   y_{i} = g \left ( \bm{\alpha}^{T} \bm{x}_{i} \right ) + \varepsilon_{i}, \quad i = 1, \dots, n,
 $$
-where $\bm{\alpha}$ is a $p$-dimensional vector of unknown coefficients (i.e. parameters), $g$ is an unknown univariate function, and $\varepsilon_{i}$ is the random error [@Stoker1986; @Hardle1993]. The linear combination $\bm{\alpha}^{T} \bm{x}_{i}$ is called the *index*. SIM is viewed as a viable alternative to the additive model since it offers more flexibility and interpretability [@Radchenko2015].
+where $\bm{\alpha}$ is a $p$-dimensional vector of unknown coefficients (i.e. parameters), $g$ is an unknown univariate function, and $\varepsilon_{i}$ is the random error [@Stoker1986; @Hardle1993]. The linear combination $\bm{\alpha}^{T} \bm{x}_{i}$ is called the *index*. Single index model is viewed as a viable alternative to the additive model since it offers more flexibility and interpretability [@Radchenko2015].
 
-According to @Radchenko2015, SIMs have widely been used in scenarios with fairly low and moderate dimensionality, where the corresponding estimation and variable selection techniques are not directly applicable to the high-dimensional setting. The error sum of squares of the model being non-convex with respect to index coefficients, is the main reason behind the existence of very limited number of methods in high-dimensional case [@Radchenko2015]. For an extensive summary of available methods, we refer to @Radchenko2015.
+According to @Radchenko2015, single index models have widely been used in scenarios with fairly low and moderate dimensionality, where the corresponding estimation and variable selection techniques are not directly applicable to the high-dimensional setting. The error sum of squares of the model being non-convex with respect to index coefficients, is the main reason behind the existence of very limited number of methods in high-dimensional case [@Radchenko2015]. For an extensive summary of available methods, we refer to @Radchenko2015.
 
-### Projection Pursuit Regression
+### Multiple Index Models
 
-@Friedman1981 introduced ***Projection Pursuit Regression*** (PPR) by extending the nonparametric additive model (@eq-add) to enable the modelling of interactions among predictor variables. On the other hand, PPR is an extension of the single index model to an *"additive index model"*, given by
+**Projection Pursuit Regression**
+
+@Friedman1981 introduced ***Projection Pursuit Regression (PPR)*** by extending the nonparametric additive model (@eq-add) to enable the modelling of interactions among predictor variables. On the other hand, PPR is an extension of the single index model to an *"additive index model"*, given by
 $$
   y_{i} = \sum_{j=1}^{q} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i}, \quad i = 1, \dots, n,
 $$
 where $y_{i}$ is the response, $\bm{x}_{i}$ is a $p$-dimensional predictor vector, $\bm{\alpha}_{j} = \left ( \alpha_{j1}, \dots, \alpha_{jp} \right )^{T}, j = 1, \dots, q$ are $p$-dimensional projection vectors (or vectors of *"index coefficients"*), $g_{j}$'s are unknown univariate functions, and $\varepsilon_{i}$ is the random error.
 
-Instead of estimating a single index, PPR estimates multiple indices and connects them to the response through a sum of univariate nonlinear functions. These indices are constructed through a *Projection Pursuit* [PP, @Kruskal1969; @Friedman1974] algorithm, which is considered to be "interesting" low-dimensional projections of a high-dimensional feature space, obtained through the maximisation of an appropriate objective function or a "projection index" [@Huber1985].
+Instead of estimating a single index, PPR estimates multiple indices and connects them to the response through a sum of univariate nonlinear functions. These indices are constructed through a *Projection Pursuit (PP)* [@Kruskal1969; @Friedman1974] algorithm, which is considered to be "interesting" low-dimensional projections of a high-dimensional feature space, obtained through the maximisation of an appropriate objective function or a "projection index" [@Huber1985].
 
 According to @Zhang2008, PPR increases the power of additive models in high-dimensional settings, but it has two major drawbacks. Firstly, since PP increases the freedom of the additive model, it tends to overfit in a situation, where there are a lot of unimportant predictors. Secondly, the interpretation of the model estimated by PPR will be troublesome as many non-zero elements will be present in each projection vector $\bm{\alpha}_{j}$. To overcome these issues, @Zhang2008 introduced an $\ell_{1}$ regularised projection pursuit algorithm, where the resultant regression model is named as ***Sparse Projection Pursuit Regression*** (SpPPR). In SpPPR, an $\ell_{1}$ penalty (i.e. a LASSO penalty) on index coefficients is added to the cost function (the squared error) at each iteration of the PP, thereby performing variable selection and model estimation simultaneously. See @Zhang2008 for more details.
 
-Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations.
+Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations. \newline
 
-### Group-wise Additive Index Model
+**Group-wise Additive Index Model** 
 
 Even though PPR introduces flexibility and the ability to model interactions among predictors into additive models, the indices obtained through PPR contain all the predictors at hand. Hence, even with a variable selection mechanism like SpPPR [@Zhang2008], PPR creates indices possibly by mixing heterogeneous variables in a single linear combination, making very little sense in terms of interpretability [@Masselot2022].
 
-Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015]. According to @Wang2015, incorporating such group knowledge into dimension reduction/variable selection methodologies will improve the interpretability of the results as well as the estimation accuracy.
+Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015]. 
 
-This suggests the use of a ***Group-wise Additive Index Model*** (GAIM), which can be written as
+This suggests the use of a ***Group-wise Additive Index Model (GAIM)***, which can be written as
 $$
   y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n, 
 $$
 where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictors, which are $p$ non-overlapping subsets of $\bm{x}_{i}$ - the vector of all predictors, $\bm{\alpha}_{j}$ is a $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022].
 
-Since GAIM uses groups of predictors that are naturally or logically belonging together to construct indices, such derived indices will be more expressive and interpretable. At the same time, GAIM contributes towards a greater reduction in the number of unknown parameters, because only a subset of predictors enters into an index, making GAIM a sparser model compared to PPR [@Wang2015-mp; @Masselot2022].
+Since GAIM uses groups of predictors that are naturally or logically belonging together to construct indices, such derived indices will be more expressive and interpretable. However, at the same time, this introduces a certain level of subjectivity into the model formulation as different users can group the available predictors in different ways based on different logical reasoning. 
 
-On account of these desirable properties of GAIM as a nonparametric additive model, in this study, we focus on a GAIM framework to propose our variable selection methodology.
+In this paper, our aim is to reduce that subjectivity induced by personal judgment or domain expertise. Hence, we propose a methodology that injects more objectivity into the estimation of multiple index models by algorithmically grouping predictors into indices, resulting in a model with a higher predictive accuracy. \newline
+
+**Constrained Group-wise Additive Index Model**
+
+The ***Constrained Group-wise Additive Index Model (CGAIM)*** was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
+$$
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$ {#eq-2}
+where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
+
+This is an extension of the GAIM that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
+
+First, considering only the additive index part of the model, and given $(y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n$ be the observed data, where the $q$ predictors are grouped into $p$ groups, the estimation problem of the CGAIM can be formulated as
+$$
+\begin{aligned}
+  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
+  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
+\end{aligned}
+$$ {#eq-3}
+where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\beta_{0}$ is the model intercept, $\bm{C} \in \mathbb{R}^{d \times q}$, $d$ is the number of constraints on the index coefficients vector $\bm{\alpha}$, and $m$ is a shape constraint imposed on $g_{j}$ [@Masselot2022].
+
+Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. For details of the CGAIM algorithm refer to @Masselot2022. 
 
 ## Mathematical Optimisation for Variable Selection
 
@@ -262,71 +285,14 @@ For example, @Bertsimas2016 used a mixed integer optimisation procedure to solve
 
 Furthermore, @Hazimeh2023 proposed a group-wise variable selection methodology, based on discrete mathematical optimisation, which is applicable to both $\ell_{0}$-regularised linear regression and nonparametric additive models in a high-dimensional setting. They formulated the group $\ell_{0}$-based estimation problem as a *Mixed Integer Second Order Cone Program (MISOCP)*, and proposed a new customised Branch-and-Bound (BnB) algorithm [@Land1960; @Little1963] to obtain the global optimal solution to the MISOCP.
 
-Through the study of above literature, we noticed that the mathematical optimisation based algorithms significantly reduce computational cost of variable selection procedures in high-dimensional settings. This is largely due to the availability of efficient commercial solvers such as *Gurobi* and *CPLEX*. This motivated us to focus on a mathematical optimisation based procedure for developing our variable selection methodology.
+Through the study of above literature, we noticed that the mathematical optimisation based algorithms reduce computational cost of variable selection procedures in high-dimensional settings. This is largely due to the availability of efficient commercial solvers such as *Gurobi* and *CPLEX*. This motivated us to focus on a mathematical optimisation based procedure for developing our variable selection methodology.
 
-## Constrained Group-wise Additive Index Model {#sec-CGAIM}
-
-The ***Constrained Group-wise Additive Index Model*** (CGAIM) was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
-$$
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$ {#eq-2}
-where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
-
-This is an extension of the Group-wise Additive Index Model (GAIM) that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
-
-First, considering only the additive index part of the model, and given $(y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n$ be the observed data, where the $q$ predictors are grouped into $p$ groups, the estimation problem of the CGAIM can be formulated as
-$$
-\begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
-  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
-\end{aligned}
-$$ {#eq-3}
-where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\beta_{0}$ is the model intercept, $\bm{C} \in \mathbb{R}^{d \times q}$, $d$ is the number of constraints on the index coefficients vector $\bm{\alpha}$, and $m$ is a shape constraint imposed on $g_{j}$ [@Masselot2022].
-
-Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. The algorithm of @Masselot2022 is summarised below.\
-
-***CGAIM Algorithm:***
-
-1.  Initialise index coefficients $\bm{\alpha}_{j}$:
-
-    a.  Estimate $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$ using the quadratic program (QP) given below in @eq-4, or randomly.
-          $$
-          \begin{aligned}
-           \min_{\bm{\alpha}} \quad & \bm{\alpha}^{T}\bm{X}^{T}\bm{X}\bm{\alpha} - 2\bm{\alpha}^{T}\bm{X}^{T}\bm{y} \\
-           \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0,
-          \end{aligned}
-          $$ {#eq-4}
-          where $\bm{y}$ is the vector of responses, and $\bm{X}$ is the matrix of predictors entering indices.
-
-    b.  Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ (the estimated vector of initial values for $\bm{\alpha}_{j}$) to have unit norm.
-
-2.  Update functions $g_{j}$:\
-    Estimate $g_{j}$s by a Shape-Constrained Additive Model [SCAM, @Pya2015] (or a Generalised Additive Model [GAM, @Hastie1986] in unconstrained case) taking $y_{i}$ as the response and the estimated indices $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}$s as predictors.
-
-3.  Update index coefficients $\bm{\alpha}_{j}$:
-
-    a.  Obtain the update $\bm{\delta} = \left ( \bm{\delta}_{1}, \dots, \bm{\delta}_{p}\right )^{T}, \bm{\delta} = \bm{\alpha}_{old} - \bm{\alpha}_{new}$, where $\bm{\alpha}_{old}$ is the current value of $\bm{\alpha}$, and $\bm{\alpha}_{new}$ is the new value of $\bm{\alpha}$ to be computed, using the QP given below in @eq-5.
-          $$
-          \begin{aligned}
-           \min_{\bm{\delta}} \quad & \bm{\delta}^{T}\bm{V}^{T}\bm{V}\bm{\delta} - 2\bm{\delta}^{T}\bm{V}^{T}\bm{r} \\
-           \text{s.t.} \quad & \bm{C}\bm{\delta} + \bm{C}\bm{\alpha}_{old} \ge 0,
-          \end{aligned}
-          $$ {#eq-5}
-          where $\bm{V}$ is the matrix of partial derivatives of the right hand side of @eq-2, with respect to $\bm{\alpha}_{j}$. The $i^{th}$ line of $\bm{V}$ contains $\left [ \bm{v}_{i1}, \dots, \bm{v}_{ip} \right ]$, where $\bm{v}_{ij} = \bm{x}_{ij}g_{j}^{'}(h_{ij})$. The current residual vector, which contains $r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j(old)}^{T}\bm{x}_{ij})$, is denoted by $\bm{r}$.
-
-    b.  Set updated index coefficients $\bm{\alpha}_{new} = \bm{\alpha}_{old} + \bm{\delta}$.
-
-    c.  Scale each estimated index coefficients $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm.
-
-4.  Repeat steps 2 and 3 until convergence or a maximum number of iterations is reached.
-
-Note that the extension of the estimation process to include the additional covariates $w_{ik}$ and $\bm{u}_{i}$ is simple. We can easily add them to the SCAM (or the GAM) in step 2, noticing that they do not enter the step of updating $\bm{\alpha}_{j}$ as they are constants with respect to $\bm{\alpha}_{j}$, and hence vanish from the matrix of partial derivatives $\bm{V}$ [@Masselot2022].
 
 # Sparse Multiple Index Model {#sec-SMI}
 
 In this section, we develop a ***Sparse Group-wise Additive Index Model*** (hereafter referred to as SGAIM) to establish an objective and a principled methodology for optimal predictor selection in high-dimensional nonparametric additive index models.
 
-As reviewed in @sec-CGAIM, the CGAIM algorithm proposed by @Masselot2022 can be used to estimate a semi-parametric group-wise additive index model (with constraints on the index coefficients and the non-linear functions where relevant), which is our model of interest. However, when we provide a group of predictor variables for which an index to be estimated, the CGAIM algorithm estimates a coefficient for each of those predictors, where the estimated index is a linear combination of all the predictors in the corresponding group. In other words, the CGAIM does not perform any variable selection, therein the burden of selecting the most predictive features in a high-dimensional forecasting problem is still on the user.
+As reviewed in the earlier section, the CGAIM algorithm proposed by @Masselot2022 can be used to estimate a semi-parametric group-wise additive index model (with constraints on the index coefficients and the non-linear functions where relevant), which is our model of interest. However, when we provide a group of predictor variables for which an index to be estimated, the CGAIM algorithm estimates a coefficient for each of those predictors, where the estimated index is a linear combination of all the predictors in the corresponding group. In other words, the CGAIM does not perform any variable selection, therein the burden of selecting the most predictive features in a high-dimensional forecasting problem is still on the user.
 
 Our proposed SGAIM can be used to address the issue and enable the estimation of semi-parametric group-wise additive index models with variable selection.
 
