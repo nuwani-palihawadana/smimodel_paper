@@ -329,9 +329,9 @@ where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \rig
 
 Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when a low signal-to-noise ratio (SNR) is present.
 
-## MIP Formulation
+## MIQP Formulation
 
-To solve the optimisation problem (@eq-smi), we present a big-M based MIP formulation:
+To solve the optimisation problem (@eq-smi), we present a big-M based Mixed Integer Quadratic Program (MIQP) formulation:
 $$
 \begin{aligned}
   \min_{p, \bm{\alpha}, \bm{g}, \beta_{0}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q} \alpha_{jm}^{2} \\
@@ -343,7 +343,7 @@ $$
 $$ {#eq-smi-mip}
 where $p$ is the (unknown) number of indices, $\bm{x}_{i}$ is the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, and $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jq} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, q$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor in each index. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is an optimal solution to the problem given in @eq-smi-mip, then the big-M parameter should satisfy $max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, q\}$.
 
-Notice that, here we formulate the MIP to include all $q$ predictors in each index so that in this case, $\bm{\alpha}_{j}$ is a $q$-dimensional vector of index coefficients. However at the same time, as mentioned earlier, we introduce a set of binary variables corresponding to each predictor in each index, which serves two main purposes: firstly, these binary variables are used to make the *"on-or-off"* decisions of the predictors in the model; secondly, they contributes to decide which predictors belong to which index. 
+Notice that, here we formulate the MIQP to include all $q$ predictors in each index so that in this case, $\bm{\alpha}_{j}$ is a $q$-dimensional vector of index coefficients. However at the same time, as mentioned earlier, we introduce a set of binary variables corresponding to each predictor in each index, which serves two main purposes: firstly, these binary variables are used to make the *"on-or-off"* decisions of the predictors in the model; secondly, they contributes to decide which predictors belong to which index. 
 
 To further elaborate, first, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection. 
 
@@ -355,13 +355,13 @@ Thus, our main contribution in this paper is two-fold. Firstly, we propose a nov
 
 In this section, we show how to efficiently find a minimiser for the problem given in @eq-smi-mip.
 
-Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, as well as the set of nonparametric functions $\bm{g}$ are unknown, it is mathematically impossible to solve the above MIP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve the problem.
+Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, as well as the set of nonparametric functions $\bm{g}$ are unknown, it is mathematically impossible to solve the above MIQP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve the problem.
 
 ### Initialising the Index Structure and Index Coefficients {#sec-step1}
 
-Since the number of indices, the split of the predictors among indices as well as the index coefficients are not pre-specified, first, we need to provide an initialisation for the index structure (i.e. number of indices ($p$) and the split of predictors among indices) and the index coefficients ($\bm{\alpha}$) of the model for start solving the MIP given in @eq-smi-mip.
+Since the number of indices, the split of the predictors among indices as well as the index coefficients are not pre-specified, first, we need to provide an initialisation for the index structure (i.e. number of indices ($p$) and the split of predictors among indices) and the index coefficients ($\bm{\alpha}$) of the model for start solving the MIQP given in @eq-smi-mip.
 
-Based on our experiments on the new algorithm, we propose five alternative methods for initialising the SMI Model as follows. \newline
+Based on our experiments on the new algorithm, we propose five alternative methods for initialising the SMI Model as follows. 
 
 **1. "PPR" - Projection Pursuit Regression Based Initialisation:**
 
@@ -383,21 +383,21 @@ vi. After performing the above steps i-v, if any of the originally estimated ind
 
 Now, the index structure and the index coefficients obtained through the above steps are considered to a feasible initialisation for the SMI Model algorithm. 
 
-Furthermore, it is important to state here that once the optimal SMI Model is obtained through the proposed algorithm, each index coefficient will be back-transformed into the original scale of the corresponding predictor variable to roll back the effect of scaling at the beginning. \newline
+Furthermore, it is important to state here that once the optimal SMI Model is obtained through the proposed algorithm, each index coefficient will be back-transformed into the original scale of the corresponding predictor variable to roll back the effect of scaling at the beginning.
 
 **2. "Additive" - Nonparametric Additive Model Based Initialisation:**
 
-As mentioned previously in @sec-model, the nonparametric additive model is a special case of SMI Model, where the number of indices equals the number of predictors entering indices ($p = q$) (i.e. number of predictors in each index = 1). Hence, it is a feasible starting point for the SMI Model algorithm. (Notice that in this case, we consider the index coefficient corresponding to each predictor to be 1.) \newline
+As mentioned previously in @sec-model, the nonparametric additive model is a special case of SMI Model, where the number of indices equals the number of predictors entering indices ($p = q$) (i.e. number of predictors in each index = 1). Hence, it is a feasible starting point for the SMI Model algorithm. (Notice that in this case, we consider the index coefficient corresponding to each predictor to be 1.) 
 
 **3. "Linear" - Linear Regression Based Initialisation:**
 
-In this option, we first regress the response variable on the predictors using a multiple linear regression. Then, we construct a single index (i.e. $p = 1$) using the estimated regression coefficients as the index coefficients of the predictors. Since Single Index Model is also a special case of the SMI Model, this will be a feasible starting point. \newline
+In this option, we first regress the response variable on the predictors using a multiple linear regression. Then, we construct a single index (i.e. $p = 1$) using the estimated regression coefficients as the index coefficients of the predictors. Since Single Index Model is also a special case of the SMI Model, this will be a feasible starting point. 
 
 **4. "Multiple" - Selecting an Initial Model by Comparing Multiple Models:**
 
 Through our experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model often changes based on the initialisation that we provide to the algorithm. Hence, through this initialisation option, we consider a number of different models as initial models, optimise the SMI Model for each of those initial models, and pick the initial model that results in the SMI Model with the lowest loss for the MIP problem.
 
-Here, the user can decide on the number of models to be considered (*num_models*) as well as the the number of indices to be considered in all the models (*num_ind* - same for all *num_models*). We use *num_models = 5* and *num_ind = 5* as default values. \newline
+Here, the user can decide on the number of models to be considered (*num_models*) as well as the the number of indices to be considered in all the models (*num_ind* - same for all *num_models*). We use *num_models = 5* and *num_ind = 5* as default values. 
 
 **5. "User Input" - User Specified Initialisation:**
 
@@ -419,39 +419,88 @@ where $y_{i}$ is taken as the response, and the estimated indices $\hat{h}_{ij} 
 
 The R packages ***mgcv*** [@Wood2011], and ***gam*** [@Hastie2023], for example, can be used to fit GAMs.
 
-### Updating Index Coefficients {#sec-step3}
+### Updating the Index Structure and Index Coefficients {#sec-step3}
 
-\textcolor{purple}{(To be edited.)}
+#### Updating Index Coefficients {#sec-step3_1} 
 
-We estimate the new value of index coefficients $\bm{\alpha}_{new}$ through an MIQP given in @eq-7 below, which is again a modification of the QP used in step 3 of the CGAIM algorithm (@eq-5) to achieve variable selection.
+We estimate the new value of index coefficients $\bm{\alpha}_{new}$ through a MIQP:
 $$
 \begin{aligned}
   \min_{\bm{\alpha}_{new}, \bm{z}_{new}} \quad & (\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}_{new} - \bm{\alpha}_{old}) - 2(\bm{\alpha}_{new} - \bm{\alpha}_{old})^{T}\bm{V}^{T}\bm{r} \\
-  & + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm(new)} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm(new)}^{2} \\
-  \text{s.t.} \quad & \left |\alpha_{jm(new)}\right | \le Mz_{jm(new)}, \\
+  & + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm(new)} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm(new)}^{2} \\
+  \text{s.t.} \quad & \left |\alpha_{jm(new)}\right | \le Mz_{jm(new)} \quad \forall j, \forall m,\\
   & z_{jm(new)} \in \{0, 1\}, \\
-  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
+  & \sum_{j = 1}^{p}z_{jm(new)} \le 1 \quad \forall m, \\
+  & j = 1, \dots, p, \quad m = 1, \dots, q,
 \end{aligned}
-$$ {#eq-7}
-where $z_{jm(new)}$ are binary variables, and all the other terms are as defined in step 3 of the CGAIM algorithm.
+$$ {#eq-smi-update}
+where $\bm{\alpha}_{old}$ is the current value of $\bm{\alpha}$, and $z_{jm(new)}$ are the new set of binary variables to be estimated. $\bm{V}$ is the matrix of partial derivatives of the right hand side of @eq-semipara, with respect to $\bm{\alpha}_{j}$. The $i^{th}$ line of $\bm{V}$ contains $\left [ \bm{v}_{i1}, \dots, \bm{v}_{ip} \right ]$, where $\bm{v}_{ij} = \bm{x}_{i}g_{j}^{'}(h_{ij})$. The current residual vector, which contains $r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j(old)}^{T}\bm{x}_{i})$, is denoted by $\bm{r}$.
 
-Similar to the explanation given by @Masselot2022, the MIQP objective function in above @eq-7 ignores the *Hessian* (or the matrix of second derivatives of @eq-2, with respect to $\bm{\alpha}_{j}$), and considers only the matrix of first derivatives, which is a *quasi-Newton* step. The *Quasi-Newton Method* is an alternative to the *Newton's Method* that avoids the calculation of the Hessian to circumvent its computational burden [@Peng2022]. Therefore, the $\bm{\alpha}$ updating step given in above @eq-7 is assured to be in a *descent direction*.
+Similar to the explanation given by @Masselot2022, the MIQP objective function in above @eq-smi-update ignores the *Hessian* (or the matrix of second derivatives of @eq-semipara, with respect to $\bm{\alpha}_{j}$), and considers only the matrix of first derivatives, which is a *quasi-Newton* step. The *Quasi-Newton Method* is an alternative to the *Newton's Method* that avoids the calculation of the Hessian to circumvent its computational burden [@Peng2022]. Therefore, the $\bm{\alpha}$ updating step given in above @eq-smi-update is assured to be in a *descent direction*.
 
-Moreover, as in the explanation in @sec-CGAIM, the additional covariates $w_{ik}$ and $\bm{u}_{i}$ do not step in to the process of updating $\bm{\alpha}_{j}$, because they are constants with respect to $\bm{\alpha}_{j}$. Therefore, they disappear from $\bm{V}$, the matrix of partial derivatives of the right hand side of @eq-2, with respect to $\bm{\alpha}_{j}$.
+It is important to note that the additional covariates $w_{ik}$ and $\bm{u}_{i}$ do not step in to the process of updating $\bm{\alpha}_{j}$, because they are constants with respect to $\bm{\alpha}_{j}$, and thus they disappear from $\bm{V}$. 
+
+Moreover, when $\bm{\alpha}_{new}$ is obtained, if any of the estimated individual index coefficient vectors $\bm{\alpha}_{j(new)}$ contains all zeros (i.e. zero index), such indices will be dropped out from the model.
 
 Furthermore, similar to @sec-step1, once the new estimate $\bm{\alpha}_{new}$ is obtained, we scale each estimated index coefficient vector $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm.
 
-We iterate the above steps described in @sec-step2 and @sec-step3 until the reduction ratio of the Mean Squared Error (MSE) obtained between two successive iterations reaches a pre-specified convergence tolerance. Alternatively, it is also possible to terminate the algorithm when a pre-specified maximum number of iterations is reached.
+#### Estimating Nonlinear Functions {#sec-step3_2}
 
-Here, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model on a training set over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest MSE on a validation set, which is not used for training the models.
+Similar to @sec-step2, once we obtain the new estimate $\bm{\alpha}_{new}$ for $\bm{\alpha}$, we estimate a GAM taking $y_{i}$ as the response, and the new estimated indices $\hat{h}_{ij(new)} = \hat{\bm{\alpha}}_{j(new)}^{T}\bm{x}_{i}$, and the additional covariates that are not entering any index as predictors. 
+
+#### Iterating {#sec-step3_3}
+We iterate the above steps described in @sec-step3_1 and @sec-step3_2 until the reduction ratio of the objective (loss) function value of the MIQP given in @eq-smi-mip, calculated between two successive iterations, reaches a pre-specified convergence tolerance, or the loss increases for three consecutive iterations. Alternatively, it is also possible to stop the iterations when a pre-specified maximum number of iterations is reached.
+
+Here, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest loss function value.
 
 Moreover, it is also crucial to choose a suitable value for the big-M parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
 
-Additionally, the choice of convergence tolerance and the maximum number of iterations will depend on the nature of the problem/data to which the algorithm is applied. In the empirical applications presented in @sec-application, we have used a convergence tolerance of $0.001$, and $50$ maximum iterations, where the algorithm is terminated on whichever is reached first.
+Additionally, the choice of convergence tolerance and the maximum number of iterations will depend on the nature of the problem/data to which the algorithm is applied. In the empirical applications presented in @sec-application, we have used a convergence tolerance of $0.001$, and $50$ maximum iterations, where the iterations are terminated on whichever is reached first.
 
-The following ***Algorithm 1*** summarises the key steps of the SGAIM algorithm.
+#### Updating Index Structure {#sec-step3_4} 
 
-***Algorithm 1: SGAIM Algorithm***
+Once the initially chosen model is optimised through above step in @sec-step3_3, next, we consider changing the index structure of the model to exploit any benefits in terms of further minimising the loss function of the MIQP given in @eq-smi-mip. 
+
+Since reducing number of indices of the model automatically happens through dropping indices corresponding to any zero indices at each optimisation iteration, in this step, we consider adding indices into the current model. 
+
+Thus, once we obtain the optimal model at the step in @sec-step3_3 (say the number of indices in the model = $p$), we check for any predictors that are dropped out from the model. If any such predictors are available, we construct a new index comprising of those dropped out predictors and add that to the current model. Then the step in @sec-step3_3 is performed again for the new model with, say $p+1$ indices.
+
+If no predictors were dropped out from the first model (obtained from @sec-step3_3), then the algorithm terminates at this point, and the optimal model obtained from @sec-step3_3 will be the final SMI Model.
+
+#### Iterating {#sec-step3_5} 
+
+We iteratively perform the step in @sec-step3_4, increasing the number of indices of the existing model by one in each iteration. At the end of each iteration we check for the following termination criteria:
+
+-   *If the number of indices in the current model **equals** the number of indices in the new model:*
+    -   *If the absolute difference between the index coefficients in the current model and the new model is **equal** up to a pre-specified tolerance:*
+        -   *If the loss of the new model is **greater** than the current model:*
+            Terminate the algorithm, and the current model is the final SMI Model; 
+            
+            OR
+            
+        -   *If the loss of the new model is **lower** than the current model:*
+            Terminate the algorithm, and the new model is the final SMI Model;
+            
+    OR
+    
+    -   *If the absolute difference between the index coefficients in the current model and the new model is **not equal** up to a pre-specified tolerance:*
+        -   *If the loss of the new model is **greater** than the current model:*
+            Terminate the algorithm, and the current model is the final SMI Model;
+            
+OR
+
+-   *If the number of indices in the current model **does not equal** the number of indices in the new model:*
+    -   *If the loss of the new model is **greater** than the current model:*
+        Terminate the algorithm, and the current model is the final SMI Model;
+            
+OR
+
+-   *If the number of indices of the current model equals the number of predictors (entering indices) (i.e. maximum possible number of indices id reached):*
+    Terminate the algorithm, and the current model is the final SMI Model. \newline
+
+The following ***Algorithm 1*** summarises the key steps of the SMI Model algorithm.
+
+***Algorithm 1: SMI Model Algorithm***
 
 1.  Initialise $\bm{\alpha}$:
     a.   Obtain $\bm{\alpha}_{init}$ using the MIQP in @eq-6 or the QP in @eq-4
