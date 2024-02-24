@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, breakable, frame hidden, interior hidden, enhanced, sharp corners, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, interior hidden, sharp corners, enhanced, breakable, frame hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1095,8 +1095,8 @@ Model}} (hereafter referred to as SMI Model) to establish an objective
 and a principled methodology for estimating high-dimensional
 nonparametric additive index models, with optimal predictor selection.
 
-\hypertarget{model}{%
-\subsection{Model}\label{model}}
+\hypertarget{sec-model}{%
+\subsection{Model}\label{sec-model}}
 
 The model of interest is a semi-parametric additive index model, which
 can be written as \begin{equation}\protect\hypertarget{eq-semipara}{}{
@@ -1134,7 +1134,13 @@ algorithm.
 Most importantly, we allow the possibility for the index coefficient
 vectors \(\bm{\alpha}_{j}\)s to have elements that are equal to zero, so
 that the predictors corresponding to such zero coefficients are dropped
-out from the model achieveing variable selection.
+out from the model, achieving variable selection.
+
+Moreover, it is important to note here that the possible number of
+indices in a SMI model ranges from \(1\) (i.e.~all \(q\) predictors are
+in a single index) to \(q\) (i.e.~each predictor is in a separate
+index). In other words, both the Single Index Model and the Additive
+Model are special cases of SMI Model.
 
 In addition to the predictor variables that are entering indices, we
 also allow for predictors that do not enter any of the indices. These
@@ -1251,45 +1257,145 @@ selecting the best set of predictors is unavailable.
 In this section, we show how to efficiently find a minimiser for the
 problem given in Equation~\ref{eq-smi-mip}.
 
+Since the number of indices \(p\), the vector of index coefficients
+\(\bm{\alpha}\), as well as the set of nonparametric functions
+\(\bm{g}\) are unknown, it is mathematically impossible to solve the
+above MIP given in Equation~\ref{eq-smi-mip} directly. Hence, we propose
+an iterative algorithm to solve the problem.
+
 \hypertarget{sec-step1}{%
-\subsubsection{Initialising Index Coefficients}\label{sec-step1}}
+\subsubsection{Initialising the Index Structure and Index
+Coefficients}\label{sec-step1}}
 
-First, as explained earlier in this section, we introduce \(q\) (total
-number of predictors entering indices) binary variables corresponding to
-each predictor. Then, we propose to obtain an initial value for the
-index coefficients
-\(\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}\)
-through solving a MIQP as given below.
-\begin{equation}\protect\hypertarget{eq-6}{}{
-\begin{aligned}
-  \min_{\bm{\alpha}, \bm{z}} \quad & \bm{\alpha}^{T}\bm{X}^{T}\bm{X}\bm{\alpha} - 2\bm{\alpha}^{T}\bm{X}^{T}\bm{y} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\alpha_{jm}^{2} \\
-  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm}, \\
-  & z_{jm} \in \{0, 1\}, \\
-  & j = 1, \dots, p, \quad m = 1, \dots, l_{j},
-\end{aligned}
-}\label{eq-6}\end{equation} where \(\lambda_{0}\) and \(\lambda_{2}\)
-are non-negative tuning parameters, and \(M\) is the pre-specified big-M
-value. This is same as solving a penalised least squares problem,
-considering only the predictors that are entering indices.
+Since the number of indices, the split of the predictors among indices
+as well as the index coefficients are not pre-specified, first, we need
+to provide an initialisation for the index structure (i.e.~number of
+indices (\(p\)) and the split of predictors among indices) and the index
+coefficients (\(\bm{\alpha}\)) of the model for start solving the MIP
+given in Equation~\ref{eq-smi-mip}.
 
-Alternatively, an initial value for \(\bm{\alpha}\), without any
-variable selection or shrinkage, can be obtained by the same QP as in
-the first step of CGAIM algorithm (\textbf{?@eq-4}), which is
-essentially a multiple linear regression.
+Based on our experiments on the new algorithm, we propose five
+alternative methods for initialising the SMI Model as follows. \newline
 
-Once the estimate for \(\bm{\alpha}\) is obtained, the estimated initial
-index coefficient vector of each index
-\(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) is scaled to have unit
-norm to ensure identifiability.
+\textbf{1. ``PPR'' - Projection Pursuit Regression Based
+Initialisation:}
+
+As discussed in Section~\ref{sec-Index}, Projection Pursuit Regression
+model is a multiple index model, where each index consists of all the
+available predictors. Since in SMI Model we assume that there are no
+overlapping indices, it is impossible to use an estimated PPR model
+directly as a starting model for the algorithm. Thus, we follow the
+steps presented below to come up with a feasible initialisation for the
+index structure and the coefficients.
+
+\begin{enumerate}
+\def\labelenumi{\roman{enumi}.}
+\item
+  Scale all the variables of the data set by dividing each variable by
+  its standard deviation (so that it is possible to compare the
+  estimated coefficients among predictors).
+\item
+  Fit a PPR model and obtain estimated index coefficients. (The user can
+  decide the number of indices to be estimated (\emph{num\_ind}); we use
+  \emph{num\_ind = 5} as the default value.)
+\item
+  Calculate a threshold as \[
+    threshold = \max(PPR \quad coefficients) * 0.1
+  \]
+\item
+  Assign zero for all the coefficients that are lower than the
+  calculated threshold.
+\item
+  If any predictor appears in more than one index, assign that predictor
+  to the index in which that particular predictor has the maximum
+  coefficient (among the coefficients corresponding to that predictor in
+  all the indices), and make the coefficients corresponding to that
+  predictor to be zero in all the other indices.
+\item
+  After performing the above steps i-v, if any of the originally
+  estimated indices have all zero coefficients, such an index will be
+  dropped out of the model.
+\end{enumerate}
+
+Now, the index structure and the index coefficients obtained through the
+above steps are considered to a feasible initialisation for the SMI
+Model algorithm.
+
+Furthermore, it is important to state here that once the optimal SMI
+Model is obtained through the proposed algorithm, each index coefficient
+will be back-transformed into the original scale of the corresponding
+predictor variable to roll back the effect of scaling at the beginning.
+\newline
+
+\textbf{2. ``Additive'' - Nonparametric Additive Model Based
+Initialisation:}
+
+As mentioned previously in Section~\ref{sec-model}, the nonparametric
+additive model is a special case of SMI Model, where the number of
+indices equals the number of predictors entering indices (\(p = q\))
+(i.e.~number of predictors in each index = 1). Hence, it is a feasible
+starting point for the SMI Model algorithm. (Notice that in this case,
+we consider the index coefficient corresponding to each predictor to be
+1.) \newline
+
+\textbf{3. ``Linear'' - Linear Regression Based Initialisation:}
+
+In this option, we first regress the response variable on the predictors
+using a multiple linear regression. Then, we construct a single index
+(i.e.~\(p = 1\)) using the estimated regression coefficients as the
+index coefficients of the predictors. Since Single Index Model is also a
+special case of the SMI Model, this will be a feasible starting point.
+\newline
+
+\textbf{4. ``Multiple'' - Selecting an Initial Model by Comparing
+Multiple Models:}
+
+Through our experiments on the new algorithm, we identified that in some
+situations, the final optimised SMI Model often changes based on the
+initialisation that we provide to the algorithm. Hence, through this
+initialisation option, we consider a number of different models as
+initial models, optimise the SMI Model for each of those initial models,
+and pick the initial model that results in the SMI Model with the lowest
+loss for the MIP problem.
+
+Here, the user can decide on the number of models to be considered
+(\emph{num\_models}) as well as the the number of indices to be
+considered in all the models (\emph{num\_ind} - same for all
+\emph{num\_models}). We use \emph{num\_models = 5} and \emph{num\_ind =
+5} as default values. \newline
+
+\textbf{5. ``User Input'' - User Specified Initialisation:}
+
+As mentioned earlier, since the number of indices, the split of the
+predictors among indices as well as the index coefficients are unknown,
+and will be optimally estimated by the proposed algorithm,
+theoretically, it is possible to start the algorithm at any given random
+initialisation of the model. Hence, this final option allow the user to
+provide their desired initialisation for the algorithm by specifying the
+number of indices, the split of predictors among the indices and the
+initial index coefficients.
+
+In other words, this option provides the freedom for the user to utilise
+their domain expertise or prior knowledge in initialising the algorithm.
+
+In all of the above initialisation options, once the estimate for
+\(\bm{\alpha}\) is obtained, the estimated initial index coefficient
+vector of each index \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\)
+is scaled to have unit norm to ensure identifiability.
+
+The characteristics and the performance of the proposed algorithm based
+on each of these initialisation option, vary depending on the nature of
+the application. Some initial experimental insights regarding the same
+will be discussed in more detail in Section~\ref{sec-simulation}.
 
 \hypertarget{sec-step2}{%
 \subsubsection{Estimating Nonlinear Functions}\label{sec-step2}}
 
-Once we have an estimate for \(\bm{\alpha}\), estimating the SGAIM is
-equivalent to estimating a GAM as \[
+Once we have an estimate for \(\bm{\alpha}\), estimating the SMI Model
+is equivalent to estimating a GAM as \[
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\hat{h}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
 \] where \(y_{i}\) is taken as the response, and the estimated indices
-\(\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}\)s, and the
+\(\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}\), and the
 additional covariates that are not entering any index are taken as
 predictors.
 
@@ -1299,6 +1405,8 @@ fit GAMs.
 
 \hypertarget{sec-step3}{%
 \subsubsection{Updating Index Coefficients}\label{sec-step3}}
+
+\textcolor{purple}{(To be edited.)}
 
 We estimate the new value of index coefficients \(\bm{\alpha}_{new}\)
 through an MIQP given in Equation~\ref{eq-7} below, which is again a
@@ -1381,8 +1489,8 @@ the SGAIM algorithm.
   \def\labelenumii{\alph{enumii}.}
   \tightlist
   \item
-    Obtain \(\bm{\alpha}_{init}\) using the MIQP in Equation~\ref{eq-6}
-    or the QP in \textbf{?@eq-4}
+    Obtain \(\bm{\alpha}_{init}\) using the MIQP in \textbf{?@eq-6} or
+    the QP in \textbf{?@eq-4}
   \item
     Scale each \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) to have
     unit norm
