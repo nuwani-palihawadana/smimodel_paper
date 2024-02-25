@@ -300,7 +300,7 @@ $$
 $$ {#eq-semipara}
 where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). 
 
-Based on the above model formulation, we make three main assumptions to define the **SMI Model** as follows:
+Based on the above model formulation, we make three main assumptions as follows to define the **SMI Model**:
 
 1.    The number of indices (i.e. the number of subsets of predictors) $p$ is unknown, and will be estimated through the proposed algorithm;
 
@@ -407,7 +407,7 @@ In other words, this option provides the freedom for the user to utilise their d
 
 In all of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficient vector of each index $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ is scaled to have unit norm to ensure identifiability.
 
-The characteristics and the performance of the proposed algorithm based on each of these initialisation option, vary depending on the nature of the application. Some initial experimental insights regarding the same will be discussed in more detail in @sec-simulation. 
+The characteristics and the performance of the proposed algorithm based on each of these initialisation options, vary depending on the nature of the application. Some initial experimental insights regarding the same will be discussed in more detail in @sec-simulation. 
 
 ### Estimating Nonlinear Functions {#sec-step2}
 
@@ -496,9 +496,9 @@ We iteratively perform the step in @sec-step3_4, increasing the number of indice
     Else
 
 *   *If the number of indices of the current model equals the number of predictors (entering indices) (i.e. maximum possible number of indices id reached):*
-    Terminate the algorithm, and the current model is the final SMI Model. \newline
+    Terminate the algorithm, and the current model is the final SMI Model.
 
-The following ***Algorithm 1*** summarises the key steps of the SMI Model algorithm.
+The following ***Algorithm 1*** summarises the key steps of the SMI Model algorithm. \newline
 
 ***Algorithm 1: SMI Model Algorithm***
 

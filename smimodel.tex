@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, borderline west={3pt}{0pt}{shadecolor}, interior hidden, boxrule=0pt, frame hidden, breakable, enhanced]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, boxrule=0pt, frame hidden, enhanced, borderline west={3pt}{0pt}{shadecolor}, breakable, interior hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1110,8 +1110,8 @@ predictors entering indices, \(\bm{\alpha}_{j}\) is the
 index \(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\), and \(g_{j}\) is the
 corresponding nonlinear link function (possibly estimated by a spline).
 
-Based on the above model formulation, we make three main assumptions to
-define the \textbf{SMI Model} as follows:
+Based on the above model formulation, we make three main assumptions as
+follows to define the \textbf{SMI Model}:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1382,7 +1382,7 @@ vector of each index \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\)
 is scaled to have unit norm to ensure identifiability.
 
 The characteristics and the performance of the proposed algorithm based
-on each of these initialisation option, vary depending on the nature of
+on each of these initialisation options, vary depending on the nature of
 the application. Some initial experimental insights regarding the same
 will be discussed in more detail in Section~\ref{sec-simulation}.
 
@@ -1589,11 +1589,11 @@ criteria:
   \emph{If the number of indices of the current model equals the number
   of predictors (entering indices) (i.e.~maximum possible number of
   indices id reached):} Terminate the algorithm, and the current model
-  is the final SMI Model. \newline
+  is the final SMI Model.
 \end{itemize}
 
 The following \textbf{\emph{Algorithm 1}} summarises the key steps of
-the SMI Model algorithm.
+the SMI Model algorithm. \newline
 
 \textbf{\emph{Algorithm 1: SMI Model Algorithm}}
 
