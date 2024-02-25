@@ -471,52 +471,74 @@ If no predictors were dropped out from the first model (obtained from @sec-step3
 
 We iteratively perform the step in @sec-step3_4, increasing the number of indices of the existing model by one in each iteration. At the end of each iteration we check for the following termination criteria:
 
--   *If the number of indices in the current model **equals** the number of indices in the new model:*
-    -   *If the absolute difference between the index coefficients in the current model and the new model is **equal** up to a pre-specified tolerance:*
-        -   *If the loss of the new model is **greater** than the current model:*
-            Terminate the algorithm, and the current model is the final SMI Model; 
+*   *If the number of indices in the current model **equals** the number of indices in the new model:*
+      +   *If the absolute difference between the index coefficients in the current model and the new model is **equal** up to a pre-specified tolerance:*
+            -   *If the loss of the new model is **greater** than the current model:*
+                Terminate the algorithm, and the current model is the final SMI Model; 
             
-            OR
+                Else
             
-        -   *If the loss of the new model is **lower** than the current model:*
-            Terminate the algorithm, and the new model is the final SMI Model;
+            -   *If the loss of the new model is **lower** than the current model:*
+                Terminate the algorithm, and the new model is the final SMI Model;
             
-    OR
+          Else
     
-    -   *If the absolute difference between the index coefficients in the current model and the new model is **not equal** up to a pre-specified tolerance:*
-        -   *If the loss of the new model is **greater** than the current model:*
-            Terminate the algorithm, and the current model is the final SMI Model;
+      +   *If the absolute difference between the index coefficients in the current model and the new model is **not equal** up to a pre-specified tolerance:*
+            -   *If the loss of the new model is **greater** than the current model:*
+                Terminate the algorithm, and the current model is the final SMI Model;
             
-OR
+    Else
 
--   *If the number of indices in the current model **does not equal** the number of indices in the new model:*
-    -   *If the loss of the new model is **greater** than the current model:*
-        Terminate the algorithm, and the current model is the final SMI Model;
+*   *If the number of indices in the current model **does not equal** the number of indices in the new model:*
+      +   *If the loss of the new model is **greater** than the current model:*
+          Terminate the algorithm, and the current model is the final SMI Model;
             
-OR
+    Else
 
--   *If the number of indices of the current model equals the number of predictors (entering indices) (i.e. maximum possible number of indices id reached):*
+*   *If the number of indices of the current model equals the number of predictors (entering indices) (i.e. maximum possible number of indices id reached):*
     Terminate the algorithm, and the current model is the final SMI Model. \newline
 
 The following ***Algorithm 1*** summarises the key steps of the SMI Model algorithm.
 
 ***Algorithm 1: SMI Model Algorithm***
 
-1.  Initialise $\bm{\alpha}$:
-    a.   Obtain $\bm{\alpha}_{init}$ using the MIQP in @eq-6 or the QP in @eq-4
-    b.   Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ to have unit norm
+1.  Initialise index structure and $\bm{\alpha}$:\
+    Initialise $p$, split of the predictors among indices, and obtain $\bm{\alpha}_{init}$ using one of the five methods in @sec-step1, and scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$ to have unit norm
 
 2.  Estimate $g_{j}$s:\
-    Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}$s as predictors
+    Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$s as predictors
 
-3.  Update $\bm{\alpha}$:
-    a.   Estimate the new value $\bm{\alpha}_{new}$ through the MIQP in @eq-7
-    b.   Scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm
-
-4.  Iterate:\
-    Repeat steps 2 and 3 until a convergence tolerance or a maximum number of iterations is reached
+3.  Update index structure and $\bm{\alpha}$: 
+    i.    Estimate the new value $\bm{\alpha}_{new}$ through the MIQP in @eq-smi-update, and scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}$ to have unit norm.
+    ii.    Estimate new $g_{j}$s as in step 2.
+    iii.    Iterate above steps i and ii until a convergence tolerance is reached OR loss increases for three consecutive iterations OR maximum number of iterations is reached.
+    iv.    Update index structure:
+            a.    If any predictors are dropped out from the model in above step iii, add a new index consisting of the dropped out predictors, and optimise the model through step iii.
+            b.    If no predictors are dropped out from the model in above step iii, terminate the algorithm.
+    v.    Iterate above step iv, while increasing $p$ by 1 in each iteration, until one of the following terminations criteria is reached.
+          -   **If** (No.of indices in current model $=$ No.of indices in new model):
+                -   **If** (abs(current index coefficients $-$ new index coefficients) $\le$ tolerance):
+                    -   **If** (loss of new model $\ge$ loss of current model): **Terminate** - current model is the final SMI Model; 
+                    
+                        **Else**
+                    
+                    -   **If** (loss of new model $<$ loss of current model): **Terminate** - new model is the final SMI Model;
+                
+                    **Else**
+          
+                -   **If** (abs(current index coefficients $-$ new index coefficients) $>$ tolerance):
+                    -   **If** (loss of new model $\ge$ loss of current model): **Terminate** - current model is the final SMI Model;
+                    
+              **Else**
+            
+          -   **If** (No.of indices in current model $\neq$ No.of indices in new model):
+                -   **If** (loss of new model $\ge$ loss of current model): **Terminate** - current model is the final SMI Model;
+                
+              **Else**
+          
+          -   **If** (No. of indices in current model $= q$): **Terminate** - current model is the final SMI Model.
+          
     
-
 # Simulation Experiment {#sec-simulation}
 
 \textcolor{purple}{(To be completed.)} \newline

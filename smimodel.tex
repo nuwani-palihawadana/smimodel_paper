@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, enhanced, breakable, interior hidden, frame hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, borderline west={3pt}{0pt}{shadecolor}, interior hidden, boxrule=0pt, frame hidden, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1538,7 +1538,6 @@ criteria:
   the number of indices in the new model:}
 
   \begin{itemize}
-  \tightlist
   \item
     \emph{If the absolute difference between the index coefficients in
     the current model and the new model is \textbf{equal} up to a
@@ -1550,18 +1549,14 @@ criteria:
       current model:} Terminate the algorithm, and the current model is
       the final SMI Model;
 
-      OR
+      Else
     \item
       \emph{If the loss of the new model is \textbf{lower} than the
       current model:} Terminate the algorithm, and the new model is the
       final SMI Model;
     \end{itemize}
-  \end{itemize}
 
-  OR
-
-  \begin{itemize}
-  \tightlist
+    Else
   \item
     \emph{If the absolute difference between the index coefficients in
     the current model and the new model is \textbf{not equal} up to a
@@ -1575,12 +1570,8 @@ criteria:
       the final SMI Model;
     \end{itemize}
   \end{itemize}
-\end{itemize}
 
-OR
-
-\begin{itemize}
-\tightlist
+  Else
 \item
   \emph{If the number of indices in the current model \textbf{does not
   equal} the number of indices in the new model:}
@@ -1592,12 +1583,8 @@ OR
     current model:} Terminate the algorithm, and the current model is
     the final SMI Model;
   \end{itemize}
-\end{itemize}
 
-OR
-
-\begin{itemize}
-\tightlist
+  Else
 \item
   \emph{If the number of indices of the current model equals the number
   of predictors (entering indices) (i.e.~maximum possible number of
@@ -1613,39 +1600,102 @@ the SMI Model algorithm.
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  Initialise \(\bm{\alpha}\):
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \tightlist
-  \item
-    Obtain \(\bm{\alpha}_{init}\) using the MIQP in \textbf{?@eq-6} or
-    the QP in \textbf{?@eq-4}
-  \item
-    Scale each \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) to have
-    unit norm
-  \end{enumerate}
+  Initialise index structure and \(\bm{\alpha}\):\\
+  Initialise \(p\), split of the predictors among indices, and obtain
+  \(\bm{\alpha}_{init}\) using one of the five methods in
+  Section~\ref{sec-step1}, and scale each
+  \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}\) to have unit norm
 \item
   Estimate \(g_{j}\)s:\\
   Estimate \(g_{j}\)s using a GAM taking \(y_{i}\) as the response,
-  \(\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{ij}\)s as predictors
+  \(\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}\)s as predictors
 \item
-  Update \(\bm{\alpha}\):
+  Update index structure and \(\bm{\alpha}\):
 
   \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
+  \def\labelenumii{\roman{enumii}.}
   \tightlist
   \item
     Estimate the new value \(\bm{\alpha}_{new}\) through the MIQP in
-    \textbf{?@eq-7}
+    Equation~\ref{eq-smi-update}, and scale each
+    \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}\) to have unit norm.
   \item
-    Scale each \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j(new)}\) to have
-    unit norm
+    Estimate new \(g_{j}\)s as in step 2.
+  \item
+    Iterate above steps i and ii until a convergence tolerance is
+    reached OR loss increases for three consecutive iterations OR
+    maximum number of iterations is reached.
+  \item
+    Update index structure:
+
+    \begin{enumerate}
+    \def\labelenumiii{\alph{enumiii}.}
+    \tightlist
+    \item
+      If any predictors are dropped out from the model in above step
+      iii, add a new index consisting of the dropped out predictors, and
+      optimise the model through step iii.
+    \item
+      If no predictors are dropped out from the model in above step iii,
+      terminate the algorithm.
+    \end{enumerate}
+  \item
+    Iterate above step iv, while increasing \(p\) by 1 in each
+    iteration, until one of the following terminations criteria is
+    reached.
+
+    \begin{itemize}
+    \item
+      \textbf{If} (No.of indices in current model \(=\) No.of indices in
+      new model):
+
+      \begin{itemize}
+      \item
+        \textbf{If} (abs(current index coefficients \(-\) new index
+        coefficients) \(\le\) tolerance):
+
+        \begin{itemize}
+        \item
+          \textbf{If} (loss of new model \(\ge\) loss of current model):
+          \textbf{Terminate} - current model is the final SMI Model;
+
+          \textbf{Else}
+        \item
+          \textbf{If} (loss of new model \(<\) loss of current model):
+          \textbf{Terminate} - new model is the final SMI Model;
+        \end{itemize}
+
+        \textbf{Else}
+      \item
+        \textbf{If} (abs(current index coefficients \(-\) new index
+        coefficients) \(>\) tolerance):
+
+        \begin{itemize}
+        \tightlist
+        \item
+          \textbf{If} (loss of new model \(\ge\) loss of current model):
+          \textbf{Terminate} - current model is the final SMI Model;
+        \end{itemize}
+      \end{itemize}
+
+      \textbf{Else}
+    \item
+      \textbf{If} (No.of indices in current model \(\neq\) No.of indices
+      in new model):
+
+      \begin{itemize}
+      \tightlist
+      \item
+        \textbf{If} (loss of new model \(\ge\) loss of current model):
+        \textbf{Terminate} - current model is the final SMI Model;
+      \end{itemize}
+
+      \textbf{Else}
+    \item
+      \textbf{If} (No.~of indices in current model \(= q\)):
+      \textbf{Terminate} - current model is the final SMI Model.
+    \end{itemize}
   \end{enumerate}
-\item
-  Iterate:\\
-  Repeat steps 2 and 3 until a convergence tolerance or a maximum number
-  of iterations is reached
 \end{enumerate}
 
 \hypertarget{sec-simulation}{%
