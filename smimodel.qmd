@@ -541,7 +541,67 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Model algori
     
 # Simulation Experiment {#sec-simulation}
 
-\textcolor{purple}{(To be completed.)} \newline
+This section presents the results of a simple simulation experiment conducted to demonstrate the performance and characteristics of the proposed SMI Model algorithm. Particularly, we try to investigate how the estimated SMI Model varies depending on the initialisation (as discussed in @sec-step1) used. 
+
+## Data Generation {#sec-datagen}
+
+**Generating predictor variables:**
+
+First, we generate two series each of length 1205: $x$, from random uniform distribution with the support $[0, 1]$, and $z$, from random normal distribution with mean $= 5$, and standard deviation $= 2$. Next, we construct lagged series up to $5^{th}$ lag of both $x$ and $z$. These current and lagged series of $x$ and $z$ (i.e. $x = x_{0}, x_{1}, \dots, x_{5}, z = z_{0}, z_{1}, \dots, z_{5}$) were taken as predictors in the simulation experiment.
+
+**Generating response variables:**
+
+We generated two response variables $y_{1}$ and $y_{2}$, with two different index structures: "single-index" and "2-index", and added a random normal noise component of two different strengths as follows:
+
+-   Low noise level - $N(\mu = 0, \sigma = 0.1)$:\
+      $y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + N(\mu = 0, \sigma = 0.1)$\
+      $y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + N(\mu = 0, \sigma = 0.1)$
+      
+-   High noise level - $N(\mu = 0, \sigma = 0.5)$:\
+      $y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + N(\mu = 0, \sigma = 0.5)$\
+      $y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + N(\mu = 0, \sigma = 0.5)$
+      
+Hence, notice that the response $y_{1}$ is constructed using a single index consisting of the predictor variables $x_{0}, x_{1},$ and $x_{3}$, whereas the other response $y_{2}$ is constructed using two indices, where the first index consists of the predictors $x_{0}, x_{1},$ and $x_{3}$, and the second index consists of $x_{2}$ and $x_{5}$. The variable $x_{4}$ or none of the $z$ variables were used in generating $y_{1}$ and $y_{2}$. 
+
+Once the data set is constructed, the first five observations are discarded due to the missing values introduced by the lagged variables, which leaves a data set of 1200 observations. We use the first 1000 observations as the training set, whereas the remaining 200 observations are kept a side as the test set for evaluating the forecasting error of the estimated models. 
+
+## Experiment setup {#sec-exp}
+
+In this section, we explain the set up of the simulation experiment conducted. 
+
+We estimated SMI Models through the proposed algorithm for each of the two response variables (the two "true models"), using three different sets of predictors as inputs. Our aim was to examine whether the algorithm correctly picks the relevant predictor variables (and drops the irrelevant predictors), and estimate the correct index structure of the true model. 
+
+The three different sets of predictors considered are as follows:
+
+1.    All "$x$" variables (i.e. only the "relevant" predictors as the responses, $y_{1}$ and $y_{2}$, were constructed using only "$x$" variables);
+
+2.    All "$x$" variables and all "$z$" variables (i.e. "relevant" predictors plus "irrelevant" predictors); and
+
+3.    A part of "$x$" variables ($x_{0}, x_{1}$ and $x_{2}$) and all "$z$" variables (i.e. some "relevent" predictors plus "irrelevant" predictors).
+
+We applied the proposed SMI Model algorithm using each of the above predictor combinations, for each of the two variations of the responses in terms of the noise level. Moreover, we also considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses. For "PPR" and "Multiple" options, we are using the default values of the required parameters as stated in @sec-step1. (We used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in step 3.3 (@sec-step3_3), and a convergence tolerance for coefficients of $0.001$ in step 3.5 (@sec-step3_5) in estimating all SMI Models.)
+
+## Results {#sec-sim-results}
+
+We summarise the results of the simulation experiment explained above in @tbl-simulation.
+
+```{r}
+#| label: tbl-simulation
+#| tbl-cap: Simulation experiment results
+results_sim <- readr::read_csv("data/simulation_table_final.csv")
+kable(results_sim,
+      format = "latex",
+      booktabs = TRUE,
+      digits = 2,
+      escape = FALSE,
+      col.names = c("True Model", "Predictors", "PPR", "Additive", "Linear", "Multiple")) %>%
+  #add_header_above(c("", "", "Low noise level" = 4, "High noise level" = 4), align = "c") %>%
+  pack_rows(index = c("Low noise level" = 12, "High noise level" = 12)) %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header", "scale_down")) %>%
+  row_spec(0, bold = TRUE) %>%
+  collapse_rows(columns = 1:2, valign = "middle")
+```
+
 
 
 # Empirical Applications {#sec-application}
