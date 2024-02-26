@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, sharp corners, breakable, enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, sharp corners, frame hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1870,9 +1870,9 @@ predictors, and noise levels.
 \end{tabular}}
 \end{table}
 
-First, if the low noise level is considered, for the first true model
-\(y_{1}\), when either ``all x'' or ``all x + all z'' predictors are
-provided, all four initialisation options estimate the correct index
+Firstly, when the low noise level is considered, for the first true
+model \(y_{1}\), when either ``all x'' or ``all x + all z'' predictors
+are provided, all four initialisation options estimate the correct index
 structure of the model, while selecting the correct set of predictors
 and dropping out the irrelevant predictors. When only a part of the
 ``\(x\)'' variables are provided, the models estimated using all four
@@ -1882,15 +1882,117 @@ of the data, the algorithm might select irrelevant variables to make up
 for the missing signal.
 
 When \(y_{2}\) with low noise level is considered, in both ``all x'' and
-``all x + all z'' cases, except with the ``Linear'' initialisation, the
+``all x + all z'' cases, except for the ``Linear'' initialisation, the
 algorithm has estimated the correct index structure with all the other
 three initialisation options. The ``Linear'' option has selected the
 correct variables into the model, however has not identified the 2-index
-structure. This suggests that it maight better to initialise the
+structure. This suggests that it might be better to initialise the
 algorithm with a higher number of indices rather than with a lower
 number of indices. When only a part of ``\(x\)'' variables are provided,
-similar to the case of \(y_{1}\), models estimated for \(y_{2}\), with
+similar to the case of \(y_{1}\), models estimated for \(y_{2}\) with
 all four initialisations, have selected noise variables.
+
+Furthermore, we evaluated the forecasting error of the fitted models on
+the test set using Mean Squared Error (MSE). For \(y_{1}\), in both the
+cases ``all x'' and ``all x + all z'', the models estimated using all
+four initialisations resulted in a test MSE of \(\approx 0.01\), which
+is the random squared error of the true model. This confirms the
+accuracy with which the SMI Model algorithm estimated the index
+structure for \(y_{1}\). When only a part of ``\(x\)'' variables are
+provided, the test MSE increased to \(\approx 0.23\), as the estimated
+models contain noise variables.
+
+For \(y_{2}\), in both the cases ``all x'' and ``all x + all z'', all
+the models estimated resulted in a test MSE of \(\approx 0.16\). This is
+an interesting result as the test MSEs of the estimated models with
+correct index structure: ``PPR'', ``Additive'', and ``Multiple'', are
+not very different to the test MSE of an estimated model with incorrect
+index structure, but with correct predictors: ``Linear''. This suggests
+that the selection of the predictor variables is more important than
+determining the index structure of the model.
+
+It is also worth mentioning here that in real-world forecasting
+problems, the true data generating process (DGP) is unknown, and we do
+not expect an estimated model to represent the true DGP. Therefore, as
+long as the estimated model exhibits good forecasting accuracy, the
+index structure of the estimated model is less important.
+
+Similar to the case of \(y_{1}\), when only a part of ``\(x\)''
+variables are provided, the test MSE of the estimated models for
+\(y_{2}\) increased to \(\approx 0.34\), probably due to the inclusion
+of noise variables.
+
+Moreover, when the above test MSE values of the models estimated for
+\(y_{2}\) are considered, in contrast to the case of \(y_{1}\), those
+values are higher than the random squared error of the true model.
+Intuitively, this might be due to the increased complexity of the model
+\(y_{2}\) in comparison to \(y_{1}\), where the total estimation error
+of two nonlinear link functions (corresponding to the two indices) for
+\(y_{2}\), might be higher than the error of estimating a single
+nonlinear function for \(y_{1}\).
+
+As expected, the accuracy with which the SMI Model algorithm estimates
+the index structure is in general lower with the high noise level, in
+comparison to the low noise level. In the case of \(y_{1}\), when ``all
+x'' variables are provided, except for ``Additive'' option, all the
+other initialisations have correctly estimated the model. When ``all x +
+all z'' variables are provided, only the ``PPR'' and ``Linear'' options
+have estimated the correct model, whereas ``Additive'' and ``Multiple''
+options have included a noise variable. Similar to the low noise level
+case, when only a part of ``\(x\)'' variables are provided, all four
+initialisations have led the algorithm to estimate models with noise
+variables.
+
+Next, when \(y_{2}\) is considered at high noise level, when ``all x''
+variables are provided, the estimated models using all four
+initialisation options have included the variable \(x_{4}\) (as an
+additional index), which should have been omitted. When ``all x + all
+z'' variables are provided, the option ``Multiple'' has led the
+algorithm to the correct model, while all the other three options have
+included a noise variable. Similar to the previous cases, when only a
+part of ``\(x\)'' variables are provided, the models estimated using all
+four initialisation options have included multiple noise variables,
+probably to cover up for the missing signal variables.
+
+In both the cases ``all x'' and ``all x + all z'', all the models
+estimated for \(y_{1}\), except for ``Additive'' option in ``all x''
+case, resulted in a test MSE of \(\approx 0.23\) (which is slightly
+lower than the random squared error of the true model; this probably
+indicates a slight level of over-fitting), irrespective of the fact that
+in ``all x + all z'' case, ``Additive'' and ``Multiple'' options
+included a noise variable. This is an indication of the effect of the
+low signal-to-noise ratio in the data. The model estimated using
+``Additive'' option in ``all x'' case has resulted in a slightly higher
+test MSE (\(\approx 0.27\)), probably due to the incorrect index
+structure. When only a part of ``\(x\)'' variables are provided, the
+test MSE has increased (\(\approx 0.47\)), which is expected.
+
+Similar to previously discussed low noise level case, the estimated
+models for \(y_{2}\) have resulted in higher test MSE values in
+comparison to the models for \(y_{1}\). When ``all x'' and ``all x + all
+z'' variables are provided, all the estimated models resulted in test
+MSE values in the range \(\approx (0.35, 0.37)\), irrespective of the
+different index structure and predictor choices, which is again an
+indication of the low signal-to-noise ratio in the data. Due to missing
+relevant predictors (and the inclusion of noise predictors in the
+model), the estimated models in ``some x + all z'' case resulted in test
+MSEs \(\approx 0.57\).
+
+In the above simulation experiment, we did not perform any tuning for
+the penalty parameters \(\lambda_{0}\) and \(\lambda_{2}\), as through
+our experiments we observed that for this simple example, different
+values of penalty parameters have a negligible impact on the estimated
+models. We used the default values \(\lambda_{0} = 1\) and
+\(\lambda_{2} = 1\) in estimating all the models presented above in
+Table~\ref{tbl-simulation}.
+
+Finally, the above simulation study indicates that the choice of the
+initialisation depends on the data/application. Thus, the users of the
+algorithm are encouraged to follow a trial-and-error procedure for
+choosing the best initial model for a given application.
+
+In the next section, we illustrate the forecasting performance of the
+SMI Model in two real-world applications.
 
 \hypertarget{sec-application}{%
 \section{Empirical Applications}\label{sec-application}}
