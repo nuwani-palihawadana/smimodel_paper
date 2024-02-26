@@ -563,7 +563,7 @@ We generated two response variables $y_{1}$ and $y_{2}$, with two different inde
       
 Hence, notice that the response $y_{1}$ is constructed using a single index consisting of the predictor variables $x_{0}, x_{1},$ and $x_{3}$, whereas the other response $y_{2}$ is constructed using two indices, where the first index consists of the predictors $x_{0}, x_{1},$ and $x_{3}$, and the second index consists of $x_{2}$ and $x_{5}$. The variable $x_{4}$ or none of the $z$ variables were used in generating $y_{1}$ and $y_{2}$. 
 
-Once the data set is constructed, the first five observations are discarded due to the missing values introduced by the lagged variables, which leaves a data set of 1200 observations. We use the first 1000 observations as the training set, whereas the remaining 200 observations are kept a side as the test set for evaluating the forecasting error of the estimated models. 
+Once the data set is constructed, the first five observations are discarded due to the missing values introduced by the lagged variables, which leaves a data set of 1200 observations. We use the first 1000 observations as the training set, whereas the remaining 200 observations are kept a side as the test set for evaluating the forecast error of the estimated models. 
 
 ## Experiment setup {#sec-exp}
 
@@ -579,11 +579,11 @@ The three different sets of predictors considered are as follows:
 
 3.    A part of "$x$" variables ($x_{0}, x_{1}$ and $x_{2}$) and all "$z$" variables (i.e. some "relevent" predictors plus "irrelevant" predictors).
 
-We applied the proposed SMI Model algorithm using each of the above predictor combinations, for each of the two variations of the responses in terms of the noise level. Moreover, we also considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses. For "PPR" and "Multiple" options, we are using the default values of the required parameters as stated in @sec-step1. (We used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in step 3.3 (@sec-step3_3), and a convergence tolerance for coefficients of $0.001$ in step 3.5 (@sec-step3_5) in estimating all SMI Models.)
+We applied the proposed SMI Model algorithm using each of the above predictor combinations, for each of the two variations of the responses in terms of the noise level. Moreover, we also considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses. For "PPR" and "Multiple" options, we used the default values of the required parameters as stated in @sec-step1. (Moreover, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in step 3.3 (@sec-step3_3), and a convergence tolerance for coefficients of $0.001$ in step 3.5 (@sec-step3_5) in estimating all SMI Models.)
 
 ## Results {#sec-sim-results}
 
-We summarise the results of the simulation experiment explained above in @tbl-simulation.
+We summarise the results of the simulation experiment in @tbl-simulation. Here, under the four columns corresponding to each of the four initialisation options considered, we indicate the index structure (i.e. the number of indices and the split of the variables among indices) estimated by the proposed algorithm, for each of the different combinations investigated based on response, input predictors, and noise levels. 
 
 ```{r}
 #| label: tbl-simulation
@@ -601,6 +601,15 @@ kable(results_sim,
   row_spec(0, bold = TRUE) %>%
   collapse_rows(columns = 1:2, valign = "middle")
 ```
+
+First, if the low noise level is considered, for the first true model $y_{1}$, when either "all x" or "all x + all z" predictors are provided, all four initialisation options estimate the correct index structure of the model, while selecting the correct set of predictors and dropping out the irrelevant predictors. When only a part of the "$x$" variables are provided, the models estimated using all four initialisations have selected some noise variables. This indicates that when the available predictors are not sufficient to capture the signal of the data, the algorithm might select irrelevant variables to make up for the missing signal. 
+
+When $y_{2}$ with low noise level is considered, in both "all x" and "all x + all z" cases, except with the "Linear" initialisation, the algorithm has estimated the correct index structure with all the other three initialisation options. The "Linear" option has selected the correct variables into the model, however has not identified the 2-index structure. This suggests that it maight better to initialise the algorithm with a higher number of indices rather than with a lower number of indices. When only a part of "$x$" variables are provided, similar to the case of $y_{1}$, models estimated for $y_{2}$, with all four initialisations, have selected noise variables. 
+
+
+
+
+
 
 
 
