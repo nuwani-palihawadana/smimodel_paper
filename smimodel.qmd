@@ -632,8 +632,6 @@ In the next section, we illustrate the forecasting performance of the SMI Model 
 
 # Empirical Applications {#sec-application}
 
-\textcolor{purple}{(Major editing required.)}
-
 ## Forecasting Daily Mortality
 
 We apply the SMI Model algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
@@ -730,7 +728,7 @@ where
 
 -   $\textbf{Deaths}$ is the vector containing the observations of number of daily deaths;
 
--   $p$ is the number of unknown indices that will be estimated through the algorithm;
+-   $p$ is the unknown number of indices that will be estimated through the algorithm;
 
 -   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. maximum temperature lags, minimum temperature lags and vapor pressure lags);
 
@@ -744,22 +742,24 @@ where
 
 The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the three summer months of year 2013 are kept aside as a validation set, which is used to estimate some of the benchmark models for comparison purposes.  
 
-Then we apply the proposed SMI Model algorithm to estimate the model. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
-
-Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Model algorithm to the training set to estimate the model. Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
 
-The combination $(\lambda_{0} = 15, \lambda_{2} = 0)$ (i.e. without ridge penalty) yielded the lowest MSE and MAE on the validation set (***SGAIM (15, 0)***), where 4 maximum temperature lags (0, 1, 2, 3) were selected by the algorithm for the *maximum temperature index*, 2 lags of minimum temperature (2, 14) was selected for the *minimum temperature index*, and 3 lags of vapor pressure (1, 2, 12) were selected for the *vapor pressure index*. Hence, the algorithm selected only 9 variables for the estimated *SGAIM (15, 0)*, out of the total 45 predictors entering indices. Similar to the previous application, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in estimating all SGAIMs.
+We estimated the SMI Model for the mortality data using the "PPR" initialisation option, and we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
 
-We evaluated the forecasting error of the model selected using two different subsets of the original test set:
+The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ yielded the model with the lowest error. The estimated model, ***SMI Model (11, 12)***, did not drop any of the index variables, and resulted in 7 indices. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating the SMI Model.)
+
+We evaluated the forecasting error of the model estimated using two different subsets of the original test set:
 
 1. ***Test Set 1:*** original test set of 3 months (June, July and August of 2014); and 
 2. ***Test Set 2:*** a test set of 1 month (June 2014). 
 
-Note that similar to the previous application of electricity demand forecasting, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
+Note that in this application, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
 
-The MSE and MAE values obtained on the two variations of the test set for *SGAIM (15, 0)* are presented in @tbl-heat. The forecasting errors of a CGAIM with the number of predictor lags increased to 14, are also presented for comparison purposes. Here, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an unconstrained GAIM (without variable selection), where the results are presented in @tbl-heat. The actual series of number of deaths and the predicted series from the *SGAIM (15, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
+The MSE and MAE values obtained on the two variations of the test set for *SMI Model (11, 12)* are presented in @tbl-heat. 
+
+The forecasting errors of a nonparametric additive model with backward elimination for predictor selection as proposed by @FH2012, and the CGAIM proposed by @Masselot2022, are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
 
 ```{r}
 #| label: tbl-heat
@@ -780,7 +780,9 @@ kable(results_heat,
   column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-According to @tbl-heat, in terms of the test MSE, *SGAIM (15, 0)* is unable to outperform either the constrained or unconstrained GAIMs in *Test Set 1*. *SGAIM (15, 0)* reports a slightly lower test MSE than the unconstrained GAIM, and a slightly lower test MAE in comparison to both CGAIM and unconstrained GAIM in *Test Set 2*, but the reductions are not of a considerable magnitude. However, note that *SGAIM (15, 0)* achieves a forecasting performance comparable to the benchmark models with a considerably lesser number of predictors.
+According to @tbl-heat, *SMI Model (11, 12)*, the nonparametric multiple index model estimated through the newly proposed algorithm, outperforms all the three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*, 
+
+The actual series of number of deaths and the predicted series from the *SMI Model (11, 12)* and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
 #| label: fig-heatPred
@@ -811,6 +813,17 @@ HeatPreds %>%
                                                   "CGAIM" = "black", 
                                                   "GAIM" = "black"))
 ```
+
+
+## Forecasting Daily Solar Intensity
+
+### Description of the Data
+
+### Predictors Considered
+
+### Modelling Framework
+
+### Results
 
 Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
 
