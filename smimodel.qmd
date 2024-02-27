@@ -817,7 +817,35 @@ HeatPreds %>%
 
 ## Forecasting Daily Solar Intensity
 
+\textcolor{purple}{(To be completed.)} \newline
+
+Next, we utilise the SMI Model algorithm to forecast daily solar intensity, using other weather conditions.
+
+According to @EI2023, the portion of the world's primary energy consumption fulfilled by renewable energy (except for hydroelectricity) has reached 7.5% in 2022. The capacity addition by solar and wind power in 2022 is recorded as 266GW, where 72% of that capacity addition was attributed to solar energy [@EI2023]. Therefore, obtaining better forecasts of solar power generation is crucial for planning and management of power systems. As solar power generation is undoubtedly associated with solar intensity, forecasting solar intensity a useful step towards accurate forecasting of solar power generation. 
+
 ### Description of the Data
+
+We use solar intensity and other weather variables measured at a Davis weather in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every 5 minutes, from 28th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
+
+However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the 5 minutes data to daily data by averaging each variable over days. 
+
+@fig-solar shows the time plot of daily solar intensity for the entire period. 
+
+```{r}
+#| label: fig-solar
+#| fig-cap: Daily solar intensity in Amherst, Massachusetts - from February 2006 to February 2013
+dataSolar <- readRDS("data/solar_daily_large.rds")
+dataSolar %>%
+  mutate(
+    Date = as.POSIXct(Date)
+  ) %>%
+  ggplot(aes(x = Date, y = Solar_lag_000)) +
+  geom_line(color = "black") +
+  xlab("Date") +
+  ylab(expression("Solar Intensity (Watts/m"^2*")")) +
+  ggtitle("Daily solar intensity in Amherst, Massachusetts") +
+  scale_x_datetime(date_breaks = "1 year")
+```
 
 ### Predictors Considered
 
