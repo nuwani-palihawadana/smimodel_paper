@@ -636,9 +636,9 @@ In the next section, we illustrate the forecasting performance of the SMI Model 
 
 ## Forecasting Daily Mortality
 
-We apply the SGAIM algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
+We apply the SMI Model algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
 
-Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions etc. on human health, is of significant importance in environmental epidemiology. Therefore, forecasting daily deaths taking heat related variables as predictors, and constructing interpretable indices of those predictors that reflect heat-related mortality risk, is an interesting application.
+Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions etc. on human health, is of significant importance in environmental epidemiology. Therefore, forecasting daily deaths taking heat related variables as predictors is an interesting application.
 
 ### Description of the Data
 
@@ -706,7 +706,7 @@ dataHeat %>%
 
 **1) Current maximum/minimum temperatures and lags:**
 
-In addition to current maximum and minimum temperatures, the temperature measurements up to 14 days prior (i.e. $0^{th}$ to $14^{th}$ lag) are also considered as predictors to the forecasting model, because it is obvious that not only the current temperature, but also the temperatures that were prevailing in the recent past can add up to the adverse level of heat exposure of a person.
+In addition to current maximum and minimum temperatures, the temperature measurements up to 14 days prior (i.e. $0^{th}$ to $14^{th}$ lag) are also considered as predictors in the forecasting model, because it is obvious that not only the current temperature, but also the temperatures that were prevailing in the recent past can add up to the adverse level of heat exposure of a person.
 
 **2) Current vapor pressure and lags:**
 
@@ -718,48 +718,37 @@ Finally, a couple of calendar variables; *day of the season (DOS)* and *Year*, a
 
 ### Modelling Framework
 
-Maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups of predictors, where we estimate an index for each of those groups using the proposed SGAIM algorithm.
+Maximum temperature lags, minimum temperature lags and vapor pressure lags are considered as predictors that are entering indices. The two calendar variables, *DOS* and *Year*, are included into the model as separate nonparametric components that do not enter any of the indices.
 
-The two calendar variables, *DOS* and *Year*, are included into the model as separate nonparametric components that do not enter any of the indices.
-
-Hence, the relevant SGAIM can be expressed as
+Hence, the relevant SMI Model can be expressed as
 $$
 \begin{aligned}
-  \textbf{Deaths} = & \beta_{0} + g_{1}(\textbf{Tmax\_Lags} * \bm{\alpha}_{1}) + g_{2}(\textbf{Tmin\_Lags} * \bm{\alpha}_{2}) + g_{3}(\textbf{Vp\_Lags} * \bm{\alpha}_{3}) \\
-  & + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
+  \textbf{Deaths} = & \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
 \end{aligned}
 $$ {#eq-heat}
 where
 
 -   $\textbf{Deaths}$ is the vector containing the observations of number of daily deaths;
 
--   $\textbf{Tmax\_Lags}$ is a matrix containing lags $0, \dots, 14$ of maximum temperature;
+-   $p$ is the number of unknown indices that will be estimated through the algorithm;
 
--   $\textbf{Tmin\_Lags}$ is a matrix containing lags $0, \dots, 14$ of minimum temperature;
+-   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. maximum temperature lags, minimum temperature lags and vapor pressure lags);
 
--   $\textbf{Vp\_Lags}$ is a matrix containing lags $0, \dots, 14$ of vapor pressure;
+-   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors of length = number of predictors entering indices $= q = 45$ each;
 
--   $\bm{\alpha}_{j}, j = 1, 2, 3$ are the index coefficient vectors of length 15 each;
+-   $g_{j}, j = 1, \dots, p$, $f_{1}$ and $f_{2}$ are unknown nonparametric functions;
 
--   $g_{j}, j = 1, 2, 3$, $f_{1}$ and $f_{2}$ are unknown nonparametric functions;
-
--   $\beta_{0}$ is the model intercept;
+-   $\beta_{0}$ is the model intercept; and
 
 -   $\bm{\varepsilon}$ is the vector of errors.
 
-The data from 1990 to 2012 are used as the training set to estimate the model. The data corresponding to the three summer months of year 2013 are kept aside as the validation set, while the data of year 2014 are separated to be the test set to evaluate the forecasting performance of the estimated model.
+The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the three summer months of year 2013 are kept aside as a validation set, which is used to estimate some of the benchmark models for comparison purposes.  
 
-Then we apply the proposed SGAIM algorithm to estimate the index coefficient vectors $\bm{\alpha}_{j}, j = 1, 2, 3$ (@eq-heat). After obtaining the optimal values for $\bm{\alpha}_{j}$s, we calculate the indices, and fit a GAM on the training data, taking the estimated indices and the calendar variables as predictors. Then the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Model algorithm to estimate the model. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
+
+Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
-
-**Point Forecasts:**
-
-We considered 14 lags of each heat-related predictor variable in the model. However, the CGAIM fitted in @Masselot2022 has considered only up to the 2nd lag of the each predictor. Hence, for comparison purposes, we fitted two sets of models; one set of models with 14 lags and the other set with only 2 lags.
-
-Similar to the previous application, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 15, and 0 to 15 respectively, on the validation set.
-
-***Case 1: SGAIM with 14 lags of each predictor***
 
 The combination $(\lambda_{0} = 15, \lambda_{2} = 0)$ (i.e. without ridge penalty) yielded the lowest MSE and MAE on the validation set (***SGAIM (15, 0)***), where 4 maximum temperature lags (0, 1, 2, 3) were selected by the algorithm for the *maximum temperature index*, 2 lags of minimum temperature (2, 14) was selected for the *minimum temperature index*, and 3 lags of vapor pressure (1, 2, 12) were selected for the *vapor pressure index*. Hence, the algorithm selected only 9 variables for the estimated *SGAIM (15, 0)*, out of the total 45 predictors entering indices. Similar to the previous application, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in estimating all SGAIMs.
 
@@ -770,104 +759,60 @@ We evaluated the forecasting error of the model selected using two different sub
 
 Note that similar to the previous application of electricity demand forecasting, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
 
-The MSE and MAE values obtained on the two variations of the test set for *SGAIM (15, 0)* are presented in @tbl-heat1. The forecasting errors of a CGAIM with the number of predictor lags increased to 14, are also presented for comparison purposes. Here, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an unconstrained GAIM (without variable selection), where the results are presented in @tbl-heat1. The actual series of number of deaths and the predicted series from the *SGAIM (15, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heat14pred for further comparison.
+The MSE and MAE values obtained on the two variations of the test set for *SGAIM (15, 0)* are presented in @tbl-heat. The forecasting errors of a CGAIM with the number of predictor lags increased to 14, are also presented for comparison purposes. Here, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an unconstrained GAIM (without variable selection), where the results are presented in @tbl-heat. The actual series of number of deaths and the predicted series from the *SGAIM (15, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
-#| label: tbl-heat1
-#| tbl-cap: Daily mortality forecasting (with 14 lags of predictors) - Out-of-sample point forecast results
-results_heat14 <- readr::read_csv("data/NEW_results_heat14_COPY.csv")
-kable(results_heat14,
+#| label: tbl-heat
+#| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results
+results_heat <- readr::read_csv("data/heat_results.csv")
+kable(results_heat,
       format = "latex",
       booktabs = TRUE,
       digits = 3,
       escape = FALSE,
-      col.names = c("Model", "Predictors", "MSE", "MAE", "MSE", "MAE")) %>%
-  add_header_above(c("", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
+      col.names = c("Model", "Predictors", "Indices", "MSE", "MAE", "MSE", "MAE")) %>%
+  add_header_above(c("", "", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
   kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
     row_spec(0, align = "c") %>%
-  column_spec(3, bold = if_else(results_heat14$MSE1 == min(results_heat14$MSE1), TRUE, FALSE)) %>%
-  column_spec(4, bold = if_else(results_heat14$MAE1 == min(results_heat14$MAE1), TRUE, FALSE)) %>%
-  column_spec(5, bold = if_else(results_heat14$MSE2 == min(results_heat14$MSE2), TRUE, FALSE)) %>%
-  column_spec(6, bold = if_else(results_heat14$MAE2 == min(results_heat14$MAE2), TRUE, FALSE))
+  column_spec(4, bold = if_else(results_heat$MSE1 == min(results_heat$MSE1), TRUE, FALSE)) %>%
+  column_spec(5, bold = if_else(results_heat$MAE1 == min(results_heat$MAE1), TRUE, FALSE)) %>%
+  column_spec(6, bold = if_else(results_heat$MSE2 == min(results_heat$MSE2), TRUE, FALSE)) %>%
+  column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-According to @tbl-heat1, in terms of the test MSE, *SGAIM (15, 0)* is unable to outperform either the constrained or unconstrained GAIMs in *Test Set 1*. *SGAIM (15, 0)* reports a slightly lower test MSE than the unconstrained GAIM, and a slightly lower test MAE in comparison to both CGAIM and unconstrained GAIM in *Test Set 2*, but the reductions are not of a considerable magnitude. However, note that *SGAIM (15, 0)* achieves a forecasting performance comparable to the benchmark models with a considerably lesser number of predictors.
+According to @tbl-heat, in terms of the test MSE, *SGAIM (15, 0)* is unable to outperform either the constrained or unconstrained GAIMs in *Test Set 1*. *SGAIM (15, 0)* reports a slightly lower test MSE than the unconstrained GAIM, and a slightly lower test MAE in comparison to both CGAIM and unconstrained GAIM in *Test Set 2*, but the reductions are not of a considerable magnitude. However, note that *SGAIM (15, 0)* achieves a forecasting performance comparable to the benchmark models with a considerably lesser number of predictors.
 
 ```{r}
-#| label: fig-heat14pred
-#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SGAIM (15, 0)" and benchmark models for Test Set 2
-Heat14Preds <- readr::read_csv("data/Heat14Preds_TestSet2.csv")
-Heat14Preds %>%
+#| label: fig-heatPred
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (11, 12)" and benchmark models for Test Set 2
+HeatPreds <- readr::read_csv("data/heat_predictions.csv")
+HeatPreds %>%
   mutate(
     Date = as.POSIXct(Date)
   ) %>%
   ggplot() +
   geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
-  geom_line(aes(x = Date, y = Predicted, linetype = "SGAIM (15, 0)", colour = "SGAIM (15, 0)")) +
+  geom_line(aes(x = Date, y = SMImodel, linetype = "SMI Model (11, 12)", colour = "SMI Model (11, 12)")) +
+  geom_line(aes(x = Date, y = Backward, linetype = "Backward Elimination", colour = "Backward Elimination")) +
   geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
   geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
   scale_x_datetime(date_breaks = "5 days") +
   xlab("Date") +
   ylab("Number of Deaths") +
   ggtitle("Actual vs. Predicted Number of Deaths") +
-  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", "SGAIM (15, 0)" = "solid",
-                                   "CGAIM" = "longdash", "GAIM" = "dotted")) +
-  scale_colour_manual(name = "Series", values = c("Actual" = "grey", "SGAIM (15, 0)" = "black",
-                                                  "CGAIM" = "black", "GAIM" = "black"))
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
+                                                    "SMI Model (11, 12)" = "solid",
+                                                    "Backward Elimination" = "dotdash",
+                                                    "CGAIM" = "longdash", 
+                                                    "GAIM" = "dotted")) +
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
+                                                  "SMI Model (11, 12)" = "black", 
+                                                  "Backward Elimination" = "black",
+                                                  "CGAIM" = "black", 
+                                                  "GAIM" = "black"))
 ```
 
-***Case 2: SGAIM with 2 lags of each predictor***
-
-For the SGAIM with only up to 2 lags of the predictors, the combination $(\lambda_{0} = 1, \lambda_{2} = 0)$ (i.e. without ridge penalty) yielded the lowest MSE on the validation set (***SGAIM (1, 0)***). This model selected all the 3 lags (0, 1, 2) of maximum temperature for the *maximum temperature index*, only the current value of minimum temperature for the *minimum temperature index*, and lags 1 and 2 of vapor pressure for the *vapor pressure index*. Hence, the algorithm selected 6 predictors out of the total 9 predictors entering indices.
-
-We evaluated the forecasting error of the estimated *SGAIM (1, 0)* using the same two different subsets of the original test set, where the results are reported in @tbl-heat2. The forecasting errors of CGAIM and unconstrained GAIM with only up to 2 lags for each predictor, are also presented as benchmark models. The actual series of number of deaths and the predicted series from the *SGAIM (1, 0)* and the benchmark models on *Test Set 2* are plotted in @fig-heat2pred for further comparison.
-
-```{r}
-#| label: tbl-heat2
-#| tbl-cap: Daily mortality forecasting (with 2 lags of predictors) - Out-of-sample point forecast results
-results_heat2 <- readr::read_csv("data/NEW_results_heat2_COPY.csv")
-kable(results_heat2,
-      format = "latex",
-      booktabs = TRUE,
-      digits = 3,
-      escape = FALSE,
-      col.names = c("Model", "Predictors", "MSE", "MAE", "MSE", "MAE")) %>%
-  add_header_above(c("", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
-  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
-    row_spec(0, align = "c") %>%
-  column_spec(3, bold = if_else(results_heat2$MSE1 == min(results_heat2$MSE1), TRUE, FALSE)) %>%
-  column_spec(4, bold = if_else(results_heat2$MAE1 == min(results_heat2$MAE1), TRUE, FALSE)) %>%
-  column_spec(5, bold = if_else(results_heat2$MSE2 == min(results_heat2$MSE2), TRUE, FALSE)) %>%
-  column_spec(6, bold = if_else(results_heat2$MAE2 == min(results_heat2$MAE2), TRUE, FALSE))
-```
-
-According to @tbl-heat2, the SGAIM fitted considering only 2 lags of each predictor too was not able to outperform the corresponding CGAIM or unconstrained GAIM in terms of MSE. Similar to above *Case 1*, the test MAE reported by the *SGAIM (1, 0)* is slightly lower than the CGAIM and unconstrained GAIM in *Test Set 2*, but again the reduction is not considerably large.
-
-```{r}
-#| label: fig-heat2pred
-#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SGAIM (1, 0)" and benchmark models for Test Set 2
-Heat2Preds <- readr::read_csv("data/Heat2Preds_TestSet2.csv")
-Heat2Preds %>%
-  mutate(
-    Date = as.POSIXct(Date)
-  ) %>%
-  ggplot() +
-  geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
-  geom_line(aes(x = Date, y = Predicted, linetype = "SGAIM (1, 0)", colour = "SGAIM (1, 0)")) +
-  geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
-  geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
-  scale_x_datetime(date_breaks = "5 days") +
-  xlab("Date") +
-  ylab("Number of Deaths") +
-  ggtitle("Actual vs. Predicted Number of Deaths") +
-  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", "SGAIM (1, 0)" = "solid",
-                                   "CGAIM" = "longdash", "GAIM" = "dotted")) +
-  scale_colour_manual(name = "Series", values = c("Actual" = "grey", "SGAIM (1, 0)" = "black",
-                                                  "CGAIM" = "black", "GAIM" = "black"))
-```
-
-
-Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2023]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.8.42)* [@Wood2011].
+Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
 
 # Conclusions {#sec-conclusion}
 
