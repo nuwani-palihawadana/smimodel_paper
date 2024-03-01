@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, boxrule=0pt, sharp corners, borderline west={3pt}{0pt}{shadecolor}, enhanced, breakable, frame hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden, enhanced, interior hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -2158,22 +2158,32 @@ evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 \hypertarget{results}{%
 \subsubsection{Results}\label{results}}
 
-We estimated the SMI Model for the mortality data using the ``PPR''
-initialisation option, and we tuned the penalty parameters
+We estimated the SMI Model for the mortality data using three different
+initialisation options: ``PPR'', ``Additive'' and ``Linear'', for
+comparison purposes. Further, we tuned the penalty parameters
 \(\lambda_{0}\) and \(\lambda_{2}\), over ranges of integers from 1 to
 12, and 0 to 12 respectively, through a greedy search based on in-sample
 MSE. (Here, a greedy search is used instead of a grid search to reduce
 computational time.)
 
 The penalty parameter combination
-\((\lambda_{0} = 11, \lambda_{2} = 12)\) yielded the model with the
-lowest error. The estimated model, \textbf{\emph{SMI Model (11, 12)}},
-did not drop any of the index variables, and resulted in 7 indices. (We
-used \(M = 10\), a convergence tolerance of \(0.001\), \(50\) maximum
-iterations, and a convergence tolerance of \(0.001\) for coefficients in
-estimating the SMI Model.)
+\((\lambda_{0} = 11, \lambda_{2} = 12)\) was selected for the model
+fitted with ``PPR'' initialisation. The estimated model,
+\textbf{\emph{SMI Model (11, 12) - PPR }}, did not drop any of the index
+variables, and resulted in 7 indices. The best penalty parameter
+combination for the model estimated taking ``Additive'' model as the
+starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). The estimated
+SMI Model did not drop any index variables or indices, and thus the
+final model, \textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent
+to a nonparametric additive model. The model estimated with ``Linear''
+initialisation selected \((\lambda_{0} = 1, \lambda_{2} = 11)\) as the
+penalty parameter combination (\textbf{\emph{SMI Model (1, 11) - Linear
+}}), and resulted in 2 indices, without dropping any of the index
+variables. (We used \(M = 10\), a convergence tolerance of \(0.001\),
+\(50\) maximum iterations, and a convergence tolerance of \(0.001\) for
+coefficients in estimating all the SMI Models.)
 
-We evaluated the forecasting error of the model estimated using two
+We evaluated the forecasting error of the estimated models using two
 different subsets of the original test set:
 
 \begin{enumerate}
@@ -2191,19 +2201,29 @@ maximum/minimum temperatures and vapor pressure are known to use in the
 forecasting model.
 
 The MSE and MAE values obtained on the two variations of the test set
-for \emph{SMI Model (11, 12)} are presented in Table~\ref{tbl-heat}.
+for the estimated SMI Models are presented in Table~\ref{tbl-heat}.
+According to the results obtained, the SMI Model estimated with ``PPR''
+initialisation, \textbf{\emph{SMI Model (11, 12) - PPR }}, shows the
+best forecasting performance on both the test sets, out of the three
+different SMI Models estimated.
 
-The forecasting errors of a nonparametric additive model with backward
-elimination for predictor selection as proposed by \textcite{FH2012},
-and the CGAIM proposed by \textcite{Masselot2022}, are also presented
-for comparison purposes. In the case of CGAIM, following
-\textcite{Masselot2022}, maximum temperature lags, minimum temperature
-lags and vapor pressure lags are categorised into three groups, where we
-estimated an index for each of those groups using the CGAIM algorithm.
-Furthermore, the index coefficients of the CGAIM were constrained to be
-positive and decreasing, and the nonparametric link functions were
-constrained to be monotonically increasing. We also fitted an
-(unconstrained) GAIM, where the results are presented in
+Furthermore, we present test set forecasting errors of four different
+benchmark models in Table~\ref{tbl-heat}, to compare with the estimated
+SMI Models. First, the forecasting errors of a projection pursuit
+regression (PPR) model is presented. The number of indices of the PPR
+model was taken as 7, which is the number of indices estimated by
+\textbf{\emph{SMI Model (11, 12) - PPR }} - the estimated SMI Model with
+the best forecasting accuracy. Next, a nonparametric additive model with
+backward elimination for predictor selection as proposed by
+\textcite{FH2012}, and the CGAIM proposed by \textcite{Masselot2022},
+are also presented for comparison purposes. In the case of CGAIM,
+following \textcite{Masselot2022}, maximum temperature lags, minimum
+temperature lags and vapor pressure lags are categorised into three
+groups, where we estimated an index for each of those groups using the
+CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were
+constrained to be positive and decreasing, and the nonparametric link
+functions were constrained to be monotonically increasing. We also
+fitted an (unconstrained) GAIM, where the results are presented in
 Table~\ref{tbl-heat}.
 
 \hypertarget{tbl-heat}{}
@@ -2217,22 +2237,29 @@ Table~\ref{tbl-heat}.
 \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
 \multicolumn{1}{c}{Model} & \multicolumn{1}{c}{Predictors} & \multicolumn{1}{c}{Indices} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE}\\
 \midrule
-SMI Model (11, 12) & 47 & 7 & \textbf{76.328} & \textbf{6.721} & \textbf{92.116} & \textbf{7.540}\\
+SMI Model (11, 12) - PPR & 47 & 7 & \textbf{76.328} & \textbf{6.721} & \textbf{92.116} & \textbf{7.540}\\
+SMI Model (1, 0) - Additive & 47 & 45 & 160.454 & 10.031 & 208.072 & 11.317\\
+SMI Model (1, 11) - Linear & 47 & 2 & 159.579 & 9.925 & 203.678 & 11.034\\
+PPR & 47 & 7 & 89.095 & 7.791 & 100.820 & 8.397\\
 Backward Elimination & 34 & NA & 154.837 & 10.004 & 164.510 & 9.920\\
+\addlinespace
 CGAIM & 47 & 3 & 85.679 & 7.208 & 101.689 & 8.032\\
 GAIM & 47 & 3 & 81.740 & 6.920 & 101.654 & 8.210\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-According to Table~\ref{tbl-heat}, \emph{SMI Model (11, 12)}, the
-nonparametric multiple index model estimated through the newly proposed
-algorithm, outperforms all the three benchmark models in terms of
-forecasting accuracy, for both \emph{Test Set 1} and \emph{Test Set 2},
+According to Table~\ref{tbl-heat}, \textbf{\emph{SMI Model (11, 12) -
+PPR}} outperforms all the four benchmark models in terms of forecasting
+accuracy, for both \emph{Test Set 1} and \emph{Test Set 2}. However, the
+SMI Models estimated using ``Additive'' or ``Linear'' initialisations
+have inferior forecasting performance to all four benchmark models
+considered.
 
 The actual series of number of deaths and the predicted series from the
-\emph{SMI Model (11, 12)} and the benchmark models on \emph{Test Set 2}
-are plotted in Figure~\ref{fig-heatPred} for further comparison.
+\textbf{\emph{SMI Model (11, 12) - PPR}} and the benchmark models on
+\emph{Test Set 2} are plotted in Figure~\ref{fig-heatPred} for further
+comparison.
 
 \begin{figure}
 
@@ -2241,8 +2268,8 @@ are plotted in Figure~\ref{fig-heatPred} for further comparison.
 }
 
 \caption{\label{fig-heatPred}Actual number of deaths vs.~predicted
-number of deaths from ``SMI Model (11, 12)'' and benchmark models for
-Test Set 2}
+number of deaths from ``SMI Model (11, 12) - PPR'' and benchmark models
+for Test Set 2}
 
 \end{figure}
 
@@ -2250,7 +2277,7 @@ Test Set 2}
 \subsection{Forecasting Daily Solar
 Intensity}\label{forecasting-daily-solar-intensity}}
 
-\textcolor{purple}{(To be completed.)} \newline
+\textcolor{purple}{(To be completed.)}
 
 Next, we utilise the SMI Model algorithm to forecast daily solar
 intensity, using other weather conditions.
@@ -2283,7 +2310,8 @@ converted the 5 minutes data to daily data by averaging each variable
 over days.
 
 Figure~\ref{fig-solar} shows the time plot of daily solar intensity for
-the entire period.
+the entire period, which clearly depicts the annual seasonality in the
+data.
 
 \begin{figure}
 
@@ -2295,6 +2323,11 @@ the entire period.
 Massachusetts - from February 2006 to February 2013}
 
 \end{figure}
+
+The variables temperature, dew point, wind, rain and humidity were
+considered to be the main set of predictors in the model. The daily
+solar intensity is plotted against each of these predictors in
+\textbf{?@fig-preds}.
 
 \hypertarget{predictors-considered-1}{%
 \subsubsection{Predictors Considered}\label{predictors-considered-1}}

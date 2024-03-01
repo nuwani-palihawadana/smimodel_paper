@@ -746,25 +746,25 @@ Then we apply the proposed SMI Model algorithm to the training set to estimate t
 
 ### Results
 
-We estimated the SMI Model for the mortality data using the "PPR" initialisation option, and we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
+We estimated the SMI Model for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
 
-The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ yielded the model with the lowest error. The estimated model, ***SMI Model (11, 12)***, did not drop any of the index variables, and resulted in 7 indices. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating the SMI Model.)
+The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (11, 12) - PPR ***, did not drop any of the index variables, and resulted in 7 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation selected $(\lambda_{0} = 1, \lambda_{2} = 11)$ as the penalty parameter combination (***SMI Model (1, 11) - Linear ***), and resulted in 2 indices, without dropping any of the index variables. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
 
-We evaluated the forecasting error of the model estimated using two different subsets of the original test set:
+We evaluated the forecasting error of the estimated models using two different subsets of the original test set:
 
 1. ***Test Set 1:*** original test set of 3 months (June, July and August of 2014); and 
 2. ***Test Set 2:*** a test set of 1 month (June 2014). 
 
 Note that in this application, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
 
-The MSE and MAE values obtained on the two variations of the test set for *SMI Model (11, 12)* are presented in @tbl-heat. 
+The MSE and MAE values obtained on the two variations of the test set for the estimated SMI Models are presented in @tbl-heat. According to the results obtained, the SMI Model estimated with "PPR" initialisation, ***SMI Model (11, 12) - PPR ***, shows the best forecasting performance on both the test sets, out of the three different SMI Models estimated. 
 
-The forecasting errors of a nonparametric additive model with backward elimination for predictor selection as proposed by @FH2012, and the CGAIM proposed by @Masselot2022, are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
+Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 7, which is the number of indices estimated by ***SMI Model (11, 12) - PPR *** - the estimated SMI Model with the best forecasting accuracy. Next, a nonparametric additive model with backward elimination for predictor selection as proposed by @FH2012, and the CGAIM proposed by @Masselot2022, are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
 
 ```{r}
 #| label: tbl-heat
 #| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results
-results_heat <- readr::read_csv("data/heat_results.csv")
+results_heat <- readr::read_csv("data/heat_results_new.csv")
 kable(results_heat,
       format = "latex",
       booktabs = TRUE,
@@ -780,21 +780,22 @@ kable(results_heat,
   column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-According to @tbl-heat, *SMI Model (11, 12)*, the nonparametric multiple index model estimated through the newly proposed algorithm, outperforms all the three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*, 
+According to @tbl-heat, ***SMI Model (11, 12) - PPR*** outperforms all the four benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance to all four benchmark models considered. 
 
-The actual series of number of deaths and the predicted series from the *SMI Model (11, 12)* and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
+The actual series of number of deaths and the predicted series from the ***SMI Model (11, 12) - PPR*** and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
 #| label: fig-heatPred
-#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (11, 12)" and benchmark models for Test Set 2
-HeatPreds <- readr::read_csv("data/heat_predictions.csv")
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (11, 12) - PPR" and benchmark models for Test Set 2
+HeatPreds <- readr::read_csv("data/heat_predictions_new.csv")
 HeatPreds %>%
   mutate(
     Date = as.POSIXct(Date)
   ) %>%
   ggplot() +
   geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
-  geom_line(aes(x = Date, y = SMImodel, linetype = "SMI Model (11, 12)", colour = "SMI Model (11, 12)")) +
+  geom_line(aes(x = Date, y = SMImodel_PPR, linetype = "SMI Model (11, 12) - PPR", colour = "SMI Model (11, 12) - PPR")) +
+  geom_line(aes(x = Date, y = PPR, linetype = "PPR", colour = "PPR")) +
   geom_line(aes(x = Date, y = Backward, linetype = "Backward Elimination", colour = "Backward Elimination")) +
   geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
   geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
@@ -803,12 +804,14 @@ HeatPreds %>%
   ylab("Number of Deaths") +
   ggtitle("Actual vs. Predicted Number of Deaths") +
   scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
-                                                    "SMI Model (11, 12)" = "solid",
+                                                    "SMI Model (11, 12) - PPR" = "solid",
+                                                    "PPR" = "dashed",
                                                     "Backward Elimination" = "dotdash",
                                                     "CGAIM" = "longdash", 
                                                     "GAIM" = "dotted")) +
   scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
-                                                  "SMI Model (11, 12)" = "black", 
+                                                  "SMI Model (11, 12) - PPR" = "black", 
+                                                  "PPR" = "black",
                                                   "Backward Elimination" = "black",
                                                   "CGAIM" = "black", 
                                                   "GAIM" = "black"))
@@ -817,7 +820,7 @@ HeatPreds %>%
 
 ## Forecasting Daily Solar Intensity
 
-\textcolor{purple}{(To be completed.)} \newline
+\textcolor{purple}{(To be completed.)}
 
 Next, we utilise the SMI Model algorithm to forecast daily solar intensity, using other weather conditions.
 
@@ -829,23 +832,27 @@ We use solar intensity and other weather variables measured at a Davis weather i
 
 However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the 5 minutes data to daily data by averaging each variable over days. 
 
-@fig-solar shows the time plot of daily solar intensity for the entire period. 
+@fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. 
 
 ```{r}
 #| label: fig-solar
 #| fig-cap: Daily solar intensity in Amherst, Massachusetts - from February 2006 to February 2013
-dataSolar <- readRDS("data/solar_daily_large.rds")
+dataSolar <- readRDS("data/solar_daily_large_final.rds")
 dataSolar %>%
   mutate(
     Date = as.POSIXct(Date)
   ) %>%
   ggplot(aes(x = Date, y = Solar_lag_000)) +
   geom_line(color = "black") +
-  xlab("Date") +
-  ylab(expression("Solar Intensity (Watts/m"^2*")")) +
+  scale_x_datetime(date_breaks = "1 year") +
   ggtitle("Daily solar intensity in Amherst, Massachusetts") +
-  scale_x_datetime(date_breaks = "1 year")
+  ylab("Solar Intensity (Watts per square metre)") 
+  #ylab(expression("Solar Intensity (Watts/m"^2*")"))
 ```
+
+The variables temperature, dew point, wind, rain and humidity were considered to be the main set of predictors in the model. The daily solar intensity is plotted against each of these predictors in @fig-preds.
+
+<!-- The daily solar intensity is plotted against each of these predictors in @fig-preds, @fig-Tmin, and @fig-Vp respectively, where we can observe that the relationships between all these predictors and the response are slightly non-linear. -->
 
 ### Predictors Considered
 
@@ -858,7 +865,6 @@ Both the empirical applications presented above were performed using ***R statis
 # Conclusions {#sec-conclusion}
 
 \textcolor{purple}{(To be completed.)} \newline
-
 
 \textbf{\large{Acknowledgement}}
 
