@@ -279,8 +279,8 @@ Forecasting}
 
 
 
-\author{Nuwani~Kodikara Palihawadana, Rob J~Hyndman, Xiaoqian~Wang}
-\addresses{\textbf{Nuwani Kodikara Palihawadana}\newline
+\author{Nuwani~Palihawadana, Rob J~Hyndman, Xiaoqian~Wang}
+\addresses{\textbf{Nuwani Palihawadana}\newline
 Department of Econometrics \& Business Statistics\newline
 Clayton VIC 3800\newline
 Australia\newline
@@ -299,7 +299,7 @@ Australia\newline
 
 \date{\sf\Date~\Month~\Year}
 \makeatletter
- \lfoot{\sf Kodikara Palihawadana, Hyndman, Wang: \@date}
+ \lfoot{\sf Palihawadana, Hyndman, Wang: \@date}
 \makeatother
 
 \usepackage{booktabs}
@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners, enhanced, frame hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, interior hidden, breakable, sharp corners, frame hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -2159,7 +2159,7 @@ evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 \hypertarget{results}{%
 \subsubsection{Results}\label{results}}
 
-We estimated the SMI Model for the mortality data using three different
+We estimated SMI Models for the mortality data using three different
 initialisation options: ``PPR'', ``Additive'' and ``Linear'', for
 comparison purposes. Further, we tuned the penalty parameters
 \(\lambda_{0}\) and \(\lambda_{2}\), over ranges of integers from 1 to
@@ -2173,10 +2173,12 @@ fitted with ``PPR'' initialisation. The estimated model,
 \textbf{\emph{SMI Model (11, 12) - PPR }}, did not drop any of the index
 variables, and resulted in 7 indices. The best penalty parameter
 combination for the model estimated taking ``Additive'' model as the
-starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). The estimated
-SMI Model did not drop any index variables or indices, and thus the
-final model, \textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent
-to a nonparametric additive model. The model estimated with ``Linear''
+starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). (Here,
+\(\lambda_{2} = 0\) means that the \(\ell_{2}\)-penalty (i.e.ridge
+penalty) is omitted from the model.) The estimated SMI Model did not
+drop any index variables or indices, and thus the final model,
+\textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent to a
+nonparametric additive model. The model estimated with ``Linear''
 initialisation selected \((\lambda_{0} = 1, \lambda_{2} = 11)\) as the
 penalty parameter combination (\textbf{\emph{SMI Model (1, 11) - Linear
 }}), and resulted in 2 indices, without dropping any of the index
@@ -2210,23 +2212,22 @@ different SMI Models estimated.
 
 Furthermore, we present test set forecasting errors of four different
 benchmark models in Table~\ref{tbl-heat}, to compare with the estimated
-SMI Models. First, the forecasting errors of a projection pursuit
-regression (PPR) model is presented. The number of indices of the PPR
-model was taken as 7, which is the number of indices estimated by
-\textbf{\emph{SMI Model (11, 12) - PPR }} - the estimated SMI Model with
-the best forecasting accuracy. Next, a nonparametric additive model
-formulated through backward elimination as proposed by \textcite{FH2012}
-(Section~\ref{sec-backward}), and the CGAIM proposed by
-\textcite{Masselot2022} (Section~\ref{sec-multi-index}), are also
-presented for comparison purposes. In the case of CGAIM, following
-\textcite{Masselot2022}, maximum temperature lags, minimum temperature
-lags and vapor pressure lags are categorised into three groups, where we
-estimated an index for each of those groups using the CGAIM algorithm.
-Furthermore, the index coefficients of the CGAIM were constrained to be
-positive and decreasing, and the nonparametric link functions were
-constrained to be monotonically increasing. We also fitted an
-(unconstrained) GAIM, where the results are presented in
-Table~\ref{tbl-heat}.
+SMI Models. First, a nonparametric additive model formulated through
+backward elimination as proposed by \textcite{FH2012}
+(Section~\ref{sec-backward}) is presented. Next, the CGAIM proposed by
+\textcite{Masselot2022} (Section~\ref{sec-multi-index}) is also
+presented. In the case of CGAIM, following \textcite{Masselot2022},
+maximum temperature lags, minimum temperature lags and vapor pressure
+lags are categorised into three groups, where we estimated an index for
+each of those groups using the CGAIM algorithm. Furthermore, following
+\textcite{Masselot2022}, the index coefficients of the CGAIM were
+constrained to be positive and decreasing, and the nonparametric link
+functions were constrained to be monotonically increasing. We also
+fitted an (unconstrained) GAIM, where the results are presented in
+Table~\ref{tbl-heat}. Finally, the forecasting errors of a projection
+pursuit regression (PPR) model is presented. The number of indices of
+the PPR model was taken as 3, which is the number of indices estimated
+by the group-wise additive index models (i.e.~CGAIM and GAIM).
 
 \hypertarget{tbl-heat}{}
 \begin{table}[!h]
@@ -2242,11 +2243,11 @@ Table~\ref{tbl-heat}.
 SMI Model (11, 12) - PPR & 47 & 7 & \textbf{76.328} & \textbf{6.721} & \textbf{92.116} & \textbf{7.540}\\
 SMI Model (1, 0) - Additive & 47 & 45 & 160.454 & 10.031 & 208.072 & 11.317\\
 SMI Model (1, 11) - Linear & 47 & 2 & 159.579 & 9.925 & 203.678 & 11.034\\
-PPR & 47 & 7 & 89.095 & 7.791 & 100.820 & 8.397\\
 Backward Elimination & 34 & NA & 154.837 & 10.004 & 164.510 & 9.920\\
-\addlinespace
 CGAIM & 47 & 3 & 85.679 & 7.208 & 101.689 & 8.032\\
+\addlinespace
 GAIM & 47 & 3 & 81.740 & 6.920 & 101.654 & 8.210\\
+PPR & 47 & 3 & 86.966 & 7.353 & 105.227 & 8.352\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2278,8 +2279,6 @@ for Test Set 2}
 \hypertarget{forecasting-daily-solar-intensity}{%
 \subsection{Forecasting Daily Solar
 Intensity}\label{forecasting-daily-solar-intensity}}
-
-\textcolor{purple}{(To be completed.)}
 
 Next, we utilise the SMI Model algorithm to forecast daily solar
 intensity, using other weather conditions.
@@ -2424,6 +2423,121 @@ evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 \hypertarget{results-1}{%
 \subsubsection{Results}\label{results-1}}
+
+Similar to the previous empirical application, we estimated SMI Models
+for the solar intensity data using three different initialisation
+options: ``PPR'', ``Additive'' and ``Linear'', for comparison purposes.
+We also tuned the penalty parameters \(\lambda_{0}\) and
+\(\lambda_{2}\), over ranges of integers from 1 to 12, and 0 to 12
+respectively.
+
+The penalty parameter combination
+\((\lambda_{0} = 12, \lambda_{2} = 0)\) was selected for the model
+fitted with ``PPR'' initialisation. The estimated model,
+\textbf{\emph{SMI Model (12, 0) - PPR }}, did not drop any of the index
+variables, and resulted in 5 indices. The best penalty parameter
+combination for the model estimated taking ``Additive'' model as the
+starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). The estimated
+SMI Model did not drop any index variables or indices, and thus the
+final model, \textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent
+to a nonparametric additive model. The model estimated with ``Linear''
+initialisation also selected \((\lambda_{0} = 1, \lambda_{2} = 0)\) as
+the penalty parameter combination. Unlike the above models, this SMI
+Model dropped all the index variables and resulted in null indices
+(number of indices = 0), and hence, the final model, \textbf{\emph{SMI
+Model (1, 0) - Linear }}, is just a linear model with the two linear
+variables ``Month'' and ``Season''. Notice that all the three estimated
+SMI Models have \(\lambda_{2} = 0\), indicating that all three models
+have omitted the \(\ell_{2}\)-penalty in the estimation. (Similar to the
+previous application, we used \(M = 10\), a convergence tolerance of
+\(0.001\), \(50\) maximum iterations, and a convergence tolerance of
+\(0.001\) for coefficients in estimating all the SMI Models.)
+
+Note that similar to the previous application of heat related mortality
+forecasting, we assumed that the future values of the weather variables
+are known to use in the forecasting model.
+
+The MSE and MAE values obtained on the test set for the estimated SMI
+Models are presented in Table~\ref{tbl-solar}. According to the results
+obtained, the SMI Model estimated with ``Additive'' initialisation,
+\textbf{\emph{SMI Model (1, 0) - Additive}}, shows the best forecasting
+performance on the test set, out of the three different SMI Models
+estimated.
+
+We also present test set forecasting errors of three benchmark models in
+Table~\ref{tbl-solar}, to compare with the estimated SMI Models. First,
+a semi-parametric additive model formulated through backward elimination
+as proposed by \textcite{FH2012} is presented. Next, a GAIM is fitted by
+grouping the lags of each weather variable into a different group,
+resulting in 6 indices. Finally, the forecasting errors of a projection
+pursuit regression (PPR) model is also presented. The number of indices
+of the PPR model was taken as 6, which is the number of indices
+estimated by the GAIM. Note that here, the two categorical calendar
+variables were excluded when estimating the PPR model.
+
+\hypertarget{tbl-solar}{}
+\begin{table}[!h]
+\caption{\label{tbl-solar}Daily solar intensity forecasting - Out-of-sample point forecast results }\tabularnewline
+
+\centering
+\begin{tabular}{lrr>{}r>{}r}
+\toprule
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Test Set} \\
+\cmidrule(l{3pt}r{3pt}){4-5}
+\multicolumn{1}{c}{Model} & \multicolumn{1}{c}{Predictors} & \multicolumn{1}{c}{Indices} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE}\\
+\midrule
+SMI Model (12, 0) - PPR & 25 & 5 & 1745.030 & 33.246\\
+SMI Model (1, 0) - Additive & 25 & 23 & 1112.181 & 26.975\\
+SMI Model (1, 0) - Linear & 2 & 0 & 2009.847 & 35.346\\
+Backward Elimination & 16 & NA & 911.570 & 25.035\\
+GAIM & 25 & 6 & 2203.530 & 37.788\\
+\addlinespace
+PPR & 23 & 6 & \textbf{796.779} & \textbf{22.455}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+According to Table~\ref{tbl-solar}, the test set forecasting errors of
+\textbf{\emph{SMI Model (1, 0) - Additive}} is lower than the GAIM.
+However, the \textbf{\emph{SMI Model (1, 0) - Additive}} is unable to
+outperform both the semi-parametric additive model with backward
+elimination and the PPR model, where in this case, the estimated PPR
+model has resulted in the best forecasting accuracy.
+
+Here, it is worth considering the differences between the SMI Model and
+the benchmark models that show better forecasting performance in
+comparison to the SMI Model. The method proposed by \textcite{FH2012}
+formulates a semi-parametric additive model through a backward
+elimination of predictors. On the other hand, when estimating a PPR
+model, the number of indices as well as the predictors that belong to
+each index (each index includes all the predictors provided) are
+pre-determined. In contrast, the SMI Model takes a more general and an
+objective approach, where the number of indices as well as the
+predictors within each index are automatically determined through the
+proposed algorithm. Due to the lesser amount of prior information
+provided, the estimation of a SMI Model is more challenging.
+
+The actual series of solar intensity and the predicted series from the
+SMI Model (1, 0) - Additive and the benchmark models on the test set are
+plotted in Figure~\ref{fig-solarPred} for further comparison purposes.
+
+\begin{figure}
+
+{\centering \includegraphics{smimodel_files/figure-pdf/fig-solarPred-1.pdf}
+
+}
+
+\caption{\label{fig-solarPred}Actual solar intensity vs.~predicted solar
+intensity from ``SMI Model (1, 0) - Additive'' and benchmark models}
+
+\end{figure}
+
+Moreover, the two empirical applications presented above illustrates the
+difficulty of generalising an initialisation option for the SMI Model,
+suitable for many different applications. As mentioned in above
+Section~\ref{sec-simulation}, we encourage the users to follow a
+trial-and-error procedure to select the best possible initialisation
+option.
 
 Both the empirical applications presented above were performed using
 \textbf{\emph{R statistical software}} \autocite{R2023}, and the

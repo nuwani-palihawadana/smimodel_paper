@@ -1,7 +1,7 @@
 ---
 title: "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting"
 author:
-- familyname: Kodikara Palihawadana
+- familyname: Palihawadana
   othernames: Nuwani
   address:
     - Department of Econometrics & Business Statistics
@@ -747,9 +747,9 @@ Then we apply the proposed SMI Model algorithm to the training set to estimate t
 
 ### Results
 
-We estimated the SMI Model for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
+We estimated SMI Models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
 
-The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (11, 12) - PPR ***, did not drop any of the index variables, and resulted in 7 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation selected $(\lambda_{0} = 1, \lambda_{2} = 11)$ as the penalty parameter combination (***SMI Model (1, 11) - Linear ***), and resulted in 2 indices, without dropping any of the index variables. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
+The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (11, 12) - PPR ***, did not drop any of the index variables, and resulted in 7 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. (Here, $\lambda_{2} = 0$ means that the $\ell_{2}$-penalty (i.e.ridge penalty) is omitted from the model.) The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation selected $(\lambda_{0} = 1, \lambda_{2} = 11)$ as the penalty parameter combination (***SMI Model (1, 11) - Linear ***), and resulted in 2 indices, without dropping any of the index variables. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
 
 We evaluated the forecasting error of the estimated models using two different subsets of the original test set:
 
@@ -760,12 +760,12 @@ Note that in this application, we assumed that the future values of the maximum/
 
 The MSE and MAE values obtained on the two variations of the test set for the estimated SMI Models are presented in @tbl-heat. According to the results obtained, the SMI Model estimated with "PPR" initialisation, ***SMI Model (11, 12) - PPR ***, shows the best forecasting performance on both the test sets, out of the three different SMI Models estimated. 
 
-Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 7, which is the number of indices estimated by ***SMI Model (11, 12) - PPR *** - the estimated SMI Model with the best forecasting accuracy. Next, a nonparametric additive model formulated through backward elimination as proposed by @FH2012 (@sec-backward), and the CGAIM proposed by @Masselot2022 (@sec-multi-index), are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
+Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, a nonparametric additive model formulated through backward elimination as proposed by @FH2012 (@sec-backward) is presented. Next, the CGAIM proposed by @Masselot2022 (@sec-multi-index) is also presented. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. Finally, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 3, which is the number of indices estimated by the group-wise additive index models (i.e. CGAIM and GAIM). 
 
 ```{r}
 #| label: tbl-heat
 #| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results
-results_heat <- readr::read_csv("data/heat_results_new.csv")
+results_heat <- readr::read_csv("data/heatResults_table_final.csv")
 kable(results_heat,
       format = "latex",
       booktabs = TRUE,
@@ -788,7 +788,7 @@ The actual series of number of deaths and the predicted series from the ***SMI M
 ```{r}
 #| label: fig-heatPred
 #| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (11, 12) - PPR" and benchmark models for Test Set 2
-HeatPreds <- readr::read_csv("data/heat_predictions_new.csv")
+HeatPreds <- readr::read_csv("data/heat_predictions_final.csv")
 HeatPreds %>%
   mutate(
     Date = as.POSIXct(Date)
@@ -818,10 +818,7 @@ HeatPreds %>%
                                                   "GAIM" = "black"))
 ```
 
-
 ## Forecasting Daily Solar Intensity
-
-\textcolor{purple}{(To be completed.)}
 
 Next, we utilise the SMI Model algorithm to forecast daily solar intensity, using other weather conditions.
 
@@ -953,6 +950,71 @@ The data from February 2006 to October 2012 are used as the training set to esti
 Then we apply the proposed SMI Model algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
+
+Similar to the previous empirical application, we estimated SMI Models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
+
+The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, did not drop any of the index variables, and resulted in 5 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$ as the penalty parameter combination. Unlike the above models, this SMI Model dropped all the index variables and resulted in null indices (number of indices = 0), and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables "Month" and "Season". Notice that all the three estimated SMI Models have $\lambda_{2} = 0$, indicating that all three models have omitted the $\ell_{2}$-penalty in the estimation. (Similar to the previous application, we used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
+
+Note that similar to the previous application of heat related mortality forecasting, we assumed that the future values of the weather variables are known to use in the forecasting model.
+
+The MSE and MAE values obtained on the test set for the estimated SMI Models are presented in @tbl-solar. According to the results obtained, the SMI Model estimated with “Additive” initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance on the test set, out of the three different SMI Models estimated.
+
+We also present test set forecasting errors of three benchmark models in @tbl-solar, to compare with the estimated SMI Models. First, a semi-parametric additive model formulated through backward elimination as proposed by @FH2012 is presented. Next, a GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in 6 indices. Finally, the forecasting errors of a projection pursuit regression (PPR) model is also presented. The number of indices of the PPR model was taken as 6, which is the number of indices estimated by the GAIM. Note that here, the two categorical calendar variables were excluded when estimating the PPR model.
+
+```{r}
+#| label: tbl-solar
+#| tbl-cap: Daily solar intensity forecasting - Out-of-sample point forecast results
+results_solar <- readr::read_csv("data/solarResults_table_final.csv")
+kable(results_solar,
+      format = "latex",
+      booktabs = TRUE,
+      digits = 3,
+      escape = FALSE,
+      col.names = c("Model", "Predictors", "Indices", "MSE", "MAE")) %>%
+  add_header_above(c("", "", "", "Test Set" = 2), align = "c") %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
+    row_spec(0, align = "c") %>%
+  column_spec(4, bold = if_else(results_solar$MSE == min(results_solar$MSE), TRUE, FALSE)) %>%
+  column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
+```
+
+According to @tbl-solar, the test set forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform both the semi-parametric additive model with backward elimination and the PPR model, where in this case, the estimated PPR model has resulted in the best forecasting accuracy. 
+
+Here, it is worth considering the differences between the SMI Model and the benchmark models that show better forecasting performance in comparison to the SMI Model. The method proposed by @FH2012 formulates a semi-parametric additive model through a backward elimination of predictors. On the other hand, when estimating a PPR model, the number of indices as well as the predictors that belong to each index (each index includes all the predictors provided) are pre-determined. In contrast, the SMI Model takes a more general and an objective approach, where the number of indices as well as the predictors within each index are automatically determined through the proposed algorithm. Due to the lesser amount of prior information provided, the estimation of a SMI Model is more challenging. 
+
+The actual series of solar intensity and the predicted series from the SMI Model (1, 0) - Additive and the benchmark models on the test set are plotted in @fig-solarPred for further comparison purposes.
+
+```{r}
+#| label: fig-solarPred
+#| fig-cap: Actual solar intensity vs. predicted solar intensity from "SMI Model (1, 0) - Additive" and benchmark models
+SolarPreds <- readr::read_csv("data/solar_predictions_3lags.csv")
+SolarPreds %>%
+  mutate(
+    Date = as.POSIXct(Date)
+  ) %>%
+  ggplot() +
+  geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
+  geom_line(aes(x = Date, y = SMImodel_Additive, linetype = "SMI Model (1, 0) - Additive", colour = "SMI Model (1, 0) - Additive")) +
+  geom_line(aes(x = Date, y = PPR, linetype = "PPR", colour = "PPR")) +
+  geom_line(aes(x = Date, y = Backward, linetype = "Backward Elimination", colour = "Backward Elimination")) +
+  geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
+  scale_x_datetime(date_breaks = "12 days") +
+  xlab("Date") +
+  ylab("Solar Intensity (Watts per square metre)") +
+  ggtitle("Actual vs. Predicted Solar Intensity") +
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
+                                                    "SMI Model (1, 0) - Additive" = "solid",
+                                                    "PPR" = "dashed",
+                                                    "Backward Elimination" = "dotdash",
+                                                    "GAIM" = "dotted")) +
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
+                                                  "SMI Model (1, 0) - Additive" = "black", 
+                                                  "PPR" = "black",
+                                                  "Backward Elimination" = "black",
+                                                  "GAIM" = "black"))
+```
+
+Moreover, the two empirical applications presented above illustrates the difficulty of generalising an initialisation option for the SMI Model, suitable for many different applications. As mentioned in above @sec-simulation, we encourage the users to follow a trial-and-error procedure to select the best possible initialisation option. 
 
 Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
 
