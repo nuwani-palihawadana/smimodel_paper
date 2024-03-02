@@ -1,7 +1,7 @@
 ---
 title: "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting"
 author:
-- familyname: Palihawadana
+- familyname: Kodikara Palihawadana
   othernames: Nuwani
   address:
     - Department of Econometrics & Business Statistics
@@ -56,6 +56,7 @@ execute:
 library(tsibble)
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
 library(knitr)
 library(kableExtra)
 
@@ -118,7 +119,7 @@ $$
 $$ {#eq-add}
 where $f_{j}$'s are unknown functions (probably non-linear and smooth), and $\varepsilon_{i}$ is the random error [@Lian2012]. Even such an additivity condition is imposed, estimating the optimal predictive model will still be troublesome when $p$ is very large (probably even larger than the sample size $n$) due to over-fitting [@Lian2012]. Thus, it is natural to bring in the sparsity assumption, and assume that some of $f_{j}$'s are zero, which gives rise to the need of a variable selection method to differentiate between zero and non-zero components, while estimating the non-zero components [@Huang2010].
 
-### Backward Elimination
+### Backward Elimination {#sec-backward}
 
 In the problem of forecasting long-term peak electricity demand, @HF2010 used a stepwise procedure for variable selection through cross-validation. In the each half-hourly model fitted, the data is split into training and validation sets, and the predictors are selected into the model based on the Mean Squared Error (MSE) calculated for the validation set. Starting from the full model, the predictive power of each variable is evaluated by dropping one at a time. A predictor, the removal of which contributed to a decrease in the validation MSE, is omitted from the model in subsequent steps [@HF2010]. @FH2012 used a similar method except for the fact that they considered the Mean Absolute Percentage Error (MAPE) as the selection criterion. Therefore, both of these prior work use stepwise variable selection methodology based on out-of-sample forecasting performance.
 
@@ -180,7 +181,7 @@ where $\bm{\alpha}$ is a $p$-dimensional vector of unknown coefficients (i.e. pa
 
 According to @Radchenko2015, single index models have widely been used in scenarios with fairly low and moderate dimensionality, where the corresponding estimation and variable selection techniques are not directly applicable to the high-dimensional setting. The error sum of squares of the model being non-convex with respect to index coefficients, is the main reason behind the existence of very limited number of methods in high-dimensional case [@Radchenko2015]. For an extensive summary of available methods, we refer to @Radchenko2015.
 
-### Multiple Index Models
+### Multiple Index Models {#sec-multi-index}
 
 **Projection Pursuit Regression**
 
@@ -654,8 +655,8 @@ dataHeat %>%
   ) %>%
   filter(Date <= "1993-08-31") %>%
   ggplot(aes(x = Date, y = Death_lag_000)) +
-  geom_line(color = "black") +
-  geom_point() +
+  geom_line(color = "grey40") +
+  geom_point(color = "grey40", size = 0.5) +
   facet_wrap(vars(Year), scales="free_x", ncol = 1, strip.position = "left") +
   scale_x_datetime(date_breaks = "1 month") +
   xlab("Date") +
@@ -728,15 +729,15 @@ where
 
 -   $\textbf{Deaths}$ is the vector containing the observations of number of daily deaths;
 
+-   $\beta_{0}$ is the model intercept; 
+
 -   $p$ is the unknown number of indices that will be estimated through the algorithm;
 
 -   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. maximum temperature lags, minimum temperature lags and vapor pressure lags);
 
--   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors of length = number of predictors entering indices $= q = 45$ each;
+-   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors of length = number of predictors entering indices ($q$) $= 45$ each;
 
--   $g_{j}, j = 1, \dots, p$, $f_{1}$ and $f_{2}$ are unknown nonparametric functions;
-
--   $\beta_{0}$ is the model intercept; and
+-   $g_{j}, j = 1, \dots, p$, $f_{1}$ and $f_{2}$ are unknown nonparametric functions; and
 
 -   $\bm{\varepsilon}$ is the vector of errors.
 
@@ -759,7 +760,7 @@ Note that in this application, we assumed that the future values of the maximum/
 
 The MSE and MAE values obtained on the two variations of the test set for the estimated SMI Models are presented in @tbl-heat. According to the results obtained, the SMI Model estimated with "PPR" initialisation, ***SMI Model (11, 12) - PPR ***, shows the best forecasting performance on both the test sets, out of the three different SMI Models estimated. 
 
-Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 7, which is the number of indices estimated by ***SMI Model (11, 12) - PPR *** - the estimated SMI Model with the best forecasting accuracy. Next, a nonparametric additive model with backward elimination for predictor selection as proposed by @FH2012, and the CGAIM proposed by @Masselot2022, are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
+Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 7, which is the number of indices estimated by ***SMI Model (11, 12) - PPR *** - the estimated SMI Model with the best forecasting accuracy. Next, a nonparametric additive model formulated through backward elimination as proposed by @FH2012 (@sec-backward), and the CGAIM proposed by @Masselot2022 (@sec-multi-index), are also presented for comparison purposes. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. 
 
 ```{r}
 #| label: tbl-heat
@@ -824,15 +825,15 @@ HeatPreds %>%
 
 Next, we utilise the SMI Model algorithm to forecast daily solar intensity, using other weather conditions.
 
-According to @EI2023, the portion of the world's primary energy consumption fulfilled by renewable energy (except for hydroelectricity) has reached 7.5% in 2022. The capacity addition by solar and wind power in 2022 is recorded as 266GW, where 72% of that capacity addition was attributed to solar energy [@EI2023]. Therefore, obtaining better forecasts of solar power generation is crucial for planning and management of power systems. As solar power generation is undoubtedly associated with solar intensity, forecasting solar intensity a useful step towards accurate forecasting of solar power generation. 
+According to @EI2023, the portion of the world's primary energy consumption fulfilled by renewable energy (except for hydroelectricity) has reached 7.5% in 2022. The capacity addition by solar and wind power in 2022 is recorded as 266 GW, where 72% of that capacity addition was attributed to solar energy [@EI2023]. Therefore, obtaining better forecasts of solar power generation is crucial for planning and management of power systems. As solar power generation is undoubtedly associated with solar intensity, forecasting solar intensity a useful step towards accurate forecasting of solar power generation. 
 
 ### Description of the Data
 
-We use solar intensity and other weather variables measured at a Davis weather in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every 5 minutes, from 28th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
+We use solar intensity and other weather variables measured at a Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every 5 minutes, from 21th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
 
 However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the 5 minutes data to daily data by averaging each variable over days. 
 
-@fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. 
+@fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. (As observed in @fig-solar, there are days for which the observations were missing. We excluded those days from the analysis, and used only the days for which the data are available.)
 
 ```{r}
 #| label: fig-solar
@@ -843,20 +844,113 @@ dataSolar %>%
     Date = as.POSIXct(Date)
   ) %>%
   ggplot(aes(x = Date, y = Solar_lag_000)) +
-  geom_line(color = "black") +
+  geom_line(color = "grey40") +
   scale_x_datetime(date_breaks = "1 year") +
   ggtitle("Daily solar intensity in Amherst, Massachusetts") +
   ylab("Solar Intensity (Watts per square metre)") 
   #ylab(expression("Solar Intensity (Watts/m"^2*")"))
 ```
 
-The variables temperature, dew point, wind, rain and humidity were considered to be the main set of predictors in the model. The daily solar intensity is plotted against each of these predictors in @fig-preds.
+The variables temperature, dew point, wind, rain and humidity were considered to be the main set of predictors in the model. The daily solar intensity is plotted against each of these predictors in @fig-preds, where we can observe that the relationships between these predictors and the response are non-linear.
 
-<!-- The daily solar intensity is plotted against each of these predictors in @fig-preds, @fig-Tmin, and @fig-Vp respectively, where we can observe that the relationships between all these predictors and the response are slightly non-linear. -->
+```{r}
+#| label: fig-preds
+#| fig-cap: Daily solar intensity against other weather variables
+p1 <- dataSolar %>%
+  ggplot(aes(x = Temp_lag_000, y = Solar_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5, size = 0.3) +
+  xlim(c(-25, 90)) +
+  xlab("Temperature (Degrees Fahrenheit)") +
+  ylab("Solar Intensity") +
+  ggtitle("Solar Intensity against Temperature") +
+  theme(axis.title = element_text(size = 6),
+        plot.title = element_text(size = 8))
+
+p2 <- dataSolar %>%
+  ggplot(aes(x = Dewpt_lag_000, y = Solar_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5, size = 0.3) +
+  xlim(c(-25, 90)) +
+  xlab("Dew Point (Degrees Fahrenheit)") +
+  ylab("Solar Intensity") +
+  ggtitle("Solar Intensity against Dew Point") +
+  theme(axis.title = element_text(size = 6),
+        plot.title = element_text(size = 8))
+
+p3 <- dataSolar %>%
+  ggplot(aes(x = Wind_lag_000, y = Solar_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5, size = 0.3) +
+  xlab("Wind Speed (Miles per hour)") +
+  ylab("Solar Intensity") +
+  ggtitle("Solar Intensity against Wind Speed") +
+  theme(axis.title = element_text(size = 6),
+        plot.title = element_text(size = 8))
+
+p4 <- dataSolar %>%
+  ggplot(aes(x = Rain_lag_000, y = Solar_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5, size = 0.3) +
+  xlab("Rain (Inches)") +
+  ylab("Solar Intensity") +
+  ggtitle("Solar Intensity against Rain") +
+  theme(axis.title = element_text(size = 6),
+        plot.title = element_text(size = 8))
+
+p5 <- dataSolar %>%
+  ggplot(aes(x = Humid_lag_000, y = Solar_lag_000)) +
+  geom_point(color = "grey40", alpha = 0.5, size = 0.3) +
+  xlab("Humidity (Percentage)") +
+  ylab("Solar Intensity") +
+  ggtitle("Solar Intensity against Humidity") +
+  theme(axis.title = element_text(size = 6),
+        plot.title = element_text(size = 8))
+
+grid.arrange(p1, p2, p3, p4, p5, nrow = 3, ncol = 2)
+```
 
 ### Predictors Considered
 
+**1) Solar intensity lags:**
+
+Three lags of the daily solar intensity itself are used as predictors to incorporate the serial correlations presented in the data into the modelling process. Intuitively, the solar intensity of a particular day would have a relationship to the solar intensity of adjacent days. 
+
+**2) Current weather variables and lags:**
+
+In addition to current temperature, dew point, wind speed, rain and humidity, the measurements of 3 previous days (i.e. $0^{th}$ to $3^{rd}$ lag) of each of the above weather variables are also considered as predictors in the forecasting model.
+
+**3) Calendar effects:**
+
+Finally, a couple of calendar variables; *Month* (12 months of the year) and *Season* (the 4 seasons of the year: Spring, Summer, Autumn and Winter), are incorporated into the model to capture annual seasonality, and also to control the autocorrelation in residuals.
+
 ### Modelling Framework
+
+The lags of solar intensity, and the lags of weather variables are considered as predictors that are entering indices. The two calendar variables, *Month* and *Season*, are included into the model as linear (categorical) predictor variables. 
+
+Hence, the relevant SMI Model can be expressed as
+$$
+\begin{aligned}
+  \textbf{Solar} = & \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{Month} + \theta_{2}\textbf{Season}+ \bm{\varepsilon},
+\end{aligned}
+$$ {#eq-solar}
+where
+
+-   $\textbf{Solar}$ is the vector containing the observations of daily solar intensity;
+
+-   $\beta_{0}$ is the model intercept; 
+
+-   $p$ is the unknown number of indices that will be estimated through the algorithm;
+
+-   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
+
+-   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors of length = number of predictors entering indices ($q$) $= 23$ each;
+
+-   $g_{j}, j = 1, \dots, p$ are unknown nonparametric functions;
+
+-   $\theta_{1}$ and $\theta_{2}$ are the two coefficients corresponding to the two linear predictor variables; and
+
+-   $\bm{\varepsilon}$ is the vector of errors.
+
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison purposes.  
+
+Then we apply the proposed SMI Model algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
 
@@ -866,6 +960,8 @@ Both the empirical applications presented above were performed using ***R statis
 
 \textcolor{purple}{(To be completed.)} \newline
 
-\textbf{\large{Acknowledgement}}
+\textbf{\large{Acknowledgements}}
 
 We thank Professor Louise Ryan for joining the discussions during the initial stage of the project, and for her valuable comments and feedback on this research work.
+
+Furthermore, this research is partially supported by the Monash eResearch Centre through the use of the MonARCH (Monash Advanced Research Computing Hybrid) HPC Cluster. 
