@@ -648,7 +648,7 @@ For this analysis, we consider daily mortality and heat exposure data for the Me
 ```{r}
 #| label: fig-deaths
 #| fig-cap: Daily mortality in summer in Montreal, Canada - from 1990 to 1993
-dataHeat <- readRDS("data/dataHeat.rds")
+dataHeat <- readRDS("data/heat_data_corrected.rds")
 dataHeat %>%
   mutate(
     Date = as.POSIXct(Date)
@@ -749,7 +749,7 @@ Then we apply the proposed SMI Model algorithm to the training set to estimate t
 
 We estimated SMI Models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. (Here, a greedy search is used instead of a grid search to reduce computational time.)
 
-The penalty parameter combination $(\lambda_{0} = 11, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (11, 12) - PPR ***, did not drop any of the index variables, and resulted in 7 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. (Here, $\lambda_{2} = 0$ means that the $\ell_{2}$-penalty (i.e.ridge penalty) is omitted from the model.) The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation selected $(\lambda_{0} = 1, \lambda_{2} = 11)$ as the penalty parameter combination (***SMI Model (1, 11) - Linear ***), and resulted in 2 indices, without dropping any of the index variables. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
+The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. (Here, $\lambda_{2} = 0$ means that the $\ell_{2}$-penalty (i.e.ridge penalty) is omitted from the model.) The estimated model, ***SMI Model (12, 0) - PPR ***, did not drop any of the index variables, and resulted in 5 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation selected $(\lambda_{0} = 12, \lambda_{2} = 5)$ as the penalty parameter combination (***SMI Model (12, 5) - Linear ***), and resulted in 2 indices, without dropping any of the index variables. (We used $M = 10$, a convergence tolerance of $0.001$, $50$ maximum iterations, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.)
 
 We evaluated the forecasting error of the estimated models using two different subsets of the original test set:
 
@@ -758,14 +758,14 @@ We evaluated the forecasting error of the estimated models using two different s
 
 Note that in this application, we assumed that the future values of the maximum/minimum temperatures and vapor pressure are known to use in the forecasting model.
 
-The MSE and MAE values obtained on the two variations of the test set for the estimated SMI Models are presented in @tbl-heat. According to the results obtained, the SMI Model estimated with "PPR" initialisation, ***SMI Model (11, 12) - PPR ***, shows the best forecasting performance on both the test sets, out of the three different SMI Models estimated. 
+The MSE and MAE values obtained on the two variations of the test set for the estimated SMI Models are presented in @tbl-heat. According to the results obtained, the SMI Model estimated with "PPR" initialisation, ***SMI Model (12, 0) - PPR ***, shows the best forecasting performance on both the test sets, out of the three different SMI Models estimated. 
 
-Furthermore, we present test set forecasting errors of four different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, a nonparametric additive model formulated through backward elimination as proposed by @FH2012 (@sec-backward) is presented. Next, the CGAIM proposed by @Masselot2022 (@sec-multi-index) is also presented. In the case of CGAIM, following @Masselot2022, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups using the CGAIM algorithm. Furthermore, following @Masselot2022, the index coefficients of the CGAIM were constrained to be positive and decreasing, and the nonparametric link functions were constrained to be monotonically increasing. We also fitted an (unconstrained) GAIM, where the results are presented in @tbl-heat. Finally, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 3, which is the number of indices estimated by the group-wise additive index models (i.e. CGAIM and GAIM). 
+Furthermore, we present test set forecasting errors of three different benchmark models in @tbl-heat, to compare with the estimated SMI Models. First, a nonparametric additive model formulated through backward elimination as proposed by @FH2012 (@sec-backward) is presented. Next, a GAIM (@sec-multi-index) is also presented. In the case of GAIM, maximum temperature lags, minimum temperature lags and vapor pressure lags are categorised into three groups, where we estimated an index for each of those groups. Finally, the forecasting errors of a projection pursuit regression (PPR) model is presented. The number of indices of the PPR model was taken as 3, which is the number of indices estimated by the group-wise additive index model (GAIM). 
 
 ```{r}
 #| label: tbl-heat
 #| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results
-results_heat <- readr::read_csv("data/heatResults_table_final.csv")
+results_heat <- readr::read_csv("data/heat_results_corrected.csv")
 kable(results_heat,
       format = "latex",
       booktabs = TRUE,
@@ -781,40 +781,37 @@ kable(results_heat,
   column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-According to @tbl-heat, ***SMI Model (11, 12) - PPR*** outperforms all the four benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance to all four benchmark models considered. 
+According to @tbl-heat, ***SMI Model (12, 0) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance to all the benchmark models considered. 
 
-The actual series of number of deaths and the predicted series from the ***SMI Model (11, 12) - PPR*** and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
+The actual series of number of deaths and the predicted series from the ***SMI Model (12, 0) - PPR*** and the benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
 #| label: fig-heatPred
-#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (11, 12) - PPR" and benchmark models for Test Set 2
-HeatPreds <- readr::read_csv("data/heat_predictions_final.csv")
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (12, 0) - PPR" and benchmark models for Test Set 2
+HeatPreds <- readr::read_csv("data/heat_predictions_corrected.csv")
 HeatPreds %>%
   mutate(
     Date = as.POSIXct(Date)
   ) %>%
   ggplot() +
   geom_line(aes(x = Date, y = Actual, linetype = "Actual", colour = "Actual")) +
-  geom_line(aes(x = Date, y = SMImodel_PPR, linetype = "SMI Model (11, 12) - PPR", colour = "SMI Model (11, 12) - PPR")) +
+  geom_line(aes(x = Date, y = SMImodel_PPR, linetype = "SMI Model (12, 0) - PPR", colour = "SMI Model (12, 0) - PPR")) +
   geom_line(aes(x = Date, y = PPR, linetype = "PPR", colour = "PPR")) +
   geom_line(aes(x = Date, y = Backward, linetype = "Backward Elimination", colour = "Backward Elimination")) +
-  geom_line(aes(x = Date, y = CGAIM, linetype = "CGAIM", colour = "CGAIM")) +
   geom_line(aes(x = Date, y = GAIM, linetype = "GAIM", colour = "GAIM")) +
   scale_x_datetime(date_breaks = "5 days") +
   xlab("Date") +
   ylab("Number of Deaths") +
   ggtitle("Actual vs. Predicted Number of Deaths") +
   scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
-                                                    "SMI Model (11, 12) - PPR" = "solid",
-                                                    "PPR" = "dashed",
+                                                    "SMI Model (12, 0) - PPR" = "solid",
+                                                    "PPR" = "longdash",
                                                     "Backward Elimination" = "dotdash",
-                                                    "CGAIM" = "longdash", 
                                                     "GAIM" = "dotted")) +
   scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
-                                                  "SMI Model (11, 12) - PPR" = "black", 
+                                                  "SMI Model (12, 0) - PPR" = "black", 
                                                   "PPR" = "black",
                                                   "Backward Elimination" = "black",
-                                                  "CGAIM" = "black", 
                                                   "GAIM" = "black"))
 ```
 
@@ -1004,7 +1001,7 @@ SolarPreds %>%
   ggtitle("Actual vs. Predicted Solar Intensity") +
   scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
                                                     "SMI Model (1, 0) - Additive" = "solid",
-                                                    "PPR" = "dashed",
+                                                    "PPR" = "longdash",
                                                     "Backward Elimination" = "dotdash",
                                                     "GAIM" = "dotted")) +
   scale_colour_manual(name = "Series", values = c("Actual" = "grey", 

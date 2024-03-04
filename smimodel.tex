@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, breakable, interior hidden, enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, enhanced, borderline west={3pt}{0pt}{shadecolor}, frame hidden, interior hidden, breakable, sharp corners]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -2168,19 +2168,19 @@ MSE. (Here, a greedy search is used instead of a grid search to reduce
 computational time.)
 
 The penalty parameter combination
-\((\lambda_{0} = 11, \lambda_{2} = 12)\) was selected for the model
-fitted with ``PPR'' initialisation. The estimated model,
-\textbf{\emph{SMI Model (11, 12) - PPR }}, did not drop any of the index
-variables, and resulted in 7 indices. The best penalty parameter
-combination for the model estimated taking ``Additive'' model as the
-starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). (Here,
-\(\lambda_{2} = 0\) means that the \(\ell_{2}\)-penalty (i.e.ridge
-penalty) is omitted from the model.) The estimated SMI Model did not
+\((\lambda_{0} = 12, \lambda_{2} = 0)\) was selected for the model
+fitted with ``PPR'' initialisation. (Here, \(\lambda_{2} = 0\) means
+that the \(\ell_{2}\)-penalty (i.e.ridge penalty) is omitted from the
+model.) The estimated model, \textbf{\emph{SMI Model (12, 0) - PPR }},
+did not drop any of the index variables, and resulted in 5 indices. The
+best penalty parameter combination for the model estimated taking
+``Additive'' model as the starting point was
+\((\lambda_{0} = 1, \lambda_{2} = 0)\). The estimated SMI Model did not
 drop any index variables or indices, and thus the final model,
 \textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent to a
 nonparametric additive model. The model estimated with ``Linear''
-initialisation selected \((\lambda_{0} = 1, \lambda_{2} = 11)\) as the
-penalty parameter combination (\textbf{\emph{SMI Model (1, 11) - Linear
+initialisation selected \((\lambda_{0} = 12, \lambda_{2} = 5)\) as the
+penalty parameter combination (\textbf{\emph{SMI Model (12, 5) - Linear
 }}), and resulted in 2 indices, without dropping any of the index
 variables. (We used \(M = 10\), a convergence tolerance of \(0.001\),
 \(50\) maximum iterations, and a convergence tolerance of \(0.001\) for
@@ -2206,28 +2206,22 @@ forecasting model.
 The MSE and MAE values obtained on the two variations of the test set
 for the estimated SMI Models are presented in Table~\ref{tbl-heat}.
 According to the results obtained, the SMI Model estimated with ``PPR''
-initialisation, \textbf{\emph{SMI Model (11, 12) - PPR }}, shows the
-best forecasting performance on both the test sets, out of the three
+initialisation, \textbf{\emph{SMI Model (12, 0) - PPR }}, shows the best
+forecasting performance on both the test sets, out of the three
 different SMI Models estimated.
 
-Furthermore, we present test set forecasting errors of four different
+Furthermore, we present test set forecasting errors of three different
 benchmark models in Table~\ref{tbl-heat}, to compare with the estimated
 SMI Models. First, a nonparametric additive model formulated through
 backward elimination as proposed by \textcite{FH2012}
-(Section~\ref{sec-backward}) is presented. Next, the CGAIM proposed by
-\textcite{Masselot2022} (Section~\ref{sec-multi-index}) is also
-presented. In the case of CGAIM, following \textcite{Masselot2022},
+(Section~\ref{sec-backward}) is presented. Next, a GAIM
+(Section~\ref{sec-multi-index}) is also presented. In the case of GAIM,
 maximum temperature lags, minimum temperature lags and vapor pressure
 lags are categorised into three groups, where we estimated an index for
-each of those groups using the CGAIM algorithm. Furthermore, following
-\textcite{Masselot2022}, the index coefficients of the CGAIM were
-constrained to be positive and decreasing, and the nonparametric link
-functions were constrained to be monotonically increasing. We also
-fitted an (unconstrained) GAIM, where the results are presented in
-Table~\ref{tbl-heat}. Finally, the forecasting errors of a projection
+each of those groups. Finally, the forecasting errors of a projection
 pursuit regression (PPR) model is presented. The number of indices of
 the PPR model was taken as 3, which is the number of indices estimated
-by the group-wise additive index models (i.e.~CGAIM and GAIM).
+by the group-wise additive index model (GAIM).
 
 \hypertarget{tbl-heat}{}
 \begin{table}[!h]
@@ -2240,27 +2234,26 @@ by the group-wise additive index models (i.e.~CGAIM and GAIM).
 \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
 \multicolumn{1}{c}{Model} & \multicolumn{1}{c}{Predictors} & \multicolumn{1}{c}{Indices} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE}\\
 \midrule
-SMI Model (11, 12) - PPR & 47 & 7 & \textbf{76.328} & \textbf{6.721} & \textbf{92.116} & \textbf{7.540}\\
-SMI Model (1, 0) - Additive & 47 & 45 & 160.454 & 10.031 & 208.072 & 11.317\\
-SMI Model (1, 11) - Linear & 47 & 2 & 159.579 & 9.925 & 203.678 & 11.034\\
-Backward Elimination & 34 & NA & 154.837 & 10.004 & 164.510 & 9.920\\
-CGAIM & 47 & 3 & 85.679 & 7.208 & 101.689 & 8.032\\
+smimodel(12, 0) - PPR & 47 & 5 & \textbf{80.334} & \textbf{6.841} & \textbf{99.926} & \textbf{7.643}\\
+smimodel(1, 0) - Additive & 47 & 45 & 151.408 & 9.816 & 190.880 & 11.107\\
+smimodel(12, 5) - Linear & 47 & 2 & 164.629 & 10.153 & 207.040 & 11.141\\
+Backward Elimination & 36 & NA & 148.387 & 9.808 & 162.608 & 10.034\\
+GAIM & 47 & 3 & 85.145 & 7.257 & 103.494 & 8.480\\
 \addlinespace
-GAIM & 47 & 3 & 81.740 & 6.920 & 101.654 & 8.210\\
-PPR & 47 & 3 & 86.966 & 7.353 & 105.227 & 8.352\\
+PPR & 47 & 3 & 82.877 & 7.202 & 104.217 & 8.404\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-According to Table~\ref{tbl-heat}, \textbf{\emph{SMI Model (11, 12) -
-PPR}} outperforms all the four benchmark models in terms of forecasting
+According to Table~\ref{tbl-heat}, \textbf{\emph{SMI Model (12, 0) -
+PPR}} outperforms all three benchmark models in terms of forecasting
 accuracy, for both \emph{Test Set 1} and \emph{Test Set 2}. However, the
 SMI Models estimated using ``Additive'' or ``Linear'' initialisations
-have inferior forecasting performance to all four benchmark models
+have inferior forecasting performance to all the benchmark models
 considered.
 
 The actual series of number of deaths and the predicted series from the
-\textbf{\emph{SMI Model (11, 12) - PPR}} and the benchmark models on
+\textbf{\emph{SMI Model (12, 0) - PPR}} and the benchmark models on
 \emph{Test Set 2} are plotted in Figure~\ref{fig-heatPred} for further
 comparison.
 
@@ -2271,7 +2264,7 @@ comparison.
 }
 
 \caption{\label{fig-heatPred}Actual number of deaths vs.~predicted
-number of deaths from ``SMI Model (11, 12) - PPR'' and benchmark models
+number of deaths from ``SMI Model (12, 0) - PPR'' and benchmark models
 for Test Set 2}
 
 \end{figure}
