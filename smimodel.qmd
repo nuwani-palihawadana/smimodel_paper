@@ -501,6 +501,8 @@ We applied the proposed SMI Modelling algorithm with each of the above predictor
 
 We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the number of indices and the predictor grouping among indices) estimated by the proposed algorithm under each of the four initialisation options. This is detailed for each combination explored, considering response, input predictors, and noise levels.
 
+In the simulation experiment, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$. Our experiments indicated that, for this simple example, different values of penalty parameters have a negligible impact on the estimated models. The default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ were used in estimating all the models presented in @tbl-simulation.
+
 \textcolor{orange}{XQ: Please replace $x$ and $z$ in the Predictors column with bold $\bm{x}$ and $\bm{z}$. It's}
 
 ```{r}
@@ -520,7 +522,7 @@ kable(results_sim,
   collapse_rows(columns = 1:2, valign = "middle")
 ```
 
-\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results.}
+\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results. I've made a few changes, but you need to do some further work on it. I provided more detailed comments below.}
 
 Firstly, when the low noise level is considered, for the first true model $y_{1}$, when either "all $\bm{x}$" or "all $\bm{x}$ + all $\bm{z}$" predictors are provided, all four initialisation options enable the algorithm to output the correct index structure of the model, while selecting the correct set of predictors and dropping out the irrelevant ones. However, when only some $\bm{x}$ variables are provided, the models estimated under all four initialisations include some noise variables. This indicates that when the available predictors are insufficient to capture the data signal, the algorithm might select irrelevant variables to make up for the missing signal.
 
@@ -530,11 +532,11 @@ Furthermore, we evaluated the forecasting error of the fitted models on the test
 
 For $y_{2}$, in both the cases "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the models estimated resulted in a test MSE of $\approx 0.16$. This is an interesting result as the test MSEs of the estimated models with correct index structure: "PPR", "Additive", and "Multiple", are not very different to the test MSE of an estimated model with incorrect index structure, but with correct predictors: "Linear". This suggests that the selection of the predictor variables is more important than determining the index structure of the model.
 
-It is also worth mentioning here that in real-world forecasting problems, the true data generating process (DGP) is unknown, and we do not expect an estimated model to represent the true DGP. Therefore, as long as the estimated model exhibits good forecasting accuracy, the index structure of the estimated model is less important.
-
 Similar to the case of $y_{1}$, when only a part of $\bm{x}$ variables are provided, the test MSE of the estimated models for $y_{2}$ increased to $\approx 0.34$, probably due to the inclusion of noise variables.
 
 Moreover, when the above test MSE values of the models estimated for $y_{2}$ are considered, in contrast to the case of $y_{1}$, those values are higher than the random squared error of the true model. Intuitively, this might be due to the increased complexity of the model $y_{2}$ in comparison to $y_{1}$, where the total estimation error of two nonlinear link functions (corresponding to the two indices) for $y_{2}$, might be higher than the error of estimating a single nonlinear function for $y_{1}$.
+
+\textcolor{orange}{XQ: The above six paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of low noise level.}
 
 As expected, the accuracy with which the SMI Modelling algorithm estimates the index structure is in general lower with the high noise level, in comparison to the low noise level. In the case of $y_{1}$, when "all $\bm{x}$" variables are provided, except for "Additive" option, all the other initialisations have correctly estimated the model. When "all $\bm{x}$ + all $\bm{z}$" variables are provided, only the "PPR" and "Linear" options have estimated the correct model, whereas "Additive" and "Multiple" options have included a noise variable. Similar to the low noise level case, when only a part of $\bm{x}$ variables are provided, all four initialisations have led the algorithm to estimate models with noise variables.
 
@@ -544,9 +546,11 @@ In both the cases "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the mode
 
 Similar to previously discussed low noise level case, the estimated models for $y_{2}$ have resulted in higher test MSE values in comparison to the models for $y_{1}$. When "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$" variables are provided, all the estimated models resulted in test MSE values in the range $\approx (0.35, 0.37)$, irrespective of the different index structure and predictor choices, which is again an indication of the low signal-to-noise ratio in the data. Due to missing relevant predictors (and the inclusion of noise predictors in the model), the estimated models in "some x + all $\bm{z}$" case resulted in test MSEs $\approx 0.57$.
 
-In the above simulation experiment, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, as through our experiments we observed that for this simple example, different values of penalty parameters have a negligible impact on the estimated models. We used the default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ in estimating all the models presented above in @tbl-simulation.
+\textcolor{orange}{XQ: The above four paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of high noise level.}
 
-Finally, the above simulation study indicates that the choice of the initialisation depends on the data/application. Thus, the users of the algorithm are encouraged to follow a trial-and-error procedure for choosing the best initial model for a given application.
+It is worth mentioning here that in real-world forecasting problems, the true data generating process (DGP) is unknown, and we do not expect an estimated model to precisely capture the true DGP. Therefore, as long as the estimated model demonstrates good forecasting accuracy, the index structure of the estimated model is less important.
+
+Finally, the simulation study indicates that the choice of the initialisation depends on the data and application. Thus, the users are encouraged to follow a trial-and-error procedure to determine the most suitable initial model for a given application.
 
 # Empirical Applications {#sec-application}
 

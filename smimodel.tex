@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, breakable, enhanced]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}, interior hidden, boxrule=0pt, sharp corners, breakable]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1613,6 +1613,13 @@ indices) estimated by the proposed algorithm under each of the four
 initialisation options. This is detailed for each combination explored,
 considering response, input predictors, and noise levels.
 
+In the simulation experiment, we did not perform any tuning for the
+penalty parameters \(\lambda_{0}\) and \(\lambda_{2}\). Our experiments
+indicated that, for this simple example, different values of penalty
+parameters have a negligible impact on the estimated models. The default
+values \(\lambda_{0} = 1\) and \(\lambda_{2} = 1\) were used in
+estimating all the models presented in Table~\ref{tbl-simulation}.
+
 \textcolor{orange}{XQ: Please replace $x$ and $z$ in the Predictors column with bold $\bm{x}$ and $\bm{z}$. It's}
 
 \hypertarget{tbl-simulation}{}
@@ -1680,7 +1687,7 @@ considering response, input predictors, and noise levels.
 \end{tabular}}
 \end{table}
 
-\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results.}
+\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results. I've made a few changes, but you need to do some further work on it. I provided more detailed comments below.}
 
 Firstly, when the low noise level is considered, for the first true
 model \(y_{1}\), when either ``all \(\bm{x}\)'' or ``all \(\bm{x}\) +
@@ -1723,12 +1730,6 @@ model with incorrect index structure, but with correct predictors:
 ``Linear''. This suggests that the selection of the predictor variables
 is more important than determining the index structure of the model.
 
-It is also worth mentioning here that in real-world forecasting
-problems, the true data generating process (DGP) is unknown, and we do
-not expect an estimated model to represent the true DGP. Therefore, as
-long as the estimated model exhibits good forecasting accuracy, the
-index structure of the estimated model is less important.
-
 Similar to the case of \(y_{1}\), when only a part of \(\bm{x}\)
 variables are provided, the test MSE of the estimated models for
 \(y_{2}\) increased to \(\approx 0.34\), probably due to the inclusion
@@ -1742,6 +1743,8 @@ Intuitively, this might be due to the increased complexity of the model
 of two nonlinear link functions (corresponding to the two indices) for
 \(y_{2}\), might be higher than the error of estimating a single
 nonlinear function for \(y_{1}\).
+
+\textcolor{orange}{XQ: The above six paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of low noise level.}
 
 As expected, the accuracy with which the SMI Modelling algorithm
 estimates the index structure is in general lower with the high noise
@@ -1793,18 +1796,18 @@ signal-to-noise ratio in the data. Due to missing relevant predictors
 models in ``some x + all \(\bm{z}\)'' case resulted in test MSEs
 \(\approx 0.57\).
 
-In the above simulation experiment, we did not perform any tuning for
-the penalty parameters \(\lambda_{0}\) and \(\lambda_{2}\), as through
-our experiments we observed that for this simple example, different
-values of penalty parameters have a negligible impact on the estimated
-models. We used the default values \(\lambda_{0} = 1\) and
-\(\lambda_{2} = 1\) in estimating all the models presented above in
-Table~\ref{tbl-simulation}.
+\textcolor{orange}{XQ: The above four paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of high noise level.}
 
-Finally, the above simulation study indicates that the choice of the
-initialisation depends on the data/application. Thus, the users of the
-algorithm are encouraged to follow a trial-and-error procedure for
-choosing the best initial model for a given application.
+It is worth mentioning here that in real-world forecasting problems, the
+true data generating process (DGP) is unknown, and we do not expect an
+estimated model to precisely capture the true DGP. Therefore, as long as
+the estimated model demonstrates good forecasting accuracy, the index
+structure of the estimated model is less important.
+
+Finally, the simulation study indicates that the choice of the
+initialisation depends on the data and application. Thus, the users are
+encouraged to follow a trial-and-error procedure to determine the most
+suitable initial model for a given application.
 
 \hypertarget{sec-application}{%
 \section{Empirical Applications}\label{sec-application}}
