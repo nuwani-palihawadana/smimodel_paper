@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}, interior hidden, boxrule=0pt, sharp corners, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, enhanced, sharp corners, frame hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1513,6 +1513,11 @@ the SMI Modelling algorithm. \newline
   \end{itemize}
 \end{enumerate}
 
+Throughout the experiments in the paper, we use \(M = 10\), a
+convergence tolerance of \(0.001\), and a maximum of \(50\) iterations
+in step 4 of Algorithm 1, and a convergence tolerance of \(0.001\) for
+coefficients in estimating all the SMI Models.
+
 \hypertarget{sec-simulation}{%
 \section{Simulation Experiment}\label{sec-simulation}}
 
@@ -1596,12 +1601,7 @@ We applied the proposed SMI Modelling algorithm with each of the above
 predictor combinations, for both variations of the responses concerning
 the noise level. Moreover, we considered each of the first four
 initialisation options that we discussed in Section~\ref{sec-step1}, for
-each of the two responses. For ``PPR'' and ``Multiple'' options, we used
-the default values of the required parameters as stated in
-Section~\ref{sec-step1}. Moreover, we used \(M = 10\), a convergence
-tolerance of \(0.001\) and a maximum of \(50\) iterations in step 4 of
-Algorithm 1, and a convergence tolerance for coefficients of \(0.001\)
-in step 6.
+each of the two responses.
 
 \hypertarget{sec-sim-results}{%
 \subsection{Results}\label{sec-sim-results}}
@@ -1818,13 +1818,11 @@ Mortality}\label{forecasting-daily-mortality}}
 
 We apply the SMI Modelling algorithm to a data set from
 \textcite{Masselot2022}, to forecast daily mortality based on heat
-exposure.
-
-Studying the effects of various environmental exposures such as weather
-related variables, pollutants and man-made environmental conditions etc.
-on human health, is of significant importance in environmental
-epidemiology. Therefore, forecasting daily deaths taking heat related
-variables as predictors is an interesting application.
+exposure. Studying the effects of various environmental exposures such
+as weather related variables, pollutants and man-made environmental
+conditions etc. on human health, is of significant importance in
+environmental epidemiology. Therefore, forecasting daily deaths taking
+heat related variables as predictors is an interesting application.
 
 \hypertarget{description-of-the-data}{%
 \subsubsection{Description of the Data}\label{description-of-the-data}}
@@ -1834,13 +1832,13 @@ for the Metropolitan Area of Montreal, Province of Quebec, Canada, from
 1990 to 2014, for the months June, July, and August (i.e.~summer
 season). The daily all-cause mortality data were obtained from the
 National Institute of Public Health, Province of Quebec, while
-\emph{``DayMet''} - a 1 km × 1 km gridded data set
-\autocite{Thornton2021} was used to extract daily temperature and
-humidity data \autocite{Masselot2022}.
+\emph{DayMet} --- a 1 km × 1 km grid data set \autocite{Thornton2021}
+was used to extract daily temperature and humidity data
+\autocite{Masselot2022}.
 
 Figure~\ref{fig-deaths} shows the time plots of daily deaths during the
-summer for the years from 1990 to 1993. The series for only four years
-are plotted separately as a faceted grid for visual clarity.
+summer for the years from 1990 to 1993. The series for each of the four
+years are presented separately in a faceted grid for visual clarity.
 
 \begin{figure}
 
@@ -1854,11 +1852,11 @@ from 1990 to 1993.}
 \end{figure}
 
 The three main predictors considered in this empirical study are maximum
-temperature, minimum temperature, and vapor pressure (to represent the
+temperature, minimum temperature, and vapour pressure (to represent the
 level of humidity). The number of daily deaths are plotted against each
 of these predictors in Figure~\ref{fig-Tmax}, Figure~\ref{fig-Tmin}, and
-Figure~\ref{fig-Vp} respectively, where we can observe that the
-relationships between all these predictors and the response are slightly
+Figure~\ref{fig-Vp}, respectively, where we can observe that the
+relationships between these predictors and the response are slightly
 non-linear.
 
 \begin{figure}
@@ -1890,7 +1888,7 @@ plotted against minimum temperature.}
 }
 
 \caption{\label{fig-Vp}Daily mortality in summer (from 1990 to 2014)
-plotted against vapor pressure.}
+plotted against vapour pressure.}
 
 \end{figure}
 
@@ -1901,15 +1899,14 @@ plotted against vapor pressure.}
 
 In addition to current maximum and minimum temperatures, the temperature
 measurements up to 14 days prior (i.e.~\(0^{th}\) to \(14^{th}\) lag)
-are also considered as predictors in the forecasting model, because it
-is obvious that not only the current temperature, but also the
-temperatures that were prevailing in the recent past can add up to the
-adverse level of heat exposure of a person.
+are considered as predictors in the forecasting model. This accounts for
+the cumulative impact of both current and recent past temperatures on a
+person's heat exposure.
 
-\textbf{2) Current vapor pressure and lags:}
+\textbf{2) Current vapour pressure and lags:}
 
-Similar to temperature variables, the current value and 14 lags of vapor
-pressure are considered as predictors, as a proxy to the level of
+Similar to temperature variables, the current value and 14 lags of
+vapour pressure are considered as predictors, as a proxy to the level of
 humidity.
 
 \textbf{3) Calendar effects:}
@@ -1923,13 +1920,12 @@ which is a common practice in environmental epidemiology
 \hypertarget{modelling-framework}{%
 \subsubsection{Modelling Framework}\label{modelling-framework}}
 
-Maximum temperature lags, minimum temperature lags and vapor pressure
-lags are considered as predictors that are entering indices. The two
-calendar variables, \emph{DOS} and \emph{Year}, are included into the
-model as separate nonparametric components that do not enter any of the
-indices.
+Maximum temperature lags, minimum temperature lags, and vapour pressure
+lags are considered as predictors entering indices. The two calendar
+variables, \emph{DOS} and \emph{Year}, are included into the model as
+separate nonparametric components that do not enter any of the indices.
 
-Hence, the relevant SMI Model can be expressed as
+Hence, the relevant SMI Model can be written as
 \begin{equation}\protect\hypertarget{eq-heat}{}{
 \begin{aligned}
   \textbf{Deaths} = & \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
@@ -1938,34 +1934,33 @@ Hence, the relevant SMI Model can be expressed as
 
 \begin{itemize}
 \item
-  \(\textbf{Deaths}\) is the vector containing the observations of
-  number of daily deaths;
+  \(\textbf{Deaths}\) is the vector containing daily deaths
+  observations;
 \item
   \(\beta_{0}\) is the model intercept;
 \item
-  \(p\) is the unknown number of indices that will be estimated through
-  the algorithm;
+  \(p\) is the unknown number of indices that need to be estimated
+  through the algorithm;
 \item
   \(\bm{X}\) is the matrix containing the predictor variables that are
   entering indices (i.e.~maximum temperature lags, minimum temperature
-  lags and vapor pressure lags);
+  lags, and vapour pressure lags);
 \item
-  \(\bm{\alpha}_{j}, j = 1, \dots, p\) are the index coefficient vectors
-  of length = number of predictors entering indices (\(q\)) \(= 45\)
-  each;
+  \(\bm{\alpha}_{j}, j = 1, \dots, p\) are the index coefficient
+  vectors, each with a length equal to the number of predictors entering
+  indices (\(q=45\));
 \item
-  \(g_{j}, j = 1, \dots, p\), \(f_{1}\) and \(f_{2}\) are unknown
+  \(g_{j}, j = 1, \dots, p\), \(f_{1}\), and \(f_{2}\) are unknown
   nonparametric functions; and
 \item
-  \(\bm{\varepsilon}\) is the vector of errors.
+  \(\bm{\varepsilon}\) is the error term.
 \end{itemize}
 
 The data from 1990 to 2012 are used as the training set to estimate the
-model, while the data of year 2014 are separated to be the test set to
-evaluate the forecasting performance of the estimated model. The data
-corresponding to the three summer months of year 2013 are kept aside as
-a validation set, which is used to estimate some of the benchmark models
-for comparison purposes.
+model, while the data of year 2014 are separated to be the test set for
+evaluating forecasting performance. The data from the three summer
+months of year 2013 are kept aside as a validation set, which is used to
+estimate benchmark models for comparison purposes.
 
 Then we apply the proposed SMI Modelling algorithm to the training set
 to estimate the model. Finally, the forecasting accuracy on the test set
@@ -1977,67 +1972,62 @@ is evaluated using Mean Squared Error (MSE) and Mean Absolute Error
 
 We estimated SMI Models for the mortality data using three different
 initialisation options: ``PPR'', ``Additive'' and ``Linear'', for
-comparison purposes. Further, we tuned the penalty parameters
-\(\lambda_{0}\) and \(\lambda_{2}\), over ranges of integers from 1 to
-12, and 0 to 12 respectively, through a greedy search based on in-sample
-MSE. (Here, a greedy search is used instead of a grid search to reduce
-computational time.)
+comparison purposes.
+\textcolor{orange}{XQ: Add a short sentence to explain why other two options were not used here.}
+Further, we tuned the penalty parameters \(\lambda_{0}\) and
+\(\lambda_{2}\), over ranges of integers from 1 to 12, and 0 to 12
+respectively, through a greedy search based on in-sample MSE. Here, a
+greedy search is used instead of a grid search to reduce computational
+time.
 
 The penalty parameter combination
 \((\lambda_{0} = 12, \lambda_{2} = 0)\) was selected for the model
-fitted with ``PPR'' initialisation. (Here, \(\lambda_{2} = 0\) means
-that the \(\ell_{2}\)-penalty (i.e.ridge penalty) is omitted from the
-model.) The estimated model, \textbf{\emph{SMI Model (12, 0) - PPR }},
-did not drop any of the index variables, and resulted in 5 indices. The
-best penalty parameter combination for the model estimated taking
-``Additive'' model as the starting point was
-\((\lambda_{0} = 1, \lambda_{2} = 0)\). The estimated SMI Model did not
-drop any index variables or indices, and thus the final model,
-\textbf{\emph{SMI Model (1, 0) - Additive }}, is equivalent to a
-nonparametric additive model. The model estimated with ``Linear''
-initialisation selected \((\lambda_{0} = 12, \lambda_{2} = 5)\) as the
-penalty parameter combination (\textbf{\emph{SMI Model (12, 5) - Linear
-}}), and resulted in 2 indices, without dropping any of the index
-variables. (We used \(M = 10\), a convergence tolerance of \(0.001\),
-\(50\) maximum iterations, and a convergence tolerance of \(0.001\) for
-coefficients in estimating all the SMI Models.)
+fitted with ``PPR'' initialisation. The estimated model,
+\textbf{\emph{SMI Model (12, 0) - PPR }}, resulted in five indices
+wihout dropping any of the index variables. The optimal penalty
+parameter combination for the model initiated with ``Additive'' was
+\((\lambda_{0} = 1, \lambda_{2} = 0)\), resulting in the
+\textbf{\emph{SMI Model (1, 0) - Additive }}, equivalent to a
+nonparametric additive model (no index variables or indices were
+dropped). The model estimated with ``Linear'' initialisation selected
+\((\lambda_{0} = 12, \lambda_{2} = 5)\) (\textbf{\emph{SMI Model (12, 5)
+- Linear }}), and resulted in two indices, without dropping any of the
+index variables.
 
-We evaluated the forecasting error of the estimated models using two
-different subsets of the original test set:
+We evaluated forecasting errors of the estimated models using two
+subsets of the original test set:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{\emph{Test Set 1:}} original test set of 3 months (June, July
-  and August of 2014); and
+  \textbf{\emph{Test Set 1:}} original test set spanning 3 months (June,
+  July and August 2014); and
 \item
-  \textbf{\emph{Test Set 2:}} a test set of 1 month (June 2014).
+  \textbf{\emph{Test Set 2:}} a test set covering 1 month (June 2014).
 \end{enumerate}
 
 Note that in this application, we assumed that the future values of the
-maximum/minimum temperatures and vapor pressure are known to use in the
+maximum/minimum temperatures and vapour pressure are known to use in the
 forecasting model.
 
-The MSE and MAE values obtained on the two variations of the test set
-for the estimated SMI Models are presented in Table~\ref{tbl-heat}.
-According to the results obtained, the SMI Model estimated with ``PPR''
-initialisation, \textbf{\emph{SMI Model (12, 0) - PPR }}, shows the best
-forecasting performance on both the test sets, out of the three
-different SMI Models estimated.
+The MSE and MAE values for the estimated SMI Models on two different
+test sets are presented in Table~\ref{tbl-heat}. We observe that the SMI
+Model estimated with ``PPR'' initialisation, \textbf{\emph{SMI Model
+(12, 0) - PPR }}, shows the best forecasting performance on both test
+sets, compared to the other two estimated SMI models.
 
-Furthermore, we present test set forecasting errors of three different
-benchmark models in Table~\ref{tbl-heat}, to compare with the estimated
-SMI Models. First, a nonparametric additive model formulated through
-backward elimination as proposed by \textcite{FH2012}
-(Section~\ref{sec-backward}) is presented. Next, a GAIM
+Furthermore, we present the forecasting errors of three benchmark models
+in Table~\ref{tbl-heat} for comparison with the estimated SMI Models.
+The first benchmark is a nonparametric additive model formulated through
+backward elimination, as proposed by \textcite{FH2012}
+(Section~\ref{sec-backward}). Next, a GAIM
 (Section~\ref{sec-multi-index}) is also presented. In the case of GAIM,
-maximum temperature lags, minimum temperature lags and vapor pressure
-lags are categorised into three groups, where we estimated an index for
-each of those groups. Finally, the forecasting errors of a projection
-pursuit regression (PPR) model is presented. The number of indices of
-the PPR model was taken as 3, which is the number of indices estimated
-by the group-wise additive index model (GAIM).
+maximum temperature lags, minimum temperature lags, and vapour pressure
+lags are categorised into three groups, where an index estimated for
+each group. Finally, we present the forecasting errors of a PPR model.
+The number of indices in the PPR model was taken as 3, matching the
+number of indices estimated by the GAIM.
 
 \hypertarget{tbl-heat}{}
 \begin{table}[!h]
@@ -2061,17 +2051,17 @@ PPR & 47 & 3 & 82.877 & 7.202 & 104.217 & 8.404\\
 \end{tabular}
 \end{table}
 
-According to Table~\ref{tbl-heat}, \textbf{\emph{SMI Model (12, 0) -
-PPR}} outperforms all three benchmark models in terms of forecasting
-accuracy, for both \emph{Test Set 1} and \emph{Test Set 2}. However, the
-SMI Models estimated using ``Additive'' or ``Linear'' initialisations
-have inferior forecasting performance to all the benchmark models
-considered.
-
-The actual series of number of deaths and the predicted series from the
-\textbf{\emph{SMI Model (12, 0) - PPR}} and the benchmark models on
+Table~\ref{tbl-heat} shows that \textbf{\emph{SMI Model (12, 0) - PPR}}
+outperforms all three benchmark models in terms of forecasting accuracy,
+for both \emph{Test Set 1} and \emph{Test Set 2}. However, the SMI
+Models estimated using ``Additive'' or ``Linear'' initialisations have
+inferior forecasting performance compared to all benchmark models
+considered. The actual number of deaths and the predicted values from
+the \textbf{\emph{SMI Model (12, 0) - PPR}} and benchmark models on
 \emph{Test Set 2} are plotted in Figure~\ref{fig-heatPred} for further
 comparison.
+
+\textcolor{orange}{XQ: Please place the legend of Figure 5 at the bottom.}
 
 \begin{figure}
 
@@ -2257,10 +2247,7 @@ Model dropped all the index variables and resulted in null indices
 Model (1, 0) - Linear }}, is just a linear model with the two linear
 variables ``Month'' and ``Season''. Notice that all the three estimated
 SMI Models have \(\lambda_{2} = 0\), indicating that all three models
-have omitted the \(\ell_{2}\)-penalty in the estimation. (Similar to the
-previous application, we used \(M = 10\), a convergence tolerance of
-\(0.001\), \(50\) maximum iterations, and a convergence tolerance of
-\(0.001\) for coefficients in estimating all the SMI Models.)
+have omitted the \(\ell_{2}\)-penalty in the estimation.
 
 Note that similar to the previous application of heat related mortality
 forecasting, we assumed that the future values of the weather variables
