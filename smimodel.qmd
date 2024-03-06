@@ -556,7 +556,7 @@ Finally, the simulation study indicates that the choice of the initialisation de
 
 # Empirical Applications {#sec-application}
 
-## Forecasting Daily Mortality
+## Forecasting Daily Mortality {#sec-mortality}
 
 We apply the SMI Modelling algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure. Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions etc. on human health, is of significant importance in environmental epidemiology. Therefore, forecasting daily deaths taking heat related variables as predictors is an interesting application.
 
@@ -664,7 +664,7 @@ where
 
 The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are separated to be the test set for evaluating forecasting performance. The data from the three summer months of year 2013 are kept aside as a validation set, which is used to estimate benchmark models for comparison purposes.
 
-Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model. Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model. Finally, the forecasting accuracy on the test set is evaluated using MSE and Mean Absolute Error (MAE).
 
 ### Results
 
@@ -704,7 +704,6 @@ kable(results_heat,
 
 @tbl-heat shows that ***SMI Model (12, 0) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance compared to all benchmark models considered. The actual number of deaths and the predicted values from the ***SMI Model (12, 0) - PPR*** and benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
-\textcolor{orange}{XQ: Please place the legend of Figure 5 at the bottom.}
 ```{r}
 #| label: fig-heatPred
 #| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (12, 0) - PPR" and benchmark models for Test Set 2.
@@ -736,19 +735,17 @@ HeatPreds %>%
   theme(legend.position="bottom")
 ```
 
-## Forecasting Daily Solar Intensity
+## Forecasting Daily Solar Intensity {#sec-solar}
 
-Next, we utilise the SMI Modelling algorithm to forecast daily solar intensity, using other weather conditions.
-
-According to @EI2023, the portion of the world's primary energy consumption fulfilled by renewable energy (except for hydroelectricity) has reached 7.5% in 2022. The capacity addition by solar and wind power in 2022 is recorded as 266 GW, where 72% of that capacity addition was attributed to solar energy [@EI2023]. Therefore, obtaining better forecasts of solar power generation is crucial for planning and management of power systems. As solar power generation is undoubtedly associated with solar intensity, forecasting solar intensity a useful step towards accurate forecasting of solar power generation. 
+Next, we utilise the SMI Modelling algorithm to forecast daily solar intensity, using other weather conditions. As reported by @EI2023, renewable energy (excluding hydroelectricity) contributed to 7.5% of the world's primary energy consumption in 2022. Solar and wind power saw a combined capacity addition of 266 GW, with solar energy accounting for 72% of the increase. Given this, accurate forecasting of solar power generation, closely linked to solar intensity, is crucial for effective power system planning and management.
 
 ### Description of the Data
 
-We use solar intensity and other weather variables measured at a Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every 5 minutes, from 21th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
+We use solar intensity and other weather variables measured at a Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every five minutes, from 21th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
 
-However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the 5 minutes data to daily data by averaging each variable over days. 
+However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the five minutes data to daily data by averaging each variable over days. 
 
-@fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. (As observed in @fig-solar, there are days for which the observations were missing. We excluded those days from the analysis, and used only the days for which the data are available.)
+@fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. As observed in @fig-solar, there are days for which the observations were missing. We excluded those days from the analysis, and used only the days for which the data are available.
 
 ```{r}
 #| label: fig-solar
@@ -761,7 +758,7 @@ dataSolar %>%
   ggplot(aes(x = Date, y = Solar_lag_000)) +
   geom_line(color = "grey40") +
   scale_x_datetime(date_breaks = "1 year") +
-  ggtitle("Daily solar intensity in Amherst, Massachusetts") +
+  ggtitle("") +
   ylab("Solar Intensity (Watts per square metre)") 
   #ylab(expression("Solar Intensity (Watts/m"^2*")"))
 ```
@@ -829,17 +826,17 @@ Three lags of the daily solar intensity itself are used as predictors to incorpo
 
 **2) Current weather variables and lags:**
 
-In addition to current temperature, dew point, wind speed, rain and humidity, the measurements of 3 previous days (i.e. $0^{th}$ to $3^{rd}$ lag) of each of the above weather variables are also considered as predictors in the forecasting model.
+In addition to current temperature, dew point, wind speed, rain and humidity, the measurements of three previous days (i.e. $0^{th}$ to $3^{rd}$ lag) for each of the these weather variables are also included as predictors in the forecasting model.
 
 **3) Calendar effects:**
 
-Finally, a couple of calendar variables; *Month* (12 months of the year) and *Season* (the 4 seasons of the year: Spring, Summer, Autumn and Winter), are incorporated into the model to capture annual seasonality, and also to control the autocorrelation in residuals.
+Finally, a couple of calendar variables; *Month* (12 months of the year) and *Season* (the four seasons: Spring, Summer, Autumn and Winter), are incorporated into the model to capture annual seasonality, and control for autocorrelation in residuals.
 
 ### Modelling Framework
 
 The lags of solar intensity, and the lags of weather variables are considered as predictors that are entering indices. The two calendar variables, *Month* and *Season*, are included into the model as linear (categorical) predictor variables. 
 
-Hence, the relevant SMI Model can be expressed as
+Hence, the relevant SMI Model can be written as
 $$
 \begin{aligned}
   \textbf{Solar} = & \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{Month} + \theta_{2}\textbf{Season}+ \bm{\varepsilon},
@@ -847,7 +844,7 @@ $$
 $$ {#eq-solar}
 where
 
--   $\textbf{Solar}$ is the vector containing the observations of daily solar intensity;
+-   $\textbf{Solar}$ is the vector containing daily observations of solar intensity;
 
 -   $\beta_{0}$ is the model intercept; 
 
@@ -855,29 +852,29 @@ where
 
 -   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
 
--   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors of length = number of predictors entering indices ($q$) $= 23$ each;
+-   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors, each of lenth equal to the number of predictors entering indices ($q= 23$);
 
 -   $g_{j}, j = 1, \dots, p$ are unknown nonparametric functions;
 
 -   $\theta_{1}$ and $\theta_{2}$ are the two coefficients corresponding to the two linear predictor variables; and
 
--   $\bm{\varepsilon}$ is the vector of errors.
+-   $\bm{\varepsilon}$ is the error term.
 
-The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison purposes.  
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance. The data from the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.  
 
-Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using MSE and MAE.
 
 ### Results
 
 Similar to the previous empirical application, we estimated SMI Models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
 
-The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, did not drop any of the index variables, and resulted in 5 indices. The best penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$ as the penalty parameter combination. Unlike the above models, this SMI Model dropped all the index variables and resulted in null indices (number of indices = 0), and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables "Month" and "Season". Notice that all the three estimated SMI Models have $\lambda_{2} = 0$, indicating that all three models have omitted the $\ell_{2}$-penalty in the estimation.
+The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables *Month* and *Season*. Notice that all three estimated SMI Models have $\lambda_{2} = 0$, indicating that all three models have omitted the $\ell_{2}$-penalty in the estimation process.
 
 Note that similar to the previous application of heat related mortality forecasting, we assumed that the future values of the weather variables are known to use in the forecasting model.
 
-The MSE and MAE values obtained on the test set for the estimated SMI Models are presented in @tbl-solar. According to the results obtained, the SMI Model estimated with “Additive” initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance on the test set, out of the three different SMI Models estimated.
+@tbl-solar presents the MSE and MAE values for the estimated SMI Models on the test set. The results indicate that the SMI Model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
 
-We also present test set forecasting errors of three benchmark models in @tbl-solar, to compare with the estimated SMI Models. First, a semi-parametric additive model formulated through backward elimination as proposed by @FH2012 is presented. Next, a GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in 6 indices. Finally, the forecasting errors of a projection pursuit regression (PPR) model is also presented. The number of indices of the PPR model was taken as 6, which is the number of indices estimated by the GAIM. Note that here, the two categorical calendar variables were excluded when estimating the PPR model.
+Similar to @sec-mortality, we also present forecasting errors of three benchmark models in @tbl-solar, to compare with the estimated SMI Models. Here, the GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the two categorical calendar variables were excluded when estimating the PPR model.
 
 ```{r}
 #| label: tbl-solar
@@ -896,11 +893,11 @@ kable(results_solar,
   column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
 ```
 
-According to @tbl-solar, the test set forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform both the semi-parametric additive model with backward elimination and the PPR model, where in this case, the estimated PPR model has resulted in the best forecasting accuracy. 
+According to @tbl-solar, the forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform both the semi-parametric additive model with backward elimination and the PPR model, where in this case, the estimated PPR model has resulted in the best forecasting accuracy.
 
-Here, it is worth considering the differences between the SMI Model and the benchmark models that show better forecasting performance in comparison to the SMI Model. The method proposed by @FH2012 formulates a semi-parametric additive model through a backward elimination of predictors. On the other hand, when estimating a PPR model, the number of indices as well as the predictors that belong to each index (each index includes all the predictors provided) are pre-determined. In contrast, the SMI Model takes a more general and an objective approach, where the number of indices as well as the predictors within each index are automatically determined through the proposed algorithm. Due to the lesser amount of prior information provided, the estimation of a SMI Model is more challenging. 
+Here, it is worth considering the differences between the SMI Model and the benchmark models that show superior forecasting performance. The method proposed by @FH2012 formulates a semi-parametric additive model using a backward elimination of predictors. When estimating a PPR model, both the number of indices and the predictors within each index (each index includes all provided predictors that are entering indices) are pre-determined. In contrast, the SMI Model takes a more general and objective approach, where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI Model faces a more challenging estimation task due to the limited prior information provided.
 
-The actual series of solar intensity and the predicted series from the SMI Model (1, 0) - Additive and the benchmark models on the test set are plotted in @fig-solarPred for further comparison purposes.
+The actual solar intensity and the predicted values from the SMI Model (1, 0) - Additive and benchmark models are plotted in @fig-solarPred for further comparison.
 
 ```{r}
 #| label: fig-solarPred
@@ -929,12 +926,13 @@ SolarPreds %>%
                                                   "SMI Model (1, 0) - Additive" = "black", 
                                                   "PPR" = "black",
                                                   "Backward Elimination" = "black",
-                                                  "GAIM" = "black"))
+                                                  "GAIM" = "black")) +
+  theme(legend.position="bottom")
 ```
 
-Moreover, the two empirical applications presented above illustrates the difficulty of generalising an initialisation option for the SMI Model, suitable for many different applications. As mentioned in above @sec-simulation, we encourage the users to follow a trial-and-error procedure to select the best possible initialisation option. 
+In summary, the two empirical applications presented above highlight the challenge of finding a universally applicable initialisation option for the SMI Model across various applications. As mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
 
-Both the empirical applications presented above were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
+The two empirical applications were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
 
 # Conclusions and Further Research {#sec-conclusion}
 
