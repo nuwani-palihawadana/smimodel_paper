@@ -932,7 +932,7 @@ SolarPreds %>%
 
 In summary, the two empirical applications presented above highlight the challenge of finding a universally applicable initialisation option for the SMI Model across various applications. As mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
 
-The two empirical applications were performed using ***R statistical software*** [@R2023], and the ***Rstudio*** integrated development environment (IDE) [@Rstudio2024]. We used the commercial MIP solver ***"Gurobi"*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in (ROI.plugin.gurobi)*** [@Schwendinger2023] available from the ***R Optimization Infrastructure (ROI)*** [@Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** *(v1.9.1)* [@Wood2011].
+The two empirical applications were performed using R statistical software [@R2023], and the Rstudio integrated development environment [IDE, @Rstudio2024]. We used the commercial MIP solver ***Gurobi*** [@gurobi2023] to solve the MIQPs related to the proposed SGAIM algorithm, through the ***Gurobi plug-in*** [ROI.plugin.gurobi, @Schwendinger2023] available from the ***R Optimization Infrastructure*** [ROI, @Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** [v1.9.1, @Wood2011].
 
 # Conclusions and Further Research {#sec-conclusion}
 

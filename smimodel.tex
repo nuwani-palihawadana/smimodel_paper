@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, interior hidden, boxrule=0pt, enhanced, frame hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, frame hidden, boxrule=0pt, enhanced, sharp corners, borderline west={3pt}{0pt}{shadecolor}, interior hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -2322,17 +2322,17 @@ Section~\ref{sec-simulation}, we encourage users to follow a
 trial-and-error procedure to identify the most effective initialisation
 option for their specific application.
 
-The two empirical applications were performed using \textbf{\emph{R
-statistical software}} \autocite{R2023}, and the \textbf{\emph{Rstudio}}
-integrated development environment (IDE) \autocite{Rstudio2024}. We used
-the commercial MIP solver \textbf{\emph{``Gurobi''}}
-\autocite{gurobi2023} to solve the MIQPs related to the proposed SGAIM
-algorithm, through the \textbf{\emph{Gurobi plug-in
-(ROI.plugin.gurobi)}} \autocite{Schwendinger2023} available from the
-\textbf{\emph{R Optimization Infrastructure (ROI)}}
-\autocite{Hornik2023,Theusl2020} package. Furthermore, the GAMs were
-fitted using the R package \textbf{\emph{mgcv}} \emph{(v1.9.1)}
-\autocite{Wood2011}.
+The two empirical applications were performed using R statistical
+software \autocite{R2023}, and the Rstudio integrated development
+environment \autocite[IDE,][]{Rstudio2024}. We used the commercial MIP
+solver \textbf{\emph{Gurobi}} \autocite{gurobi2023} to solve the MIQPs
+related to the proposed SGAIM algorithm, through the
+\textbf{\emph{Gurobi plug-in}}
+\autocite[ROI.plugin.gurobi,][]{Schwendinger2023} available from the
+\textbf{\emph{R Optimization Infrastructure}}
+\autocites[ROI,][]{Hornik2023,Theusl2020} package. Furthermore, the GAMs
+were fitted using the R package \textbf{\emph{mgcv}}
+\autocite[v1.9.1,][]{Wood2011}.
 
 \hypertarget{sec-conclusion}{%
 \section{Conclusions and Further Research}\label{sec-conclusion}}
