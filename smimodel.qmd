@@ -23,7 +23,7 @@ author:
     - Clayton VIC 3800
     - Australia
   email: xiaoqian.wang@monash.edu
-abstract: High-dimensionality is a common phenomenon in real-world forecasting problems. Oftentimes, forecasts are contingent on a long history of predictors, while the relationships between some predictors and the response of interest exhibit complex nonlinear patterns. In such a situation, a nonlinear "transfer function" model, with additivity constraints to mitigate the issue of *curse of dimensionality*, is a conspicuous choice. Particularly, nonparametric *additive index models* greatly reduce the number of parameters to be estimated in comparison to a general additive model. In this paper, we present a novel algorithm for estimating high-dimensional nonparametric additive index models, with simultaneous variable selection, which we call ***SMI*** (***S***parse ***M***ultiple ***I***ndex) ***Model***. The SMI Model algorithm is based on an iterative procedure that applies mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares problem. We demonstrate the functionality and the characteristics of the proposed algorithm through a simple simulation exercise. We also illustrate the use of the SMI Model algorithm in two empirical applications related to forecasting heat exposure related daily mortality and daily solar intensity.
+abstract: High-dimensionality is a common phenomenon in real-world forecasting problems. Oftentimes, forecasts are contingent on a long history of predictors, while the relationships between some predictors and the response of interest exhibit complex nonlinear patterns. In such a situation, a nonlinear "transfer function" model, with additivity constraints to mitigate the issue of *curse of dimensionality*, is a conspicuous choice. Particularly, nonparametric *additive index models* greatly reduce the number of parameters to be estimated in comparison to a general additive model. In this paper, we present a novel algorithm for estimating high-dimensional nonparametric additive index models, with simultaneous variable selection, which we call ***SMI*** (***S***parse ***M***ultiple ***I***ndex) ***Model***. The SMI Modelling algorithm is based on an iterative procedure that applies mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares problem. We demonstrate the functionality and the characteristics of the proposed algorithm through a simple simulation exercise. We also illustrate the use of the SMI Modelling algorithm in two empirical applications related to forecasting heat exposure related daily mortality and daily solar intensity.
 keywords: "Additive index models, Variable selection, Dimension reduction, Mixed integer programming"
 wpnumber: no/yr
 jelcodes: C10,C14,C22
@@ -435,9 +435,9 @@ If applicable, a new index is constructed with these dropped predictors and the 
 
 Note that, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest loss function value. Moreover, it is also crucial to choose a suitable value for the big-M parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
 
-The following ***Algorithm 1*** summarises the key steps of the SMI Model algorithm. \newline
+The following ***Algorithm 1*** summarises the key steps of the SMI Modelling algorithm. \newline
 
-***Algorithm 1: SMI Model Algorithm***
+***Algorithm 1: SMI Modelling Algorithm***
 
 1.  Initialise index structure and index coefficients $\bm{\alpha}$:\
     Initialise $p$, predictors grouping among indices, and obtain $\bm{\alpha}^{init}$ using one of the five options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{init}$ to have unit norm.
@@ -455,13 +455,13 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Model algori
     
 6.  Iterate step 5 with increased number of indices $p$:\
     Increase $p$ by one in each iteration of step 5 until meeting one of the termination criteria below.
-    - Number of indices in the iteration reaches $q$; select the final fitted model as output.
+    - The number of indices in the iteration reaches $q$; select the final fitted model as output.
     - Loss increases after the increment; select previous iteration model as the final SMI model.
     - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
 
 # Simulation Experiment {#sec-simulation}
 
-This section presents the results of a simple simulation experiment conducted to demonstrate the performance and characteristics of the proposed SMI Model algorithm. Particularly, we try to investigate how the estimated SMI Model varies depending on the initialisation (as discussed in @sec-step1) used. 
+This section presents the results of a simple simulation experiment conducted to demonstrate the performance and characteristics of the proposed SMI Modelling algorithm. Particularly, we try to investigate how the estimated SMI Model varies depending on the initialisation (as discussed in @sec-step1) used. 
 
 ## Data Generation {#sec-datagen}
 
@@ -499,7 +499,7 @@ The three different sets of predictors considered are as follows:
 
 3.    A part of "$x$" variables ($x_{0}, x_{1}$ and $x_{2}$) and all "$z$" variables (i.e. some "relevent" predictors plus "irrelevant" predictors).
 
-We applied the proposed SMI Model algorithm using each of the above predictor combinations, for each of the two variations of the responses in terms of the noise level. Moreover, we also considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses. For "PPR" and "Multiple" options, we used the default values of the required parameters as stated in @sec-step1. (Moreover, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in step 3.3, and a convergence tolerance for coefficients of $0.001$ in step 3.5 in estimating all SMI Models.)
+We applied the proposed SMI Modelling algorithm using each of the above predictor combinations, for each of the two variations of the responses in terms of the noise level. Moreover, we also considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses. For "PPR" and "Multiple" options, we used the default values of the required parameters as stated in @sec-step1. (Moreover, we used $M = 10$, a convergence tolerance of $0.001$ and $50$ maximum iterations in step 3.3, and a convergence tolerance for coefficients of $0.001$ in step 3.5 in estimating all SMI Models.)
 
 ## Results {#sec-sim-results}
 
@@ -526,7 +526,7 @@ Firstly, when the low noise level is considered, for the first true model $y_{1}
 
 When $y_{2}$ with low noise level is considered, in both "all x" and "all x + all z" cases, except for the "Linear" initialisation, the algorithm has estimated the correct index structure with all the other three initialisation options. The "Linear" option has selected the correct variables into the model, however has not identified the 2-index structure. This suggests that it might be better to initialise the algorithm with a higher number of indices rather than with a lower number of indices. When only a part of "$x$" variables are provided, similar to the case of $y_{1}$, models estimated for $y_{2}$ with all four initialisations, have selected noise variables. 
 
-Furthermore, we evaluated the forecasting error of the fitted models on the test set using Mean Squared Error (MSE). For $y_{1}$, in both the cases "all x" and "all x + all z", the models estimated using all four initialisations resulted in a test MSE of $\approx 0.01$, which is the random squared error of the true model. This confirms the accuracy with which the SMI Model algorithm estimated the index structure for $y_{1}$. When only a part of "$x$" variables are provided, the test MSE increased to $\approx 0.23$, as the estimated models contain noise variables. 
+Furthermore, we evaluated the forecasting error of the fitted models on the test set using Mean Squared Error (MSE). For $y_{1}$, in both the cases "all x" and "all x + all z", the models estimated using all four initialisations resulted in a test MSE of $\approx 0.01$, which is the random squared error of the true model. This confirms the accuracy with which the SMI Modelling algorithm estimated the index structure for $y_{1}$. When only a part of "$x$" variables are provided, the test MSE increased to $\approx 0.23$, as the estimated models contain noise variables. 
 
 For $y_{2}$, in both the cases "all x" and "all x + all z", all the models estimated resulted in a test MSE of $\approx 0.16$. This is an interesting result as the test MSEs of the estimated models with correct index structure: "PPR", "Additive", and "Multiple", are not very different to the test MSE of an estimated model with incorrect index structure, but with correct predictors: "Linear". This suggests that the selection of the predictor variables is more important than determining the index structure of the model. 
 
@@ -536,7 +536,7 @@ Similar to the case of $y_{1}$, when only a part of "$x$" variables are provided
 
 Moreover, when the above test MSE values of the models estimated for $y_{2}$ are considered, in contrast to the case of $y_{1}$, those values are higher than the random squared error of the true model. Intuitively, this might be due to the increased complexity of the model $y_{2}$ in comparison to $y_{1}$, where the total estimation error of two nonlinear link functions (corresponding to the two indices) for $y_{2}$, might be higher than the error of estimating a single nonlinear function for $y_{1}$. 
 
-As expected, the accuracy with which the SMI Model algorithm estimates the index structure is in general lower with the high noise level, in comparison to the low noise level. In the case of $y_{1}$, when "all x" variables are provided, except for "Additive" option, all the other initialisations have correctly estimated the model. When "all x + all z" variables are provided, only the "PPR" and "Linear" options have estimated the correct model, whereas "Additive" and "Multiple" options have included a noise variable. Similar to the low noise level case, when only a part of "$x$" variables are provided, all four initialisations have led the algorithm to estimate models with noise variables. 
+As expected, the accuracy with which the SMI Modelling algorithm estimates the index structure is in general lower with the high noise level, in comparison to the low noise level. In the case of $y_{1}$, when "all x" variables are provided, except for "Additive" option, all the other initialisations have correctly estimated the model. When "all x + all z" variables are provided, only the "PPR" and "Linear" options have estimated the correct model, whereas "Additive" and "Multiple" options have included a noise variable. Similar to the low noise level case, when only a part of "$x$" variables are provided, all four initialisations have led the algorithm to estimate models with noise variables. 
 
 Next, when $y_{2}$ is considered at high noise level, when "all x" variables are provided, the estimated models using all four initialisation options have included the variable $x_{4}$ (as an additional index), which should have been omitted. When "all x + all z" variables are provided, the option "Multiple" has led the algorithm to the correct model, while all the other three options have included a noise variable. Similar to the previous cases, when only a part of "$x$" variables are provided, the models estimated using all four initialisation options have included multiple noise variables, probably to cover up for the missing signal variables. 
 
@@ -554,7 +554,7 @@ In the next section, we illustrate the forecasting performance of the SMI Model 
 
 ## Forecasting Daily Mortality
 
-We apply the SMI Model algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
+We apply the SMI Modelling algorithm to a data set from @Masselot2022, to forecast daily mortality based on heat exposure.
 
 Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions etc. on human health, is of significant importance in environmental epidemiology. Therefore, forecasting daily deaths taking heat related variables as predictors is an interesting application.
 
@@ -662,7 +662,7 @@ where
 
 The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the three summer months of year 2013 are kept aside as a validation set, which is used to estimate some of the benchmark models for comparison purposes.  
 
-Then we apply the proposed SMI Model algorithm to the training set to estimate the model. Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model. Finally, the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
 
@@ -736,7 +736,7 @@ HeatPreds %>%
 
 ## Forecasting Daily Solar Intensity
 
-Next, we utilise the SMI Model algorithm to forecast daily solar intensity, using other weather conditions.
+Next, we utilise the SMI Modelling algorithm to forecast daily solar intensity, using other weather conditions.
 
 According to @EI2023, the portion of the world's primary energy consumption fulfilled by renewable energy (except for hydroelectricity) has reached 7.5% in 2022. The capacity addition by solar and wind power in 2022 is recorded as 266 GW, where 72% of that capacity addition was attributed to solar energy [@EI2023]. Therefore, obtaining better forecasts of solar power generation is crucial for planning and management of power systems. As solar power generation is undoubtedly associated with solar intensity, forecasting solar intensity a useful step towards accurate forecasting of solar power generation. 
 
@@ -863,7 +863,7 @@ where
 
 The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance of the estimated model. The data corresponding to the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison purposes.  
 
-Then we apply the proposed SMI Model algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 ### Results
 
@@ -936,17 +936,17 @@ Both the empirical applications presented above were performed using ***R statis
 
 # Conclusions and Further Research {#sec-conclusion}
 
-In this paper, we presented a novel algorithm for the estimation of a nonparametric additive index model with optimal predictor selection, which we refer to as *Sparse Multiple Index (SMI) Model*. The SMI Model algorithm is an iterative procedure that is developed based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares problem.
+In this paper, we presented a novel algorithm for the estimation of a nonparametric additive index model with optimal predictor selection, which we refer to as *Sparse Multiple Index (SMI) Model*. The SMI Modelling algorithm is an iterative procedure that is developed based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares problem.
 
-The proposed SMI Model algorithm has a number of special features: 1) It performs automatic selection of both the number of indices and the predictors within in each index, and estimate the resulting nonparametric additive index model. The set of predictors entering indices, and a starting model (index structure and a set of index coefficients) to initiate the algorithm are the information that a user should provide as inputs. 2) It performs automatic variable selection, which is specially useful for estimating a parsimonious model in a high-dimensional setting. Thus, the SMI Model algorithm is an objective and a principled estimation and variable selection method that reduces any subjectivity induced by different users. 3) It is capable of estimating a wide spectrum of models starting from *single index models* (number of indices = 1) to *additive models* (number of indices = number of predictors (entering indices)). Hence, the SMI Model algorithm is a more general estimation algorithm in the domain of nonparametric additive models. 4) It provides the ability to include separate non-liner as well as linear predictors in the model that are not entering any of the indices, and hence creates the possibility of estimating semi-parametric additive models. 
+The proposed SMI Modelling algorithm has a number of special features: 1) It performs automatic selection of both the number of indices and the predictors within in each index, and estimate the resulting nonparametric additive index model. The set of predictors entering indices, and a starting model (index structure and a set of index coefficients) to initiate the algorithm are the information that a user should provide as inputs. 2) It performs automatic variable selection, which is specially useful for estimating a parsimonious model in a high-dimensional setting. Thus, the SMI Modelling algorithm is an objective and a principled estimation and variable selection method that reduces any subjectivity induced by different users. 3) It is capable of estimating a wide spectrum of models starting from *single index models* (number of indices = 1) to *additive models* (number of indices = number of predictors (entering indices)). Hence, the SMI Modelling algorithm is a more general estimation algorithm in the domain of nonparametric additive models. 4) It provides the ability to include separate non-liner as well as linear predictors in the model that are not entering any of the indices, and hence creates the possibility of estimating semi-parametric additive models. 
 
-Due to the limited input information provided to the algorithm, the estimation of a SMI Model is a challenging problem. We demonstrated the characteristics and the performance of the proposed algorithm through a simple simulation exercise and two empirical applications. Since we observed that the final estimated model changes with the initialisation provided, one limitation of the proposed algorithm is the difficulty of specifying an initialisation that works in general. Hence, an interesting future research problem would be to explore the possibility of determining a generalised initialisation for the SMI Model algorithm that will work in many different applications. 
+Due to the limited input information provided to the algorithm, the estimation of a SMI Model is a challenging problem. We demonstrated the characteristics and the performance of the proposed algorithm through a simple simulation exercise and two empirical applications. Since we observed that the final estimated model changes with the initialisation provided, one limitation of the proposed algorithm is the difficulty of specifying an initialisation that works in general. Hence, an interesting future research problem would be to explore the possibility of determining a generalised initialisation for the SMI Modelling algorithm that will work in many different applications. 
 
-Moreover, we admit that the empirical examples presented in the paper may not be diverse enough to make any conclusions about the unique strengths or weaknesses of the proposed algorithm. This study should be viewed as an attempt to develop a more objective variable selection and model estimation methodology in the broader class of nonparametric additive models for forecasting. An important future research problem is therefore, to experiment with the proposed algorithm using many different data sets with diverse properties to establish the situations in which the proposed SMI Model algorithm performs better compared to other benchmark methods. 
+Moreover, we admit that the empirical examples presented in the paper may not be diverse enough to make any conclusions about the unique strengths or weaknesses of the proposed algorithm. This study should be viewed as an attempt to develop a more objective variable selection and model estimation methodology in the broader class of nonparametric additive models for forecasting. An important future research problem is therefore, to experiment with the proposed algorithm using many different data sets with diverse properties to establish the situations in which the proposed SMI Modelling algorithm performs better compared to other benchmark methods. 
 
 Furthermore, the MIQP related to the algorithm is somewhat analogous to the *best subset selection* problem in an ordinary least squares problem. Thus, another limitation of the proposed algorithm is the increase in computational time as the number of predictors and number of indices increase. Therefore, it would be an interesting research to obtain further insights regarding the algorithm to see what improvements can be made to the algorithm design to reduce the computational cost in a high-dimensional context. 
 
-Forecasting problems frequently arise in many different fields. Therefore, we hope that the proposed SMI Model algorithm and possible future extensions of it will be useful for different users in different fields, with different levels of specific domain knowledge, as an objective and a general forecasting tool. \newline
+Forecasting problems frequently arise in many different fields. Therefore, we hope that the proposed SMI Modelling algorithm and possible future extensions of it will be useful for different users in different fields, with different levels of specific domain knowledge, as an objective and a general forecasting tool. \newline
 
 \textbf{\large{Acknowledgements}}
 
