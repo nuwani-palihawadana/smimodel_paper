@@ -386,7 +386,7 @@ In this option, we first regress the response variable on the predictors using a
 
 **4. "Multiple" - Selecting an Initial Model by Comparing Multiple Models:**
 
-Through our pre-experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model often changes based on the initialisation provided to the algorithm. Hence, for this initialisation option, we consider several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIP problem.
+Through our pre-experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model often changes based on the initialisation provided to the algorithm. Hence, for this initialisation option, we consider several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem.
 
 Here, users can decide on the number of models to be considered (*num_models*) as well as the the number of indices for all models (*num_ind* - same for all models). We use *num_models = 5* and *num_ind = 5* as default values.
 
@@ -510,7 +510,7 @@ In the simulation experiment, we did not perform any tuning for the penalty para
 ```{r}
 #| label: tbl-simulation
 #| tbl-cap: Simulation experiment results.
-results_sim <- readr::read_csv("data/simulation_table_final.csv")
+results_sim <- readr::read_csv("data/simulation_table_final_edited.csv")
 kable(results_sim,
       format = "latex",
       booktabs = TRUE,
@@ -668,7 +668,7 @@ Then we apply the proposed SMI Modelling algorithm to the training set to estima
 
 ### Results
 
-We estimated SMI Models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. \textcolor{orange}{XQ: Add a short sentence to explain why other two options were not used here.} Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
+We estimated SMI Models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. Through our pre-experiments on the new algorithm, we identified that the "PPR" initialisation option has a higher probability of better performance, whereas "Additive" (i.e. Additive Model) and "Linear" (i.e. Single Index Model) are two special cases of the SMI Model. We did not consider "Multiple" and "User Input" initialisations here as both of these two options require user specific inputs to some extend. Further, we tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively, through a greedy search based on in-sample MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
 
 The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, resulted in five indices wihout dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive ***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 12, \lambda_{2} = 5)$ (***SMI Model (12, 5) - Linear ***), and resulted in two indices, without dropping any of the index variables.
 
@@ -936,11 +936,11 @@ The two empirical applications were performed using R statistical software [@R20
 
 # Conclusions and Further Research {#sec-conclusion}
 
-In this paper, we presented a novel algorithm for estimating a nonparametric additive index model with optimal predictor selection, which we refer to as Sparse Multiple Index (SMI) Model. The SMI Modelling algorithm is an iterative procedure that is developed based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with nonlinear constraints.
+In this paper, we presented a novel algorithm for estimating a nonparametric additive index model with optimal predictor selection, which we refer to as Sparse Multiple Index (SMI) Model. The SMI Modelling algorithm is an iterative procedure that is developed based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with linear constraints.
 
 The proposed SMI Modelling algorithm has a number of key features: 1) It performs automatic selection of both the number of indices and the predictor grouping when estimating the nonparametric additive index model. Users need to input the set of predictors entering indices and a starting model (index structure and a set of index coefficients) to initiate the algorithm. 2) It performs automatic variable selection, which is particularly beneficial in high-dimensional settings. This feature contributes to an objective and principled estimation, reducing subjectivity across different users. 3) It is capable of estimating a wide spectrum of models, from single index models (one index) to additive models (number of indices equals the number of predictors entering indices). Hence, the SMI Modelling algorithm is a more general estimation tool for nonparametric additive models. 4) It provides the flexibility to include separate non-liner and linear predictors in the model that are not entering any indices, allowing the estimation of semi-parametric additive models.
 
-Due to the limited input information provided to the algorithm, the estimation of an SMI Model is a challenging problem. We demonstrated the performance of the proposed algorithm through a simple simulation and two empirical applications. Since we observed that the final estimated model changes with the choosen initialisation, one limitation of the proposed algorithm is the difficulty of specifying an initialisation that works in general. Hence, an interesting future research problem would be to explore the potential for determining a generalised initialisation for the SMI Modelling algorithm that will work across various applications.
+Due to the limited input information provided to the algorithm, the estimation of a SMI Model is a challenging problem. We demonstrated the performance of the proposed algorithm through a simple simulation and two empirical applications. Since we observed that the final estimated model changes with the choosen initialisation, one limitation of the proposed algorithm is the difficulty of specifying an initialisation that works in general. Hence, an interesting future research problem would be to explore the potential for determining a generalised initialisation for the SMI Modelling algorithm that will work across various applications.
 
 Moreover, we admit that the empirical examples presented in the paper may not be diverse enough to draw definitive conclusions about the unique strengths or weaknesses of the proposed algorithm. This study should be viewed as an attempt to develop a more objective methodology for variable selection and model estimation in the broader class of nonparametric additive models for forecasting. An important future research problem is therefore, to assess the performance of the proposed SMI Modelling algorithm across various data sets with diverse properties, identifying scenarios where it outperforms other benchmark methods.
 

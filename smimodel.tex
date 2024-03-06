@@ -402,7 +402,7 @@ Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, enhanced, breakable, frame hidden, boxrule=0pt, interior hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, breakable, boxrule=0pt, enhanced, sharp corners, interior hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1333,7 +1333,7 @@ some situations, the final optimised SMI Model often changes based on
 the initialisation provided to the algorithm. Hence, for this
 initialisation option, we consider several different models as
 initialisations, optimise the SMI Model for each of them, and pick the
-initial model that results in the lowest loss for the MIP problem.
+initial model that results in the lowest loss for the MIQP problem.
 
 Here, users can decide on the number of models to be considered
 (\emph{num\_models}) as well as the the number of indices for all models
@@ -1627,7 +1627,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \caption{\label{tbl-simulation}Simulation experiment results. }\tabularnewline
 
 \centering
-\resizebox{\linewidth}{!}{
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -1636,53 +1636,53 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \multicolumn{6}{l}{\textbf{Low noise level}}\\
  &  & 1 index & 1 index & 1 index & 1 index\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
 \cmidrule{2-6}
  &  & 1 index & 1 index & 1 index & 1 index\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x + all z} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
 \cmidrule{2-6}
  &  & 1 index & 3 indices & 1 index & 1 index\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some x + all z} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
 \cmidrule{1-6}
  &  & 2 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
 \cmidrule{2-6}
  &  & 2 indices & 2 indices & 1 index & 2 \vphantom{1} indices\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x + all z} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 \vphantom{1} indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some x + all z} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
 \cmidrule{1-6}
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{High noise level}}\\
  &  & 1 index & 2 indices & 1 index & 1 index\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}$) ($x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}$) ($x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
 \cmidrule{2-6}
  &  & 1 index & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x + all z} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$)\\
 \cmidrule{2-6}
  &  & 3 indices & 3 indices & 1 index & 3 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some x + all z} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
 \cmidrule{1-6}
  &  & 3 indices & 3 indices & 2 indices & 3 indices\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$)\\
 \cmidrule{2-6}
  &  & 2 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
- & \multirow{-2}{*}{\raggedright\arraybackslash all x + all z} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+ & \multirow{-2}{*}{\raggedright\arraybackslash all $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some x + all z} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1970,13 +1970,17 @@ is evaluated using MSE and Mean Absolute Error (MAE).
 
 We estimated SMI Models for the mortality data using three different
 initialisation options: ``PPR'', ``Additive'' and ``Linear'', for
-comparison purposes.
-\textcolor{orange}{XQ: Add a short sentence to explain why other two options were not used here.}
-Further, we tuned the penalty parameters \(\lambda_{0}\) and
-\(\lambda_{2}\), over ranges of integers from 1 to 12, and 0 to 12
-respectively, through a greedy search based on in-sample MSE. Here, a
-greedy search is used instead of a grid search to reduce computational
-time.
+comparison purposes. Through our pre-experiments on the new algorithm,
+we identified that the ``PPR'' initialisation option has a higher
+probability of better performance, whereas ``Additive'' (i.e.~Additive
+Model) and ``Linear'' (i.e.~Single Index Model) are two special cases of
+the SMI Model. We did not consider ``Multiple'' and ``User Input''
+initialisations here as both of these two options require user specific
+inputs to some extend. Further, we tuned the penalty parameters
+\(\lambda_{0}\) and \(\lambda_{2}\), over ranges of integers from 1 to
+12, and 0 to 12 respectively, through a greedy search based on in-sample
+MSE. Here, a greedy search is used instead of a grid search to reduce
+computational time.
 
 The penalty parameter combination
 \((\lambda_{0} = 12, \lambda_{2} = 0)\) was selected for the model
@@ -2342,7 +2346,7 @@ nonparametric additive index model with optimal predictor selection,
 which we refer to as Sparse Multiple Index (SMI) Model. The SMI
 Modelling algorithm is an iterative procedure that is developed based on
 mixed integer programming to solve an \(\ell_{0}\)-regularised nonlinear
-least squares optimisation problem with nonlinear constraints.
+least squares optimisation problem with linear constraints.
 
 The proposed SMI Modelling algorithm has a number of key features: 1) It
 performs automatic selection of both the number of indices and the
@@ -2362,7 +2366,7 @@ model that are not entering any indices, allowing the estimation of
 semi-parametric additive models.
 
 Due to the limited input information provided to the algorithm, the
-estimation of an SMI Model is a challenging problem. We demonstrated the
+estimation of a SMI Model is a challenging problem. We demonstrated the
 performance of the proposed algorithm through a simple simulation and
 two empirical applications. Since we observed that the final estimated
 model changes with the choosen initialisation, one limitation of the
