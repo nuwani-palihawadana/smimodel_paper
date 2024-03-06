@@ -388,21 +388,21 @@ comparison to a general additive model. In this paper, we present a
 novel algorithm for estimating high-dimensional nonparametric additive
 index models, with simultaneous variable selection, which we call
 \textbf{\emph{SMI}} (\textbf{\emph{S}}parse \textbf{\emph{M}}ultiple
-\textbf{\emph{I}}ndex) \textbf{\emph{Model}}. The SMI Model algorithm is
-based on an iterative procedure that applies mixed integer programming
-to solve an \(\ell_{0}\)-regularised nonlinear least squares problem. We
-demonstrate the functionality and the characteristics of the proposed
-algorithm through a simple simulation exercise. We also illustrate the
-use of the SMI Model algorithm in two empirical applications related to
-forecasting heat exposure related daily mortality and daily solar
-intensity.
+\textbf{\emph{I}}ndex) \textbf{\emph{Model}}. The SMI Modelling
+algorithm is based on an iterative procedure that applies mixed integer
+programming to solve an \(\ell_{0}\)-regularised nonlinear least squares
+problem. We demonstrate the functionality and the characteristics of the
+proposed algorithm through a simple simulation exercise. We also
+illustrate the use of the SMI Modelling algorithm in two empirical
+applications related to forecasting heat exposure related daily
+mortality and daily solar intensity.
 \end{abstract}
 \begin{keywords}
 Additive index models, Variable selection, Dimension reduction, Mixed
 integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, enhanced, breakable, boxrule=0pt, interior hidden, frame hidden, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1297,7 +1297,8 @@ index structure and the index coefficients.
   indices.
 \item
   After performing the above steps i-v, if any originally estimated
-  index has all zero coefficients, it will be excluded from the model.
+  index has all \(\bm{z}\)ero coefficients, it will be excluded from the
+  model.
 \end{enumerate}
 
 Now, the index structure and the index coefficients obtained through the
@@ -1375,10 +1376,7 @@ fit GAMs.
 \subsubsection{Updating the Index Structure and Index
 Coefficients}\label{sec-step3}}
 
-\textbf{Updating Index Coefficients}
-
-We estimate the updated value of index coefficients
-\(\bm{\alpha}^{new}\) through a MIQP:
+We update index coefficients \(\bm{\alpha}^{new}\) through a MIQP:
 \begin{equation}\protect\hypertarget{eq-smi-update}{}{
 \begin{aligned}
   \min_{\bm{\alpha}^{new}, \bm{z}^{new}} & (\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}^{new} - \bm{\alpha}^{old}) - 2(\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{r} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}^{new} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{(new)2} \\
@@ -1415,10 +1413,10 @@ descent direction.
 
 When \(\bm{\alpha}^{new}\) is obtained, if any of the estimated
 individual index coefficient vectors \(\bm{\alpha}_{j}^{new}\) contains
-all zeros (i.e.~zero index), such indices will be dropped out from the
-model. Furthermore, similar to Section~\ref{sec-step1}, once the new
-estimate \(\bm{\alpha}^{new}\) is obtained, we scale each estimated
-index coefficient vector
+all \(\bm{z}\)eros (i.e.~zero index), such indices will be dropped out
+from the model. Furthermore, similar to Section~\ref{sec-step1}, once
+the new estimate \(\bm{\alpha}^{new}\) is obtained, we scale each
+estimated index coefficient vector
 \(\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{new}\) to have unit norm.
 
 The algorithm alternates updating the index coefficients \(\bm{\alpha}\)
@@ -1465,9 +1463,9 @@ in practice. For a description on estimating \(M\) in a linear
 regression setting, refer to \textcite{Bertsimas2016}.
 
 The following \textbf{\emph{Algorithm 1}} summarises the key steps of
-the SMI Model algorithm. \newline
+the SMI Modelling algorithm. \newline
 
-\textbf{\emph{Algorithm 1: SMI Model Algorithm}}
+\textbf{\emph{Algorithm 1: SMI Modelling Algorithm}}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1501,8 +1499,8 @@ the SMI Model algorithm. \newline
   \begin{itemize}
   \tightlist
   \item
-    Number of indices in the iteration reaches \(q\); select the final
-    fitted model as output.
+    The number of indices in the iteration reaches \(q\); select the
+    final fitted model as output.
   \item
     Loss increases after the increment; select previous iteration model
     as the final SMI model.
@@ -1519,9 +1517,9 @@ the SMI Model algorithm. \newline
 \section{Simulation Experiment}\label{sec-simulation}}
 
 This section presents the results of a simple simulation experiment
-conducted to demonstrate the performance and characteristics of the
-proposed SMI Model algorithm. Particularly, we try to investigate how
-the estimated SMI Model varies depending on the initialisation (as
+designed to demonstrate the performance and characteristics of the
+proposed SMI Modelling algorithm. Particularly, we try to investigate
+how the estimated SMI Model varies depending on the initialisation (as
 discussed in Section~\ref{sec-step1}) used.
 
 \hypertarget{sec-datagen}{%
@@ -1529,101 +1527,97 @@ discussed in Section~\ref{sec-step1}) used.
 
 \textbf{Generating predictor variables:}
 
-First, we generate two series each of length 1205: \(x\), from random
-uniform distribution with the support \([0, 1]\), and \(z\), from random
-normal distribution with mean \(= 5\), and standard deviation \(= 2\).
-Next, we construct lagged series up to \(5^{th}\) lag of both \(x\) and
-\(z\). These current and lagged series of \(x\) and \(z\)
-(i.e.~\(x = x_{0}, x_{1}, \dots, x_{5}, z = z_{0}, z_{1}, \dots, z_{5}\))
-were taken as predictors in the simulation experiment.
+First, we generate two series each of length 1205: \(x_{0}\), from a
+uniform distribution on the interval \([0, 1]\), and \(z_{0}\), from
+random normal distribution \(N(5, 4)\). Next, we construct lagged series
+up to \(5^{th}\) lag of both \(x_{0}\) and \(z_{0}\). These current and
+lagged series of \(x_{0}\) and \(z_{0}\)
+(i.e.~\(\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}\), and
+\(\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}\)) were taken as predictors in
+the simulation experiment.
 
 \textbf{Generating response variables:}
 
 We generated two response variables \(y_{1}\) and \(y_{2}\), with two
-different index structures: ``single-index'' and ``2-index'', and added
-a random normal noise component of two different strengths as follows:
+different index structures: single-index and 2-index, and added a random
+normal noise component with two different strengths as follows:
 
 \begin{itemize}
 \item
   Low noise level - \(N(\mu = 0, \sigma = 0.1)\):\\
-  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + N(\mu = 0, \sigma = 0.1)\)\\
-  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + N(\mu = 0, \sigma = 0.1)\)
+  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)\\
+  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)
 \item
   High noise level - \(N(\mu = 0, \sigma = 0.5)\):\\
-  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + N(\mu = 0, \sigma = 0.5)\)\\
-  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + N(\mu = 0, \sigma = 0.5)\)
+  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)\\
+  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)
 \end{itemize}
 
-Hence, notice that the response \(y_{1}\) is constructed using a single
-index consisting of the predictor variables \(x_{0}, x_{1},\) and
-\(x_{3}\), whereas the other response \(y_{2}\) is constructed using two
-indices, where the first index consists of the predictors
-\(x_{0}, x_{1},\) and \(x_{3}\), and the second index consists of
-\(x_{2}\) and \(x_{5}\). The variable \(x_{4}\) or none of the \(z\)
-variables were used in generating \(y_{1}\) and \(y_{2}\).
+Hence, the response \(y_{1}\) is constructed using a single index
+consisting of the predictor variables \(x_{0}, x_{1}\), and \(x_{3}\),
+whereas the other response \(y_{2}\) is constructed using two indices,
+where the first index consists of the predictors \(x_{0}, x_{1}\), and
+\(x_{3}\), and the second index consists of \(x_{2}\) and \(x_{5}\).
+Neither the variable \(x_{4}\) nor any of the \(z\) variables were used
+in generating \(y_{1}\) and \(y_{2}\).
 
-Once the data set is constructed, the first five observations are
-discarded due to the missing values introduced by the lagged variables,
-which leaves a data set of 1200 observations. We use the first 1000
-observations as the training set, whereas the remaining 200 observations
-are kept a side as the test set for evaluating the forecast error of the
-estimated models.
+Once the data set is generated, the first five observations are
+discarded due to the missing values introduced by lagged variables,
+leaving a data set of 1200 observations. We use the first 1000
+observations as the training set, while the remaining 200 observations
+are kept aside as the test set for evaluating the estimated models.
 
 \hypertarget{sec-exp}{%
 \subsection{Experiment Setup}\label{sec-exp}}
 
-In this section, we explain the set up of the simulation experiment
-conducted.
-
 We estimated SMI Models through the proposed algorithm for each of the
 two response variables (the two ``true models''), using three different
-sets of predictors as inputs. Our aim was to examine whether the
-algorithm correctly picks the relevant predictor variables (and drops
-the irrelevant predictors), and estimate the correct index structure of
-the true model.
+sets of predictors as inputs. Our aim was to assess the algorithm's
+capability to correctly pick the relevant predictor variables (and drop
+the irrelevant predictors), and to estimate the correct index structure
+of the true model.
 
 The three different sets of predictors considered are as follows:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  All ``\(x\)'' variables (i.e.~only the ``relevant'' predictors as the
-  responses, \(y_{1}\) and \(y_{2}\), were constructed using only
-  ``\(x\)'' variables);
+  All \(\bm{x}\) variables (denoted as all \(\bm{x}\));
 \item
-  All ``\(x\)'' variables and all ``\(z\)'' variables (i.e.~``relevant''
-  predictors plus ``irrelevant'' predictors); and
+  All \(\bm{x}\) variables and all \(\bm{z}\) variables (denoted as all
+  \(\bm{x}\) + all \(\bm{z}\));
 \item
-  A part of ``\(x\)'' variables (\(x_{0}, x_{1}\) and \(x_{2}\)) and all
-  ``\(z\)'' variables (i.e.~some ``relevent'' predictors plus
-  ``irrelevant'' predictors).
+  A part of \(\bm{x}\) variables (i.e.~\(x_{0}, x_{1}\) and \(x_{2}\))
+  and all \(\bm{z}\) variables (denoted as some \(\bm{x}\) + all
+  \(\bm{z}\)).
 \end{enumerate}
 
-We applied the proposed SMI Model algorithm using each of the above
-predictor combinations, for each of the two variations of the responses
-in terms of the noise level. Moreover, we also considered each of the
-first four initialisation options that we discussed in
-Section~\ref{sec-step1}, for each of the two responses. For ``PPR'' and
-``Multiple'' options, we used the default values of the required
-parameters as stated in Section~\ref{sec-step1}. (Moreover, we used
-\(M = 10\), a convergence tolerance of \(0.001\) and \(50\) maximum
-iterations in step 3.3, and a convergence tolerance for coefficients of
-\(0.001\) in step 3.5 in estimating all SMI Models.)
+We applied the proposed SMI Modelling algorithm with each of the above
+predictor combinations, for both variations of the responses concerning
+the noise level. Moreover, we considered each of the first four
+initialisation options that we discussed in Section~\ref{sec-step1}, for
+each of the two responses. For ``PPR'' and ``Multiple'' options, we used
+the default values of the required parameters as stated in
+Section~\ref{sec-step1}. Moreover, we used \(M = 10\), a convergence
+tolerance of \(0.001\) and a maximum of \(50\) iterations in step 4 of
+Algorithm 1, and a convergence tolerance for coefficients of \(0.001\)
+in step 6.
 
 \hypertarget{sec-sim-results}{%
 \subsection{Results}\label{sec-sim-results}}
 
 We summarise the results of the simulation experiment in
-Table~\ref{tbl-simulation}. Here, under the four columns corresponding
-to each of the four initialisation options considered, we indicate the
-index structure (i.e.~the number of indices and the split of the
-variables among indices) estimated by the proposed algorithm, for each
-of the different combinations investigated based on response, input
-predictors, and noise levels.
+Table~\ref{tbl-simulation}. In the columns, we indicate the index
+structure (i.e.~the number of indices and the predictor grouping among
+indices) estimated by the proposed algorithm under each of the four
+initialisation options. This is detailed for each combination explored,
+considering response, input predictors, and noise levels.
+
+\textcolor{orange}{XQ: Please replace $x$ and $z$ in the Predictors column with bold $\bm{x}$ and $\bm{z}$. It's}
 
 \hypertarget{tbl-simulation}{}
 \begin{table}[!h]
-\caption{\label{tbl-simulation}Simulation experiment results }\tabularnewline
+\caption{\label{tbl-simulation}Simulation experiment results. }\tabularnewline
 
 \centering
 \resizebox{\linewidth}{!}{
@@ -1686,46 +1680,48 @@ predictors, and noise levels.
 \end{tabular}}
 \end{table}
 
-Firstly, when the low noise level is considered, for the first true
-model \(y_{1}\), when either ``all x'' or ``all x + all z'' predictors
-are provided, all four initialisation options estimate the correct index
-structure of the model, while selecting the correct set of predictors
-and dropping out the irrelevant predictors. When only a part of the
-``\(x\)'' variables are provided, the models estimated using all four
-initialisations have selected some noise variables. This indicates that
-when the available predictors are not sufficient to capture the signal
-of the data, the algorithm might select irrelevant variables to make up
-for the missing signal.
+\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results.}
 
-When \(y_{2}\) with low noise level is considered, in both ``all x'' and
-``all x + all z'' cases, except for the ``Linear'' initialisation, the
-algorithm has estimated the correct index structure with all the other
-three initialisation options. The ``Linear'' option has selected the
-correct variables into the model, however has not identified the 2-index
-structure. This suggests that it might be better to initialise the
-algorithm with a higher number of indices rather than with a lower
-number of indices. When only a part of ``\(x\)'' variables are provided,
-similar to the case of \(y_{1}\), models estimated for \(y_{2}\) with
-all four initialisations, have selected noise variables.
+Firstly, when the low noise level is considered, for the first true
+model \(y_{1}\), when either ``all \(\bm{x}\)'' or ``all \(\bm{x}\) +
+all \(\bm{z}\)'' predictors are provided, all four initialisation
+options enable the algorithm to output the correct index structure of
+the model, while selecting the correct set of predictors and dropping
+out the irrelevant ones. However, when only some \(\bm{x}\) variables
+are provided, the models estimated under all four initialisations
+include some noise variables. This indicates that when the available
+predictors are insufficient to capture the data signal, the algorithm
+might select irrelevant variables to make up for the missing signal.
+
+In the case of \(y_{2}\) with low noise level, for both ``all
+\(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'' cases, the
+algorithm correctly estimates the index structure with all
+initialization options, except for the ``Linear'' option. The ``Linear''
+option includes the correct variables in the model, however it fails to
+identify the 2-index structure. This suggests that initializing the
+algorithm with a higher number of indices might be more effective than a
+lower number. When only some \(\bm{x}\) variables are provided, similar
+to the case of \(y_{1}\), models estimated for \(y_{2}\) under all four
+initialisations, include noise variables.
 
 Furthermore, we evaluated the forecasting error of the fitted models on
 the test set using Mean Squared Error (MSE). For \(y_{1}\), in both the
-cases ``all x'' and ``all x + all z'', the models estimated using all
-four initialisations resulted in a test MSE of \(\approx 0.01\), which
-is the random squared error of the true model. This confirms the
-accuracy with which the SMI Model algorithm estimated the index
-structure for \(y_{1}\). When only a part of ``\(x\)'' variables are
-provided, the test MSE increased to \(\approx 0.23\), as the estimated
-models contain noise variables.
+cases ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'', the
+models estimated using all four initialisations resulted in a test MSE
+of \(\approx 0.01\), which is the random squared error of the true
+model. This confirms the accuracy with which the SMI Modelling algorithm
+estimated the index structure for \(y_{1}\). When only a part of
+\(\bm{x}\) variables are provided, the test MSE increased to
+\(\approx 0.23\), as the estimated models contain noise variables.
 
-For \(y_{2}\), in both the cases ``all x'' and ``all x + all z'', all
-the models estimated resulted in a test MSE of \(\approx 0.16\). This is
-an interesting result as the test MSEs of the estimated models with
-correct index structure: ``PPR'', ``Additive'', and ``Multiple'', are
-not very different to the test MSE of an estimated model with incorrect
-index structure, but with correct predictors: ``Linear''. This suggests
-that the selection of the predictor variables is more important than
-determining the index structure of the model.
+For \(y_{2}\), in both the cases ``all \(\bm{x}\)'' and ``all \(\bm{x}\)
++ all \(\bm{z}\)'', all the models estimated resulted in a test MSE of
+\(\approx 0.16\). This is an interesting result as the test MSEs of the
+estimated models with correct index structure: ``PPR'', ``Additive'',
+and ``Multiple'', are not very different to the test MSE of an estimated
+model with incorrect index structure, but with correct predictors:
+``Linear''. This suggests that the selection of the predictor variables
+is more important than determining the index structure of the model.
 
 It is also worth mentioning here that in real-world forecasting
 problems, the true data generating process (DGP) is unknown, and we do
@@ -1733,7 +1729,7 @@ not expect an estimated model to represent the true DGP. Therefore, as
 long as the estimated model exhibits good forecasting accuracy, the
 index structure of the estimated model is less important.
 
-Similar to the case of \(y_{1}\), when only a part of ``\(x\)''
+Similar to the case of \(y_{1}\), when only a part of \(\bm{x}\)
 variables are provided, the test MSE of the estimated models for
 \(y_{2}\) increased to \(\approx 0.34\), probably due to the inclusion
 of noise variables.
@@ -1747,52 +1743,55 @@ of two nonlinear link functions (corresponding to the two indices) for
 \(y_{2}\), might be higher than the error of estimating a single
 nonlinear function for \(y_{1}\).
 
-As expected, the accuracy with which the SMI Model algorithm estimates
-the index structure is in general lower with the high noise level, in
-comparison to the low noise level. In the case of \(y_{1}\), when ``all
-x'' variables are provided, except for ``Additive'' option, all the
-other initialisations have correctly estimated the model. When ``all x +
-all z'' variables are provided, only the ``PPR'' and ``Linear'' options
-have estimated the correct model, whereas ``Additive'' and ``Multiple''
-options have included a noise variable. Similar to the low noise level
-case, when only a part of ``\(x\)'' variables are provided, all four
-initialisations have led the algorithm to estimate models with noise
-variables.
+As expected, the accuracy with which the SMI Modelling algorithm
+estimates the index structure is in general lower with the high noise
+level, in comparison to the low noise level. In the case of \(y_{1}\),
+when ``all \(\bm{x}\)'' variables are provided, except for ``Additive''
+option, all the other initialisations have correctly estimated the
+model. When ``all \(\bm{x}\) + all \(\bm{z}\)'' variables are provided,
+only the ``PPR'' and ``Linear'' options have estimated the correct
+model, whereas ``Additive'' and ``Multiple'' options have included a
+noise variable. Similar to the low noise level case, when only a part of
+\(\bm{x}\) variables are provided, all four initialisations have led the
+algorithm to estimate models with noise variables.
 
-Next, when \(y_{2}\) is considered at high noise level, when ``all x''
-variables are provided, the estimated models using all four
+Next, when \(y_{2}\) is considered at high noise level, when ``all
+\(\bm{x}\)'' variables are provided, the estimated models using all four
 initialisation options have included the variable \(x_{4}\) (as an
-additional index), which should have been omitted. When ``all x + all
-z'' variables are provided, the option ``Multiple'' has led the
-algorithm to the correct model, while all the other three options have
-included a noise variable. Similar to the previous cases, when only a
-part of ``\(x\)'' variables are provided, the models estimated using all
-four initialisation options have included multiple noise variables,
-probably to cover up for the missing signal variables.
+additional index), which should have been omitted. When ``all \(\bm{x}\)
++ all \(\bm{z}\)'' variables are provided, the option ``Multiple'' has
+led the algorithm to the correct model, while all the other three
+options have included a noise variable. Similar to the previous cases,
+when only a part of \(\bm{x}\) variables are provided, the models
+estimated using all four initialisation options have included multiple
+noise variables, probably to cover up for the missing signal variables.
 
-In both the cases ``all x'' and ``all x + all z'', all the models
-estimated for \(y_{1}\), except for ``Additive'' option in ``all x''
-case, resulted in a test MSE of \(\approx 0.23\) (which is slightly
-lower than the random squared error of the true model; this probably
-indicates a slight level of over-fitting), irrespective of the fact that
-in ``all x + all z'' case, ``Additive'' and ``Multiple'' options
-included a noise variable. This is an indication of the effect of the
-low signal-to-noise ratio in the data. The model estimated using
-``Additive'' option in ``all x'' case has resulted in a slightly higher
-test MSE (\(\approx 0.27\)), probably due to the incorrect index
-structure. When only a part of ``\(x\)'' variables are provided, the
-test MSE has increased (\(\approx 0.47\)), which is expected.
+In both the cases ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all
+\(\bm{z}\)'', all the models estimated for \(y_{1}\), except for
+``Additive'' option in ``all \(\bm{x}\)'' case, resulted in a test MSE
+of \(\approx 0.23\) (which is slightly lower than the random squared
+error of the true model; this probably indicates a slight level of
+over-fitting), irrespective of the fact that in ``all \(\bm{x}\) + all
+\(\bm{z}\)'' case, ``Additive'' and ``Multiple'' options included a
+noise variable. This is an indication of the effect of the low
+signal-to-noise ratio in the data. The model estimated using
+``Additive'' option in ``all \(\bm{x}\)'' case has resulted in a
+slightly higher test MSE (\(\approx 0.27\)), probably due to the
+incorrect index structure. When only a part of \(\bm{x}\) variables are
+provided, the test MSE has increased (\(\approx 0.47\)), which is
+expected.
 
 Similar to previously discussed low noise level case, the estimated
 models for \(y_{2}\) have resulted in higher test MSE values in
-comparison to the models for \(y_{1}\). When ``all x'' and ``all x + all
-z'' variables are provided, all the estimated models resulted in test
-MSE values in the range \(\approx (0.35, 0.37)\), irrespective of the
-different index structure and predictor choices, which is again an
-indication of the low signal-to-noise ratio in the data. Due to missing
-relevant predictors (and the inclusion of noise predictors in the
-model), the estimated models in ``some x + all z'' case resulted in test
-MSEs \(\approx 0.57\).
+comparison to the models for \(y_{1}\). When ``all \(\bm{x}\)'' and
+``all \(\bm{x}\) + all \(\bm{z}\)'' variables are provided, all the
+estimated models resulted in test MSE values in the range
+\(\approx (0.35, 0.37)\), irrespective of the different index structure
+and predictor choices, which is again an indication of the low
+signal-to-noise ratio in the data. Due to missing relevant predictors
+(and the inclusion of noise predictors in the model), the estimated
+models in ``some x + all \(\bm{z}\)'' case resulted in test MSEs
+\(\approx 0.57\).
 
 In the above simulation experiment, we did not perform any tuning for
 the penalty parameters \(\lambda_{0}\) and \(\lambda_{2}\), as through
@@ -1807,9 +1806,6 @@ initialisation depends on the data/application. Thus, the users of the
 algorithm are encouraged to follow a trial-and-error procedure for
 choosing the best initial model for a given application.
 
-In the next section, we illustrate the forecasting performance of the
-SMI Model in two real-world applications.
-
 \hypertarget{sec-application}{%
 \section{Empirical Applications}\label{sec-application}}
 
@@ -1817,7 +1813,7 @@ SMI Model in two real-world applications.
 \subsection{Forecasting Daily
 Mortality}\label{forecasting-daily-mortality}}
 
-We apply the SMI Model algorithm to a data set from
+We apply the SMI Modelling algorithm to a data set from
 \textcite{Masselot2022}, to forecast daily mortality based on heat
 exposure.
 
@@ -1850,7 +1846,7 @@ are plotted separately as a faceted grid for visual clarity.
 }
 
 \caption{\label{fig-deaths}Daily mortality in summer in Montreal, Canada
-- from 1990 to 1993}
+from 1990 to 1993.}
 
 \end{figure}
 
@@ -1869,7 +1865,7 @@ non-linear.
 }
 
 \caption{\label{fig-Tmax}Daily mortality in summer (from 1990 to 2014)
-plotted against maximum temperature}
+plotted against maximum temperature.}
 
 \end{figure}
 
@@ -1880,7 +1876,7 @@ plotted against maximum temperature}
 }
 
 \caption{\label{fig-Tmin}Daily mortality in summer (from 1990 to 2014)
-plotted against minimum temperature}
+plotted against minimum temperature.}
 
 \end{figure}
 
@@ -1891,7 +1887,7 @@ plotted against minimum temperature}
 }
 
 \caption{\label{fig-Vp}Daily mortality in summer (from 1990 to 2014)
-plotted against vapor pressure}
+plotted against vapor pressure.}
 
 \end{figure}
 
@@ -1968,9 +1964,10 @@ corresponding to the three summer months of year 2013 are kept aside as
 a validation set, which is used to estimate some of the benchmark models
 for comparison purposes.
 
-Then we apply the proposed SMI Model algorithm to the training set to
-estimate the model. Finally, the forecasting accuracy on the test set is
-evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+Then we apply the proposed SMI Modelling algorithm to the training set
+to estimate the model. Finally, the forecasting accuracy on the test set
+is evaluated using Mean Squared Error (MSE) and Mean Absolute Error
+(MAE).
 
 \hypertarget{results}{%
 \subsubsection{Results}\label{results}}
@@ -2041,7 +2038,7 @@ by the group-wise additive index model (GAIM).
 
 \hypertarget{tbl-heat}{}
 \begin{table}[!h]
-\caption{\label{tbl-heat}Daily mortality forecasting - Out-of-sample point forecast results }\tabularnewline
+\caption{\label{tbl-heat}Daily mortality forecasting - Out-of-sample point forecast results. }\tabularnewline
 
 \centering
 \begin{tabular}{lrr>{}r>{}r>{}r>{}r}
@@ -2081,7 +2078,7 @@ comparison.
 
 \caption{\label{fig-heatPred}Actual number of deaths vs.~predicted
 number of deaths from ``SMI Model (12, 0) - PPR'' and benchmark models
-for Test Set 2}
+for Test Set 2.}
 
 \end{figure}
 
@@ -2089,7 +2086,7 @@ for Test Set 2}
 \subsection{Forecasting Daily Solar
 Intensity}\label{forecasting-daily-solar-intensity}}
 
-Next, we utilise the SMI Model algorithm to forecast daily solar
+Next, we utilise the SMI Modelling algorithm to forecast daily solar
 intensity, using other weather conditions.
 
 According to \textcite{EI2023}, the portion of the world's primary
@@ -2132,7 +2129,7 @@ and used only the days for which the data are available.)
 }
 
 \caption{\label{fig-solar}Daily solar intensity in Amherst,
-Massachusetts - from February 2006 to February 2013}
+Massachusetts - from February 2006 to February 2013.}
 
 \end{figure}
 
@@ -2149,7 +2146,7 @@ between these predictors and the response are non-linear.
 }
 
 \caption{\label{fig-preds}Daily solar intensity against other weather
-variables}
+variables.}
 
 \end{figure}
 
@@ -2226,8 +2223,8 @@ November and December 2013 are kept aside as a validation set, which is
 required to estimate some of the benchmark models for comparison
 purposes.
 
-Then we apply the proposed SMI Model algorithm to the training set to
-estimate the model, and the forecasting accuracy on the test set is
+Then we apply the proposed SMI Modelling algorithm to the training set
+to estimate the model, and the forecasting accuracy on the test set is
 evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 
 \hypertarget{results-1}{%
@@ -2286,7 +2283,8 @@ variables were excluded when estimating the PPR model.
 
 \hypertarget{tbl-solar}{}
 \begin{table}[!h]
-\caption{\label{tbl-solar}Daily solar intensity forecasting - Out-of-sample point forecast results }\tabularnewline
+\caption{\label{tbl-solar}Daily solar intensity forecasting - Out-of-sample point forecast
+results. }\tabularnewline
 
 \centering
 \begin{tabular}{lrr>{}r>{}r}
@@ -2337,7 +2335,7 @@ plotted in Figure~\ref{fig-solarPred} for further comparison purposes.
 }
 
 \caption{\label{fig-solarPred}Actual solar intensity vs.~predicted solar
-intensity from ``SMI Model (1, 0) - Additive'' and benchmark models}
+intensity from ``SMI Model (1, 0) - Additive'' and benchmark models.}
 
 \end{figure}
 
@@ -2366,26 +2364,26 @@ package. Furthermore, the GAMs were fitted using the R package
 In this paper, we presented a novel algorithm for the estimation of a
 nonparametric additive index model with optimal predictor selection,
 which we refer to as \emph{Sparse Multiple Index (SMI) Model}. The SMI
-Model algorithm is an iterative procedure that is developed based on
+Modelling algorithm is an iterative procedure that is developed based on
 mixed integer programming to solve an \(\ell_{0}\)-regularised nonlinear
 least squares problem.
 
-The proposed SMI Model algorithm has a number of special features: 1) It
-performs automatic selection of both the number of indices and the
+The proposed SMI Modelling algorithm has a number of special features:
+1) It performs automatic selection of both the number of indices and the
 predictors within in each index, and estimate the resulting
 nonparametric additive index model. The set of predictors entering
 indices, and a starting model (index structure and a set of index
 coefficients) to initiate the algorithm are the information that a user
 should provide as inputs. 2) It performs automatic variable selection,
 which is specially useful for estimating a parsimonious model in a
-high-dimensional setting. Thus, the SMI Model algorithm is an objective
-and a principled estimation and variable selection method that reduces
-any subjectivity induced by different users. 3) It is capable of
+high-dimensional setting. Thus, the SMI Modelling algorithm is an
+objective and a principled estimation and variable selection method that
+reduces any subjectivity induced by different users. 3) It is capable of
 estimating a wide spectrum of models starting from \emph{single index
 models} (number of indices = 1) to \emph{additive models} (number of
-indices = number of predictors (entering indices)). Hence, the SMI Model
-algorithm is a more general estimation algorithm in the domain of
-nonparametric additive models. 4) It provides the ability to include
+indices = number of predictors (entering indices)). Hence, the SMI
+Modelling algorithm is a more general estimation algorithm in the domain
+of nonparametric additive models. 4) It provides the ability to include
 separate non-liner as well as linear predictors in the model that are
 not entering any of the indices, and hence creates the possibility of
 estimating semi-parametric additive models.
@@ -2398,8 +2396,8 @@ observed that the final estimated model changes with the initialisation
 provided, one limitation of the proposed algorithm is the difficulty of
 specifying an initialisation that works in general. Hence, an
 interesting future research problem would be to explore the possibility
-of determining a generalised initialisation for the SMI Model algorithm
-that will work in many different applications.
+of determining a generalised initialisation for the SMI Modelling
+algorithm that will work in many different applications.
 
 Moreover, we admit that the empirical examples presented in the paper
 may not be diverse enough to make any conclusions about the unique
@@ -2409,8 +2407,8 @@ model estimation methodology in the broader class of nonparametric
 additive models for forecasting. An important future research problem is
 therefore, to experiment with the proposed algorithm using many
 different data sets with diverse properties to establish the situations
-in which the proposed SMI Model algorithm performs better compared to
-other benchmark methods.
+in which the proposed SMI Modelling algorithm performs better compared
+to other benchmark methods.
 
 Furthermore, the MIQP related to the algorithm is somewhat analogous to
 the \emph{best subset selection} problem in an ordinary least squares
@@ -2422,10 +2420,10 @@ can be made to the algorithm design to reduce the computational cost in
 a high-dimensional context.
 
 Forecasting problems frequently arise in many different fields.
-Therefore, we hope that the proposed SMI Model algorithm and possible
-future extensions of it will be useful for different users in different
-fields, with different levels of specific domain knowledge, as an
-objective and a general forecasting tool. \newline
+Therefore, we hope that the proposed SMI Modelling algorithm and
+possible future extensions of it will be useful for different users in
+different fields, with different levels of specific domain knowledge, as
+an objective and a general forecasting tool. \newline
 
 \textbf{\large{Acknowledgements}}
 
