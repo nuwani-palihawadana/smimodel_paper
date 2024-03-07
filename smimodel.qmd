@@ -307,11 +307,11 @@ We make three main assumptions as follows to define the **SMI Model**:
 
 2.    The predictor grouping among indices is unknown; and
 
-3.    No predictor enters more than one indices (i.e. overlapping of predictors among indices is not allowed).
+3.    No predictor enters more than one index (i.e. overlapping of predictors among indices is not allowed).
 
-These assumptions further imply that the index coefficients $\bm{\alpha}_{j}$s and the nonlinear link functions $g_{j}$s are also unknown, and will need to be estimated.
+These assumptions further imply that the index coefficient vectors $\bm{\alpha}_{j}$s and the nonlinear link functions $g_{j}$s are also unknown, and will need to be estimated.
 
-One of the key features of the proposed SMI model is to allow for zero index coefficients for predictors, so that the predictors with zero coefficients are dropped out from the model, achieving variable selection. The other key feature of the SMI model is its flexibility in allowing a variable number of indices, ranging from $1$ (i.e. all $q$ predictors are paased to a single index) to $q$ (i.e. each predictor goes into a separate index). Hence, both the Single Index Model and the Additive Model are special cases of the proposed SMI Model.
+One of the key features of the proposed SMI model is to allow for zero index coefficients for predictors, so that the predictors with zero coefficients are dropped out from the model, achieving variable selection. The other key feature of the SMI model is its flexibility in allowing a variable number of indices, ranging from $1$ (i.e. all $q$ predictors are passed to a single index) to $q$ (i.e. each predictor goes into a separate index). Hence, both the Single Index Model and the Additive Model are special cases of the proposed SMI Model.
 
 ## Optimisation Problem Formulation
 
@@ -350,7 +350,7 @@ Thus, our main contribution in this paper is two-fold. Firstly, we propose a nov
 
 ## Estimation Algorithm
 
-In this section, we show how to efficiently find a minimiser for the problem given in @eq-smi-mip. Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, as well as the set of nonparametric functions $\bm{g}$ are unknown, it is mathematically impossible to solve the above MIQP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve it.
+In this section, we show how to efficiently find a minimiser for the problem given in @eq-smi-mip. Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, as well as the set of nonparametric functions $\bm{g}$ are unknown, it is mathematically impossible to solve the above MIQP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve the problem.
 
 ### Initialising the Index Structure and Index Coefficients {#sec-step1}
 
@@ -386,7 +386,7 @@ In this option, we first regress the response variable on the predictors using a
 
 **4. "Multiple" - Selecting an Initial Model by Comparing Multiple Models:**
 
-Through our pre-experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model often changes based on the initialisation provided to the algorithm. Hence, for this initialisation option, we consider several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem.
+Through our pre-experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model changes based on the initialisation provided to the algorithm. Hence, for this initialisation option, we consider several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem.
 
 Here, users can decide on the number of models to be considered (*num_models*) as well as the the number of indices for all models (*num_ind* - same for all models). We use *num_models = 5* and *num_ind = 5* as default values.
 
@@ -410,7 +410,7 @@ The R packages ***mgcv*** [@Wood2011] and ***gam*** [@Hastie2023], for example, 
 
 ### Updating the Index Structure and Index Coefficients {#sec-step3}
 
-We update index coefficients $\bm{\alpha}^{new}$ through a MIQP:
+We obtain the updated index coefficients $\bm{\alpha}^{new}$ through a MIQP:
 $$
 \begin{aligned}
   \min_{\bm{\alpha}^{new}, \bm{z}^{new}} & (\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}^{new} - \bm{\alpha}^{old}) - 2(\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{r} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}^{new} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{(new)2} \\
@@ -426,10 +426,10 @@ Similar to the explanation given by @Masselot2022, the MIQP objective function i
 
 When $\bm{\alpha}^{new}$ is obtained, if any of the estimated individual index coefficient vectors $\bm{\alpha}_{j}^{new}$ contains all $\bm{z}$eros (i.e. zero index), such indices will be dropped out from the model. Furthermore, similar to @sec-step1, once the new estimate $\bm{\alpha}^{new}$ is obtained, we scale each estimated index coefficient vector $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{new}$ to have unit norm.
 
-The algorithm alternates updating the index coefficients $\bm{\alpha}$ and estimating nonlinear functions $\bm{g}$ with the updated $\bm{\alpha}$ until meeting one of the three criteria: (i) the reduction ratio of the objective (loss) function value in @eq-smi-mip, calculated between consecutive iterations, reaches a pre-specified convergence tolerance; (ii) the loss increases consecutively for three iterations; or (iii) the maximum number of iterations is reached. The selection of convergence tolerance and maximum iterations depends on the specific problem or data. In the empirical applications in Section @sec-application, we used a convergence tolerance of $0.001$ and a maximum of $50$ iterations, stopping at the first reached criterion.
+The algorithm alternates updating the index coefficients $\bm{\alpha}$ and estimating nonlinear functions $\bm{g}$ with the updated $\bm{\alpha}$ until meeting one of the three criteria: (i) the reduction ratio of the objective (loss) function value in @eq-smi-mip, calculated between consecutive iterations, reaches a pre-specified convergence tolerance; (ii) the loss increases consecutively for three iterations; or (iii) the maximum number of iterations is reached. The selection of convergence tolerance and maximum iterations depends on the specific problem or data. In the empirical applications in @sec-application, we used a convergence tolerance of $0.001$ and a maximum of $50$ iterations, stopping at the first criterion reached.
 
 Next, we consider changing the index structure of the model to exploit any benefits in terms of further minimising the loss function in @eq-smi-mip. As indices can be automatically reduced by dropping zero indices in each optimisation iteration, this step focuses on potential index additions to the current model. Specifically, we consider adding a new index to the current model by identifying dropped predictors.
-If applicable, a new index is constructed with these dropped predictors and the alternating updating process in the previous step is repeated. This increment step continues until one of these termination criteria is met: (i) the number of indices reaches $q$, selecting the final model as output; (ii) loss increases after the increment, selecting the previous iteration model as the final SMI model; or (iii) The solution maintains the same number of indices as the previous iteration, and the absolute difference between two successive iterations is not larger than a pre-specified tolerance, choosing the model with the smaller loss as the final SMI model in this case.
+If applicable, a new index is constructed with these dropped predictors, and the alternating updating process in the previous step is repeated. This increment step continues until one of these termination criteria is met: (i) the number of indices reaches $q$, selecting the final model as output; (ii) loss increases after the increment, selecting the previous iteration model as the final SMI model; or (iii) the solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance, choosing the model with the smaller loss as the final SMI model.
 
 Note that, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest loss function value. Moreover, it is also crucial to choose a suitable value for the big-M parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
 
@@ -438,7 +438,7 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Modelling al
 ***Algorithm 1: SMI Modelling Algorithm***
 
 1.  Initialise index structure and index coefficients $\bm{\alpha}$:\
-    Initialise $p$, predictors grouping among indices, and obtain $\bm{\alpha}^{init}$ using one of the five options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{init}$ to have unit norm.
+    Initialise $p$, predictor grouping among indices, and obtain $\bm{\alpha}^{init}$ using one of the five options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{init}$ to have unit norm.
 
 2.  Estimate nonlinear functions $g_{j}$s:\
     Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$s as predictors.
@@ -457,7 +457,7 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Modelling al
     - Loss increases after the increment; select previous iteration model as the final SMI model.
     - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
 
-Throughout the experiments in the paper, we use $M = 10$, a convergence tolerance of $0.001$, and a maximum of $50$ iterations in step 4 of Algorithm 1, and a convergence tolerance of $0.001$ for coefficients in estimating all the SMI Models.
+Throughout the experiments in the paper, we use $M = 10$, a convergence tolerance of $0.001$, and a maximum of $50$ iterations in step 4 of Algorithm 1, and a convergence tolerance of $0.001$ for coefficients in step 6 of Algorithm 1, in estimating all the SMI Models.
 
 # Simulation Experiment {#sec-simulation}
 
