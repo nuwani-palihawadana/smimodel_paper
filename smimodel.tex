@@ -401,7 +401,7 @@ Additive index models, Variable selection, Dimension reduction,
 Predictor grouping, Mixed integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden, enhanced, interior hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, boxrule=0pt, sharp corners, breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -436,13 +436,12 @@ interpret the effect of the predictors on the response variable.
 
 When applying the transfer function model to forecast lengthy time
 series with complex patterns, the form of \(f\) is nonlinear, involving
-complicated interactions, and with a high value of \(p\).
-
-Typically, the form of \(f\) involves many ad hoc model choices. It is
-essentially impossible to estimate a \(p\)-dimensional function for
-large \(p\) due to the curse of dimensionality
-\autocite{Bellman57,Stone82}. Instead, we normally impose some form of
-additivity, along with some low-order interactions.
+complicated interactions and with a high value of \(p\). Typically, the
+form of \(f\) involves many ad hoc model choices. It is essentially
+impossible to estimate a \(p\)-dimensional function for large \(p\) due
+to the curse of dimensionality \autocite{Bellman57,Stone82}. Instead, we
+normally impose some form of additivity, along with some low-order
+interactions.
 
 For example, \textcite{FH2012} proposed a \textbf{\emph{semi-parametric
 additive model}} to obtain short-term forecasts of the half-hourly
@@ -456,46 +455,44 @@ regression-based modelling framework with serially correlated errors
 can be written as \[
  \log(y_{t,q}) = h_{q}(t) + f_{q}(w_{1,t},w_{2,t}) + a_{q}(y_{t-,p}) + \varepsilon_{t},
 \] where the response variable is the logarithm of electricity demand at
-time \(t\) (measured in the half-hourly intervals) during period \(q\).
-The term \(h_{q}(t)\) models several calendar effects that are included
-as linear terms. The temperature effects are modelled using the
-nonparametric component \(f_{q}(w_{1,t},w_{2,t})\), while the
-nonparametric term \(a_{q}(y_{t-,p})\) captures the lagged effects of
-the response. It is important to notice here that the error term
-\(\varepsilon_{t}\) is serially uncorrelated in each half-hourly model,
-because the serial correlation is eliminated by the inclusion of the
-lagged responses in the model. However, there will still be some
-correlation between the residuals from the various half-hourly models
-\autocite{FH2012}.
+time \(t\) during period \(q\). The term \(h_{q}(t)\) models several
+calendar effects as linear terms. Temperature effects are modelled using
+the nonparametric component \(f_{q}(w_{1,t},w_{2,t})\), while
+\(a_{q}(y_{t-,p})\) captures the lagged effects of the response. It is
+important to notice here that the error term \(\varepsilon_{t}\) is
+serially uncorrelated in each half-hourly model, because the serial
+correlation is eliminated by the inclusion of lagged responses in the
+model. However, some correlation may still exist between residuals from
+various half-hourly models \autocite{FH2012}.
 
 Similarly, a \textbf{\emph{distributed lag model}} was proposed by
 \textcite{Wood2017} to forecast daily death rate in Chicago using
-measurements of several air pollutants. In this model, the response
-variable is modelled via a sum of smooth functions of lagged predictor
-variables, which is quite similar in nature to the semi-parametric
-additive model used by \textcite{FH2012}. However, unlike in
-\textcite{FH2012}, \textcite{Wood2017} suggested to allow the smooth
-functions for lags of the same covariate to vary smoothly over lags,
-preventing large differences in estimated effects between adjacent lags.
-Thus, the model is of the form \[
+measurements of several air pollutants. The response variable is
+modelled via a sum of smooth functions of lagged predictor variables,
+which is quite similar with the semi-parametric additive model used by
+\textcite{FH2012}. However, unlike in \textcite{FH2012},
+\textcite{Wood2017} suggested allowing the smooth functions for lags of
+the same covariate to vary smoothly over lags, preventing large
+differences in estimated effects between adjacent lags. Thus, the model
+is of the form \[
  \log(y_{t}) = f_{1}(t) + \sum_{k=0}^{K} f_{2}(p_{t-k}, k) + \sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k),
 \] where \(y_{t}\) is the death rate at day \(t\), and \(f_{1}\) is a
 nonparametric term to capture the \emph{time} effect. The model
 incorporates the current value (\(k = 0\)) and several lagged values
-(\(k = 1, \dots, K\)) of the predictors, where the \emph{distributed lag
-effect} of a single predictor variable, and of an interaction of two
-predictor variables are captured by the sum of nonparametric terms
+(\(k = 1, \dots, K\)) of the predictors, where the distributed lag
+effect of a single predictor variable, and of an interaction of two
+predictor variables are captured by the sum of
 \(\sum_{k=0}^{K} f_{2}(p_{t-k}, k)\) and
 \(\sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k)\) respectively. The smooth
 functions \(f_{2}\) and \(f_{3}\) are proposed to be estimated using
-\emph{tensor product smooths}.
+tensor product smooths.
 
 For more examples, \textcite{Ho2020} used semi-paramteric additive
 models to estimate ground-level \(PM_{2.5}\) concentrations in Taiwan,
 while nonparametric additive models were utilised by
 \textcite{Ibrahim2021} for predicting census survey response rates.
 Furthermore, \textcite{Ravindra2019} provided a comprehensive review of
-the applications of additive models for environmental data, with a
+the applications of additive models in environmental data, with a
 special focus on air pollution, climate change, and human health related
 studies.
 
@@ -506,18 +503,17 @@ level forecasting etc.
 still a number of unresolved issues in their applications. In this
 paper, we attempt to address two of those issues. Firstly, even though
 nonparametric additive models act as a remedy to the curse of
-dimensionality as we discussed earlier, the estimation of the model is
-still challenging in a high-dimensional setting due to the large number
-of nonparametric components to be estimated. Secondly, there is a
-noticeable subjectivity in the selection of predictor variables (from
-the available predictors) for the model, where in most of the
-applications of interest we discussed above, the predictor choices in
-the final model are mainly based on empirical explorations or domain
+dimensionality, the estimation of the model is still challenging in
+high-dimensional settings due to the large number of nonparametric
+components to be estimated. Secondly, there is a noticeable subjectivity
+in selecting predictor variables (from the available predictors) for the
+model, where in most of the applications of interest we discussed above,
+the choices are mainly based on empirical explorations or domain
 expertise.
 
 There are a number of previous studies that have attempted to address
 the issue of variable selection in nonparametric/semi-parametric
-additive models to some extend, using various techniques. For example,
+additive models using various techniques. For example,
 \textcite{Huang2010} used a \emph{Least Absolute Shrinkage and Selection
 Operator (LASSO)} \autocite{Tibshirani1996} based procedure for variable
 selection in nonparametric additive models, whereas \textcite{FH2012}
@@ -529,21 +525,21 @@ models. More details of these methods are discussed later in
 Section~\ref{sec-background}.
 
 In this paper, however, we are interested in high-dimensional
-applications that exhibit complicated interactions among predictors
-(specially in the presence of large number of lagged variables), as well
-as correlated errors. In such a situation, \emph{``index models''}
-(refer Section~\ref{sec-Index}) seem to be useful for improving the
-flexibility of the broader class of nonparametric additive models
+applications that exhibit complicated interactions among predictors,
+particularly in the presence of large number of lagged variables, and
+correlated errors. In such a situation, \emph{index models} (refer to
+Section~\ref{sec-Index}) prove beneficial in improving the flexibility
+of the broader class of nonparametric additive models
 \autocite{Radchenko2015}, while mitigating the difficulty of estimating
 a nonparametric component for each individual predictor.
 
-To our knowledge, no previous research has been done to look at how the
+To our knowledge, no previous research has been done to explore how
 predictor choices can be made more objective and principled in
 nonparametric additive index models. Hence, our goal was to develop a
 methodology for optimal predictor selection in the context of
 high-dimensional nonparametric additive index models. Moreover, due to
-computational advancements in the field, the use of \emph{Mathematical
-Optimisation} concepts in solving statistical problems has gained a lot
+computational advancements in the field, the use of mathematical
+optimisation concepts in solving statistical problems has gained a lot
 of interest in the recent past \autocite{Theusl2020}. This motivated us
 to develop a variable selection algorithm based on mathematical
 optimisation techniques.
