@@ -401,7 +401,7 @@ Additive index models, Variable selection, Dimension reduction,
 Predictor grouping, Mixed integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, boxrule=0pt, sharp corners, breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, frame hidden, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, sharp corners, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -469,7 +469,7 @@ Similarly, a \textbf{\emph{distributed lag model}} was proposed by
 \textcite{Wood2017} to forecast daily death rate in Chicago using
 measurements of several air pollutants. The response variable is
 modelled via a sum of smooth functions of lagged predictor variables,
-which is quite similar with the semi-parametric additive model used by
+which is quite similar to the semi-parametric additive model used by
 \textcite{FH2012}. However, unlike in \textcite{FH2012},
 \textcite{Wood2017} suggested allowing the smooth functions for lags of
 the same covariate to vary smoothly over lags, preventing large
@@ -546,10 +546,10 @@ optimisation techniques.
 
 Additionally, it is crucial to point out that any such variable
 selection methodology naturally renders inferential statistics invalid,
-since we do not assume the resulting model obtained through the variable
-selection procedure to represent the true data generating process.
-Hence, our focus in this paper is only on improving forecasts, but not
-on making inferences on the resulting parameter estimates.
+since we do not assume that the resulting model obtained through the
+variable selection procedure to represent the true data generating
+process. Hence, our focus in this paper is only on improving forecasts,
+but not on making inferences on the resulting parameter estimates.
 
 The rest of this paper is organised as follows. In
 Section~\ref{sec-background}, we provide a concise exposition of related
@@ -1620,7 +1620,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \caption{\label{tbl-simulation}Simulation experiment results. }\tabularnewline
 
 \centering
-\resizebox{\linewidth}{!}{
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -1637,7 +1637,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 1 index & 3 indices & 1 index & 1 index\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
 \cmidrule{1-6}
  &  & 2 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
@@ -1649,7 +1649,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 \vphantom{1} indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
 \cmidrule{1-6}
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{High noise level}}\\
@@ -1663,7 +1663,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 3 indices & 1 index & 3 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
 \cmidrule{1-6}
  &  & 3 indices & 3 indices & 2 indices & 3 indices\\
 \cmidrule{3-6}
@@ -1675,7 +1675,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
+\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
 \bottomrule
 \end{tabular}}
 \end{table}
