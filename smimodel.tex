@@ -25,7 +25,7 @@
 \hypersetup{
             pdftitle={Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting},
             pdfkeywords={Additive index models, Variable selection,
-Dimension reduction, Mixed integer programming},
+Dimension reduction, Predictor grouping, Mixed integer programming},
             colorlinks=true,
             linkcolor=blue,
             citecolor=Blue,
@@ -376,33 +376,32 @@ Australia\newline
 \begin{document}
 \maketitle
 \begin{abstract}
-High-dimensionality is a common phenomenon in real-world forecasting
-problems. Oftentimes, forecasts are contingent on a long history of
-predictors, while the relationships between some predictors and the
-response of interest exhibit complex nonlinear patterns. In such a
-situation, a nonlinear ``transfer function'' model, with additivity
-constraints to mitigate the issue of \emph{curse of dimensionality}, is
-a conspicuous choice. Particularly, nonparametric \emph{additive index
-models} greatly reduce the number of parameters to be estimated in
-comparison to a general additive model. In this paper, we present a
-novel algorithm for estimating high-dimensional nonparametric additive
-index models, with simultaneous variable selection, which we call
-\textbf{\emph{SMI}} (\textbf{\emph{S}}parse \textbf{\emph{M}}ultiple
-\textbf{\emph{I}}ndex) \textbf{\emph{Model}}. The SMI Modelling
-algorithm is based on an iterative procedure that applies mixed integer
-programming to solve an \(\ell_{0}\)-regularised nonlinear least squares
-problem. We demonstrate the functionality and the characteristics of the
-proposed algorithm through a simple simulation exercise. We also
-illustrate the use of the SMI Modelling algorithm in two empirical
-applications related to forecasting heat exposure related daily
-mortality and daily solar intensity.
+High-dimensionality is a common phenomenon in real-world forecasting.
+Oftentimes, forecasts are contingent on a long history of predictors,
+while the relationships between some predictors and the response of
+interest exhibit complex nonlinear patterns. In such cases, a nonlinear
+``transfer function'' model with additivity constraints is a conspicuous
+choice to mitigate the issue of \emph{curse of dimensionality}.
+Particularly, nonparametric \emph{additive index models} offer a way to
+greatly reduce the number of parameters to be estimated compared to
+general additive models. In this paper, we present a novel algorithm,
+\textbf{\emph{S}}parse \textbf{\emph{M}}ultiple \textbf{\emph{I}}ndex
+(\textbf{\emph{SMI}}) \textbf{\emph{Modelling}}, designed to estimate
+high-dimensional nonparametric additive index models, while highlighting
+predictor grouping and optimal predictor selection. The SMI Modelling
+algorithm uses an iterative approach based on mixed integer programming
+to solve an \(\ell_{0}\)-regularised nonlinear least squares
+optimisation problem with linear constraints. We demonstrate the
+performance of the proposed algorithm through a simple simulation, along
+with two empirical applications in forecasting heat exposure related
+daily mortality and daily solar intensity, respectively.
 \end{abstract}
 \begin{keywords}
-Additive index models, Variable selection, Dimension reduction, Mixed
-integer programming
+Additive index models, Variable selection, Dimension reduction,
+Predictor grouping, Mixed integer programming
 \end{keywords}
 
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, frame hidden, sharp corners, interior hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden, enhanced, interior hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-introduction}{%
 \section{Introduction}\label{sec-introduction}}
@@ -1625,7 +1624,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \caption{\label{tbl-simulation}Simulation experiment results. }\tabularnewline
 
 \centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\resizebox{\linewidth}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -1642,7 +1641,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 1 index & 3 indices & 1 index & 1 index\\
 \cmidrule{3-6}
-\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
+\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
 \cmidrule{1-6}
  &  & 2 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
@@ -1654,7 +1653,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 \vphantom{1} indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
+\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
 \cmidrule{1-6}
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{High noise level}}\\
@@ -1668,7 +1667,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 3 indices & 1 index & 3 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
+\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{1}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
 \cmidrule{1-6}
  &  & 3 indices & 3 indices & 2 indices & 3 indices\\
 \cmidrule{3-6}
@@ -1680,14 +1679,10 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \cmidrule{2-6}
  &  & 3 indices & 2 indices & 1 index & 2 indices\\
 \cmidrule{3-6}
-\multirow{-6}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
+\multirow{-6}{*}{\raggedright\arraybackslash \hspace{1em}$y_{2}$} & \multirow{-2}{*}{\raggedright\arraybackslash some $\bm{x}$ + all $\bm{z}$} & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
 \bottomrule
 \end{tabular}}
 \end{table}
-
-\textcolor{orange}{XQ: I think it's too lengthy to explain table 1 with 14 paragraphs. Please simplify the results analysis using no more than five paragraphs. Use one paragraph each to interpret results under high and low noise levels respectively, with other two paragraphs discussing the insights, algorithm benefits and application scenarios based on the results. I've made a few changes, but you need to do some further work on it. I provided more detailed comments below.}
-
-\textcolor{blue}{NP: Comments addressed.}
 
 At low noise level, in both the cases ``all \(\bm{x}\)'' and ``all
 \(\bm{x}\) + all \(\bm{z}\)'', all four initialisations enable the
@@ -1727,8 +1722,6 @@ functions (corresponding to the two indices) for \(y_{2}\), might be
 higher than the error of estimating a single nonlinear function for
 \(y_{1}\).
 
-\textcolor{orange}{XQ: The above six paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of low noise level.}
-
 As expected, the accuracy with which the SMI Modelling algorithm
 estimates the index structure is in general lower with the high noise
 level, in comparison to the low noise level. For both \(y_{1}\) and
@@ -1751,8 +1744,6 @@ Similar to the previous case of low noise level, when only a part of
 both \(y_{1}\) and \(y_{2}\), where the estimated models for \(y_{2}\)
 produced higher test MSE values in comparison to the models for
 \(y_{1}\).
-
-\textcolor{orange}{XQ: The above four paragraphs should be merged into one short paragraph, comparing the index structure and forecast errors in the case of high noise level.}
 
 It is worth mentioning here that in real-world forecasting problems, the
 true data generating process (DGP) is unknown, and we do not expect an
