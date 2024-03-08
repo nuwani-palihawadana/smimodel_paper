@@ -96,7 +96,7 @@ While such models have been used to address problems including electricity deman
 
 There are a number of previous studies that have attempted to address the issue of variable selection in nonparametric/semi-parametric additive models using various techniques. For example, @Huang2010 used a *Least Absolute Shrinkage and Selection Operator (LASSO)* [@Tibshirani1996] based procedure for variable selection in nonparametric additive models, whereas @FH2012 used a straightforward backward elimination technique to achieve selection. Moreover, @Ibrahim2021 and @Hazimeh2023 used Mixed Integer Programming based methodologies to provide a solution to the *best subset selection* problem in nonparametric additive models. More details of these methods are discussed later in @sec-background.
 
-In this paper, however, we are interested in high-dimensional applications that exhibit complicated interactions among predictors, particularly in the presence of large number of lagged variables, and correlated errors. In such a situation, *index models* (refer to @sec-Index) prove beneficial in improving the flexibility of the broader class of nonparametric additive models [@Radchenko2015], while mitigating the difficulty of estimating a nonparametric component for each individual predictor. 
+In this paper, however, we are interested in high-dimensional applications that exhibit complicated interactions among predictors, particularly in the presence of large number of lagged variables, and correlated errors. In such a situation, *index models* (refer to @sec-Index) prove beneficial in improving the flexibility of the broader class of nonparametric additive models [@Radchenko2015], while mitigating the difficulty of estimating a nonparametric component for each individual predictor.
 
 To our knowledge, no previous research has been done to explore how predictor choices can be made more objective and principled in nonparametric additive index models. Hence, our goal was to develop a methodology for optimal predictor selection in the context of high-dimensional nonparametric additive index models. Moreover, due to computational advancements in the field, the use of mathematical optimisation concepts in solving statistical problems has gained a lot of interest in the recent past [@Theusl2020]. This motivated us to develop a variable selection algorithm based on mathematical optimisation techniques.
 
@@ -192,15 +192,15 @@ According to @Zhang2008, PPR increases the power of additive models in high-dime
 
 Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations. \newline
 
-**Group-wise Additive Index Model** 
+**Group-wise Additive Index Model**
 
 Even though PPR introduces flexibility and the ability to model interactions among predictors into additive models, the indices obtained through PPR contain all the predictors at hand. Hence, even with a variable selection mechanism like SpPPR [@Zhang2008], PPR creates indices possibly by mixing heterogeneous variables in a single linear combination, making very little sense in terms of interpretability [@Masselot2022].
 
-Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015]. 
+Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015].
 
 This suggests the use of a ***Group-wise Additive Index Model (GAIM)***, which can be written as
 $$
-  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n, 
+  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n,
 $$
 where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictors, which are $p$ non-overlapping subsets of $\bm{x}_{i}$ - the vector of all predictors, $\bm{\alpha}_{j}$ is a $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022].
 
@@ -213,7 +213,7 @@ In this paper, our aim is to reduce that subjectivity induced by personal judgem
 The ***Constrained Group-wise Additive Index Model (CGAIM)*** was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
 $$
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$ 
+$$
 where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
 
 This is an extension of the GAIM that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
@@ -227,7 +227,7 @@ $$
 $$ {#eq-3}
 where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\beta_{0}$ is the model intercept, $\bm{C} \in \mathbb{R}^{d \times q}$, $d$ is the number of constraints on the index coefficients vector $\bm{\alpha}$, and $m$ is a shape constraint imposed on $g_{j}$ [@Masselot2022].
 
-Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. For details of the CGAIM algorithm refer to @Masselot2022. 
+Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. For details of the CGAIM algorithm refer to @Masselot2022.
 
 ## Mathematical Optimisation for Variable Selection
 
@@ -298,11 +298,9 @@ where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\
 
 We make three main assumptions as follows to define the **SMI Model**:
 
-1.    The number of indices (i.e. the number of subsets of predictors) $p$ is unknown;
-
-2.    The predictor grouping among indices is unknown; and
-
-3.    No predictor enters more than one index (i.e. overlapping of predictors among indices is not allowed).
+1. The number of indices (i.e. the number of subsets of predictors) $p$ is unknown;
+2. The predictor grouping among indices is unknown; and
+3. No predictor enters more than one index (i.e. overlapping of predictors among indices is not allowed).
 
 These assumptions further imply that the index coefficient vectors $\bm{\alpha}_{j}$s and the nonlinear link functions $g_{j}$s are also unknown, and will need to be estimated.
 
@@ -357,17 +355,12 @@ Based on several pre-experiments on the new algorithm, we propose five alternati
 
 As discussed in @sec-Index, Projection Pursuit Regression model is a multiple index model, where each index consists of all the available predictors. Since in SMI Model we assume that there are no overlapping indices, it is impossible to use an estimated PPR model directly as a starting model for the algorithm. Thus, we follow the steps presented below to come up with a feasible initialisation for the index structure and the index coefficients.
 
-i.    Scale all the variables of the data set by dividing each variable by its standard deviation (so that it is possible to compare the estimated coefficients among predictors).
-
-ii.   Fit a PPR model and obtain estimated index coefficients. (The user can decide the number of indices to be estimated through *num_ind*; we use *num_ind = 5* as the default value.)
-
-iii.  Calculate a threshold as $threshold = 0.1 \times \max(\text{PPR coefficients})$.
-
-iv.   Set to zero all coefficients that fall below the calculated threshold.
-
-v.    For predictors appearing in multiple indices, assign them to the index with the maximum coefficient and zero out their coefficients in other indices.
-
-vi.   After performing the above steps i-v, if any originally estimated index has all $\bm{z}$ero coefficients, it will be excluded from the model. 
+a. Scale all the variables of the data set by dividing each variable by its standard deviation (so that it is possible to compare the estimated coefficients among predictors).
+b. Fit a PPR model and obtain estimated index coefficients. (The user can decide the number of indices to be estimated through *num_ind*; we use *num_ind = 5* as the default value.)
+c. Calculate a threshold as $threshold = 0.1 \times \max(\text{PPR coefficients})$.
+d. Set to zero all coefficients that fall below the calculated threshold.
+e. For predictors appearing in multiple indices, assign them to the index with the maximum coefficient and zero out their coefficients in other indices.
+f. After performing the above steps i-v, if any originally estimated index has all $\bm{z}$ero coefficients, it will be excluded from the model.
 
 Now, the index structure and the index coefficients obtained through the above steps are considered to be a feasible initialisation for the proposed algorithm. Once the optimal SMI Model is obtained through the algorithm, each index coefficient will be back-transformed into the original scale of the respective predictor variable, reversing the scaling effect applied at the beginning.
 
@@ -432,31 +425,26 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Modelling al
 
 ***Algorithm 1: SMI Modelling Algorithm***
 
-1.  Initialise index structure and index coefficients $\bm{\alpha}$:\
-    Initialise $p$, predictor grouping among indices, and obtain $\bm{\alpha}^{init}$ using one of the five options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{init}$ to have unit norm.
-
-2.  Estimate nonlinear functions $g_{j}$s:\
-    Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$s as predictors.
-
-3.  Update index coefficients $\bm{\alpha}$:\
-    Estimate updated value $\bm{\alpha}^{new}$ through the MIQP in @eq-smi-update, and scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{new}$ to have unit norm.
-    
-4.  Iterate steps 2 and 3 until convergence, loss increase for three consecutive iterations, or reaching the maximum iterations.
-
-5.  Update index structure:\
-    Include a new index consisting of dropped predictors if applicable, and proceed to step 4. Otherwise, terminate the algorithm.
-    
-6.  Iterate step 5 with increased number of indices $p$:\
-    Increase $p$ by one in each iteration of step 5 until meeting one of the termination criteria below.
-    - The number of indices in the iteration reaches $q$; select the final fitted model as output.
-    - Loss increases after the increment; select previous iteration model as the final SMI model.
-    - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
+1. Initialise index structure and index coefficients $\bm{\alpha}$:\
+   Initialise $p$, predictor grouping among indices, and obtain $\bm{\alpha}^{init}$ using one of the five options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{init}$ to have unit norm.
+2. Estimate nonlinear functions $g_{j}$s:\
+   Estimate $g_{j}$s using a GAM taking $y_{i}$ as the response, $\hat{h}_{ij} = \hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$s as predictors.
+3. Update index coefficients $\bm{\alpha}$:\
+   Estimate updated value $\bm{\alpha}^{new}$ through the MIQP in @eq-smi-update, and scale each $\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j}^{new}$ to have unit norm.
+4. Iterate steps 2 and 3 until convergence, loss increase for three consecutive iterations, or reaching the maximum iterations.
+5. Update index structure:\
+   Include a new index consisting of dropped predictors if applicable, and proceed to step 4. Otherwise, terminate the algorithm.
+6. Iterate step 5 with increased number of indices $p$:\
+   Increase $p$ by one in each iteration of step 5 until meeting one of the termination criteria below.
+   - The number of indices in the iteration reaches $q$; select the final fitted model as output.
+   - Loss increases after the increment; select previous iteration model as the final SMI model.
+   - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
 
 Throughout the experiments in the paper, we use $M = 10$, a convergence tolerance of $0.001$, and a maximum of $50$ iterations in step 4 of Algorithm 1, and a convergence tolerance of $0.001$ for coefficients in step 6 of Algorithm 1, in estimating all the SMI Models.
 
 # Simulation Experiment {#sec-simulation}
 
-This section presents the results of a simple simulation experiment designed to demonstrate the performance and characteristics of the proposed SMI Modelling algorithm. Particularly, we try to investigate how the estimated SMI Model varies depending on the initialisation (as discussed in @sec-step1) used. 
+This section presents the results of a simple simulation experiment designed to demonstrate the performance and characteristics of the proposed SMI Modelling algorithm. Particularly, we try to investigate how the estimated SMI Model varies depending on the initialisation (as discussed in @sec-step1) used.
 
 ## Data Generation {#sec-datagen}
 
@@ -471,26 +459,24 @@ We generated two response variables $y_{1}$ and $y_{2}$, with two different inde
 -   Low noise level - $N(\mu = 0, \sigma = 0.1)$:\
       $y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.01)$\
       $y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.01)$
-      
+
 -   High noise level - $N(\mu = 0, \sigma = 0.5)$:\
       $y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.25)$\
       $y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.25)$
-      
+
 Hence, the response $y_{1}$ is constructed using a single index consisting of the predictor variables $x_{0}, x_{1}$, and $x_{3}$, whereas the other response $y_{2}$ is constructed using two indices, where the first index consists of the predictors $x_{0}, x_{1}$, and $x_{3}$, and the second index consists of $x_{2}$ and $x_{5}$. Neither the variable $x_{4}$ nor any of the $z$ variables were used in generating $y_{1}$ and $y_{2}$.
 
-Once the data set is generated, the first five observations are discarded due to the missing values introduced by lagged variables, leaving a data set of 1200 observations. We use the first 1000 observations as the training set, while the remaining 200 observations are kept aside as the test set for evaluating the estimated models. 
+Once the data set is generated, the first five observations are discarded due to the missing values introduced by lagged variables, leaving a data set of 1200 observations. We use the first 1000 observations as the training set, while the remaining 200 observations are kept aside as the test set for evaluating the estimated models.
 
 ## Experiment Setup {#sec-exp}
 
-We estimated SMI Models through the proposed algorithm for each of the two response variables (the two "true models"), using three different sets of predictors as inputs. Our aim was to assess the algorithm's capability to correctly pick the relevant predictor variables (and drop the irrelevant predictors), and to estimate the correct index structure of the true model. 
+We estimated SMI Models through the proposed algorithm for each of the two response variables (the two "true models"), using three different sets of predictors as inputs. Our aim was to assess the algorithm's capability to correctly pick the relevant predictor variables (and drop the irrelevant predictors), and to estimate the correct index structure of the true model.
 
 The three different sets of predictors considered are as follows:
 
-1.    All $\bm{x}$ variables (denoted as all $\bm{x}$);
-
-2.    All $\bm{x}$ variables and all $\bm{z}$ variables (denoted as all $\bm{x}$ + all $\bm{z}$);
-
-3.    A part of $\bm{x}$ variables (i.e. $x_{0}, x_{1}$ and $x_{2}$) and all $\bm{z}$ variables (denoted as some $\bm{x}$ + all $\bm{z}$).
+1. All $\bm{x}$ variables (denoted as all $\bm{x}$);
+2. All $\bm{x}$ variables and all $\bm{z}$ variables (denoted as all $\bm{x}$ + all $\bm{z}$);
+3. A part of $\bm{x}$ variables (i.e. $x_{0}, x_{1}$ and $x_{2}$) and all $\bm{z}$ variables (denoted as some $\bm{x}$ + all $\bm{z}$).
 
 We applied the proposed SMI Modelling algorithm with each of the above predictor combinations, for both variations of the responses concerning the noise level. Moreover, we considered each of the first four initialisation options that we discussed in @sec-step1, for each of the two responses.
 
@@ -523,7 +509,7 @@ When the fitted models are evaluated, for $y_{1}$, in both the cases "all $\bm{x
 
 Moreover, in contrast to $y_{1}$, the test MSE values for $y_{2}$ are higher than the random squared error of the corresponding true model. Intuitively, the complexity of the model $y_{2}$ is higher than $y_{1}$, where the total estimation error of two nonlinear link functions (corresponding to the two indices) for $y_{2}$, might be higher than the error of estimating a single nonlinear function for $y_{1}$.
 
-As expected, the accuracy with which the SMI Modelling algorithm estimates the index structure is in general lower with the high noise level, in comparison to the low noise level. For both $y_{1}$ and $y_{2}$, most of the estimated models have selected irrelevant variables. In both the cases "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the models estimated for $y_{1}$ (except for "Additive" option in "all $\bm{x}$" case) resulted in a test MSE of $\approx 0.23$ (which is slightly lower than the random squared error of the true model; this probably indicates a slight level of over-fitting), irrespective of the fact that in "all $\bm{x}$ + all $\bm{z}$" case, "Additive" and "Multiple" options included a noise variable. This is an indication of the effect of the low signal-to-noise ratio in the data. The observation is the same for $y_{2}$, where irrespective of the different index structures and predictor choices, the estimated models in the above two predictor combinations produced similar test MSE values. 
+As expected, the accuracy with which the SMI Modelling algorithm estimates the index structure is in general lower with the high noise level, in comparison to the low noise level. For both $y_{1}$ and $y_{2}$, most of the estimated models have selected irrelevant variables. In both the cases "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the models estimated for $y_{1}$ (except for "Additive" option in "all $\bm{x}$" case) resulted in a test MSE of $\approx 0.23$ (which is slightly lower than the random squared error of the true model; this probably indicates a slight level of over-fitting), irrespective of the fact that in "all $\bm{x}$ + all $\bm{z}$" case, "Additive" and "Multiple" options included a noise variable. This is an indication of the effect of the low signal-to-noise ratio in the data. The observation is the same for $y_{2}$, where irrespective of the different index structures and predictor choices, the estimated models in the above two predictor combinations produced similar test MSE values.
 
 Similar to the previous case of low noise level, when only a part of $\bm{x}$ variables are provided, the test MSE values increased for both $y_{1}$ and $y_{2}$, where the estimated models for $y_{2}$ produced higher test MSE values in comparison to the models for $y_{1}$.
 
@@ -625,19 +611,13 @@ $$
 $$ {#eq-heat}
 where
 
--   $\textbf{Deaths}$ is the vector containing daily deaths observations;
-
--   $\beta_{0}$ is the model intercept; 
-
--   $p$ is the unknown number of indices that need to be estimated through the algorithm;
-
--   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. maximum temperature lags, minimum temperature lags, and vapour pressure lags);
-
--   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors, each with a length equal to the number of predictors entering indices ($q=45$);
-
--   $g_{j}, j = 1, \dots, p$, $f_{1}$, and $f_{2}$ are unknown nonparametric functions; and
-
--   $\bm{\varepsilon}$ is the error term.
+- $\textbf{Deaths}$ is the vector containing daily deaths observations;
+- $\beta_{0}$ is the model intercept;
+- $p$ is the unknown number of indices that need to be estimated through the algorithm;
+- $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. maximum temperature lags, minimum temperature lags, and vapour pressure lags);
+- $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors, each with a length equal to the number of predictors entering indices ($q=45$);
+- $g_{j}, j = 1, \dots, p$, $f_{1}$, and $f_{2}$ are unknown nonparametric functions; and
+- $\bm{\varepsilon}$ is the error term.
 
 The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are separated to be the test set for evaluating forecasting performance. The data from the three summer months of year 2013 are kept aside as a validation set, which is used to estimate benchmark models for comparison purposes.
 
@@ -699,13 +679,13 @@ HeatPreds %>%
   xlab("Date") +
   ylab("Number of Deaths") +
   ggtitle("Actual vs. Predicted Number of Deaths") +
-  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid",
                                                     "SMI Model (12, 0) - PPR" = "solid",
                                                     "PPR" = "longdash",
                                                     "Backward Elimination" = "dotdash",
                                                     "GAIM" = "dotted")) +
-  scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
-                                                  "SMI Model (12, 0) - PPR" = "black", 
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey",
+                                                  "SMI Model (12, 0) - PPR" = "black",
                                                   "PPR" = "black",
                                                   "Backward Elimination" = "black",
                                                   "GAIM" = "black")) +
@@ -720,7 +700,7 @@ Next, we utilise the SMI Modelling algorithm to forecast daily solar intensity, 
 
 We use solar intensity and other weather variables measured at a Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every five minutes, from 21th February 2006 to 27th February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV.
 
-However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the five minutes data to daily data by averaging each variable over days. 
+However, the data contained missing entries recorded as "-100000", which we removed from the data set. Moreover, for this analysis, we converted the five minutes data to daily data by averaging each variable over days.
 
 @fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. As observed in @fig-solar, there are days for which the observations were missing. We excluded those days from the analysis, and used only the days for which the data are available.
 
@@ -736,7 +716,7 @@ dataSolar %>%
   geom_line(color = "grey40") +
   scale_x_datetime(date_breaks = "1 year") +
   ggtitle("") +
-  ylab("Solar Intensity (Watts per square metre)") 
+  ylab("Solar Intensity (Watts per square metre)")
   #ylab(expression("Solar Intensity (Watts/m"^2*")"))
 ```
 
@@ -799,7 +779,7 @@ grid.arrange(p1, p2, p3, p4, p5, nrow = 3, ncol = 2)
 
 **1) Solar intensity lags:**
 
-Three lags of the daily solar intensity itself are used as predictors to incorporate the serial correlations presented in the data into the modelling process. Intuitively, the solar intensity of a particular day would have a relationship to the solar intensity of adjacent days. 
+Three lags of the daily solar intensity itself are used as predictors to incorporate the serial correlations presented in the data into the modelling process. Intuitively, the solar intensity of a particular day would have a relationship to the solar intensity of adjacent days.
 
 **2) Current weather variables and lags:**
 
@@ -811,7 +791,7 @@ Finally, a couple of calendar variables; *Month* (12 months of the year) and *Se
 
 ### Modelling Framework
 
-The lags of solar intensity, and the lags of weather variables are considered as predictors that are entering indices. The two calendar variables, *Month* and *Season*, are included into the model as linear (categorical) predictor variables. 
+The lags of solar intensity, and the lags of weather variables are considered as predictors that are entering indices. The two calendar variables, *Month* and *Season*, are included into the model as linear (categorical) predictor variables.
 
 Hence, the relevant SMI Model can be written as
 $$
@@ -821,23 +801,16 @@ $$
 $$ {#eq-solar}
 where
 
--   $\textbf{Solar}$ is the vector containing daily observations of solar intensity;
+- $\textbf{Solar}$ is the vector containing daily observations of solar intensity;
+- $\beta_{0}$ is the model intercept;
+- $p$ is the unknown number of indices that will be estimated through the algorithm;
+- $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
+- $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors, each of lenth equal to the number of predictors entering indices ($q= 23$);
+- $g_{j}, j = 1, \dots, p$ are unknown nonparametric functions;
+- $\theta_{1}$ and $\theta_{2}$ are the two coefficients corresponding to the two linear predictor variables; and
+- $\bm{\varepsilon}$ is the error term.
 
--   $\beta_{0}$ is the model intercept; 
-
--   $p$ is the unknown number of indices that will be estimated through the algorithm;
-
--   $\bm{X}$ is the matrix containing the predictor variables that are entering indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
-
--   $\bm{\alpha}_{j}, j = 1, \dots, p$ are the index coefficient vectors, each of lenth equal to the number of predictors entering indices ($q= 23$);
-
--   $g_{j}, j = 1, \dots, p$ are unknown nonparametric functions;
-
--   $\theta_{1}$ and $\theta_{2}$ are the two coefficients corresponding to the two linear predictor variables; and
-
--   $\bm{\varepsilon}$ is the error term.
-
-The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance. The data from the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.  
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of the months January and February 2013 are separated to be the test set to evaluate the forecasting performance. The data from the months November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.
 
 Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using MSE and MAE.
 
@@ -894,13 +867,13 @@ SolarPreds %>%
   xlab("Date") +
   ylab("Solar Intensity (Watts per square metre)") +
   ggtitle("Actual vs. Predicted Solar Intensity") +
-  scale_linetype_manual(name = "Series", values = c("Actual" = "solid", 
+  scale_linetype_manual(name = "Series", values = c("Actual" = "solid",
                                                     "SMI Model (1, 0) - Additive" = "solid",
                                                     "PPR" = "longdash",
                                                     "Backward Elimination" = "dotdash",
                                                     "GAIM" = "dotted")) +
-  scale_colour_manual(name = "Series", values = c("Actual" = "grey", 
-                                                  "SMI Model (1, 0) - Additive" = "black", 
+  scale_colour_manual(name = "Series", values = c("Actual" = "grey",
+                                                  "SMI Model (1, 0) - Additive" = "black",
                                                   "PPR" = "black",
                                                   "Backward Elimination" = "black",
                                                   "GAIM" = "black")) +
@@ -927,4 +900,4 @@ Furthermore, the MIQP in the algorithm is somewhat analogous to the *best subset
 
 We thank Professor Louise Ryan for joining the discussions during the initial stage of the project, and for her valuable comments and feedback on this research work.
 
-Furthermore, this research is partially supported by the Monash eResearch Centre through the use of the MonARCH (Monash Advanced Research Computing Hybrid) HPC Cluster. 
+Furthermore, this research is partially supported by the Monash eResearch Centre through the use of the MonARCH (Monash Advanced Research Computing Hybrid) HPC Cluster.
