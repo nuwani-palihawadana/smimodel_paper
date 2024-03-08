@@ -1,41 +1,38 @@
 ---
 title: "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting"
 author:
-- familyname: Palihawadana
-  othernames: Nuwani
-  address:
-    - Department of Econometrics & Business Statistics
-    - Clayton VIC 3800
-    - Australia
+- name: Nuwani Palihawadana
+  affiliations:
+    - name: Monash University
+      department: Department of Econometrics & Business Statistics
+      city: Clayton VIC
+      country: Australia
+      postal-code: 3800
   email: nuwani.kodikarapalihawadana@monash.edu
-  correspondingauthor: true
-- familyname: Hyndman
-  othernames: Rob J
-  address:
-    - Department of Econometrics & Business Statistics
-    - Clayton VIC 3800
-    - Australia
+  corresponding: true
+- name: Rob J Hyndman
+  affiliations:
+    - name: Monash University
+      department: Department of Econometrics & Business Statistics
+      city: Clayton VIC
+      country: Australia
+      postal-code: 3800
   email: rob.hyndman@monash.edu
-- familyname: Wang
-  othernames: Xiaoqian
-  address:
-    - Department of Econometrics & Business Statistics
-    - Clayton VIC 3800
-    - Australia
+- name: Xiaoqian&nbsp;Wang
+  affiliations:
+    - name: Monash University
+      department: Department of Econometrics & Business Statistics
+      city: Clayton VIC
+      country: Australia
+      postal-code: 3800
   email: xiaoqian.wang@monash.edu
 abstract: High-dimensionality is a common phenomenon in real-world forecasting. Oftentimes, forecasts are contingent on a long history of predictors, while the relationships between some predictors and the response of interest exhibit complex nonlinear patterns. In such cases, a nonlinear "transfer function" model with additivity constraints is a conspicuous choice to mitigate the issue of *curse of dimensionality*. Particularly, nonparametric *additive index models* offer a way to greatly reduce the number of parameters to be estimated compared to general additive models. In this paper, we present a novel algorithm, ***S***parse ***M***ultiple ***I***ndex (***SMI***) ***Modelling***, designed to estimate high-dimensional nonparametric additive index models, while highlighting predictor grouping and optimal predictor selection. The SMI Modelling algorithm uses an iterative approach based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with linear constraints. We demonstrate the performance of the proposed algorithm through a simple simulation, along with two empirical applications in forecasting heat exposure related daily mortality and daily solar intensity, respectively.
-keywords: "Additive index models, Variable selection, Dimension reduction, Predictor grouping, Mixed integer programming"
+keywords: [Additive index models, Variable selection, Dimension reduction, Predictor grouping, Mixed integer programming]
+bibliography: references.bib
 wpnumber: no/yr
 jelcodes: C10,C14,C22
 blind: false
 cover: true
-toc: false
-number-sections: true
-fig-height: 5
-fig-width: 8
-cite-method: biblatex
-bibliography: references.bib
-biblio-style: authoryear-comp
 keep-tex: true
 format:
   wp-pdf:
