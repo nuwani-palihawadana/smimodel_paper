@@ -12,12 +12,12 @@ contributes:
       date-format: "D MMMM YYYY"
       toc: false
       pdf-engine: pdflatex
+      linestretch: 1.5
       geometry:
       - top=2.5cm
       - bottom=2.5cm
       - left=2.5cm
       - right=2.5cm
-      linestretch: 1.5
       block-headings: false
       cite-method: biblatex
       biblio-style: authoryear-comp
