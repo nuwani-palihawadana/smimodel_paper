@@ -251,7 +251,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{8 March 2024}
+\date{14 March 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -361,7 +361,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 8 March 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 14 March 2024}
 
 % Keywords
 
@@ -375,70 +375,61 @@ Forecasting}
 \maketitle
 
 \begin{abstract}
-High-dimensionality is a common phenomenon in real-world forecasting.
-Oftentimes, forecasts are contingent on a long history of predictors,
-while the relationships between some predictors and the response of
-interest exhibit complex nonlinear patterns. In such cases, a nonlinear
-``transfer function'' model with additivity constraints is a conspicuous
-choice to mitigate the issue of \emph{curse of dimensionality}.
-Particularly, nonparametric \emph{additive index models} offer a way to
-greatly reduce the number of parameters to be estimated compared to
-general additive models. In this paper, we present a novel algorithm,
+Forecasting often involves high-dimensional predictors which have
+nonlinear relationships with the outcome of interest. Nonparametric
+additive index models can capture these relationships, while addressing
+the curse of dimensionality. This paper introduces a new algorithm,
 \textbf{\emph{S}}parse \textbf{\emph{M}}ultiple \textbf{\emph{I}}ndex
-(\textbf{\emph{SMI}}) \textbf{\emph{Modelling}}, designed to estimate
-high-dimensional nonparametric additive index models, while highlighting
-predictor grouping and optimal predictor selection. The SMI Modelling
-algorithm uses an iterative approach based on mixed integer programming
-to solve an \(\ell_{0}\)-regularised nonlinear least squares
-optimisation problem with linear constraints. We demonstrate the
-performance of the proposed algorithm through a simple simulation, along
-with two empirical applications in forecasting heat exposure related
-daily mortality and daily solar intensity, respectively.
+(\textbf{\emph{SMI}}) \textbf{\emph{Modelling}}, tailored for estimating
+high-dimensional nonparametric additive index models, while limiting the
+number of parameters to estimate, by optimizing predictor selection and
+predictor grouping. The SMI Modelling algorithm uses an iterative
+approach based on mixed integer programming to solve an
+\(\ell_{0}\)-regularised nonlinear least squares optimisation problem
+with linear constraints. We demonstrate the performance of the proposed
+algorithm through a simulation study, along with two empirical
+applications to forecast heat-related daily mortality and daily solar
+intensity.
 \end{abstract}
 
 \begin{keywords}
   Additive index models; Variable selection; Dimension
-reduction; Predictor grouping; .
+reduction; Predictor grouping; 
   Mixed integer programming.
 \end{keywords}
 
 \setstretch{1.5}
 \section{Introduction}\label{sec-introduction}
 
-Forecasts are often contingent on a very long history of predictors. For
-example, when forecasting half-hourly electricity demand, it is common
-to use at least a week of historical half-hourly temperatures and other
-weather observations \autocite{HF2010}. Similarly, when forecasting bore
+Forecasts are often contingent on a very long history of predictors
+which are nonlinearly related to the variable of interest. For example,
+when forecasting half-hourly electricity demand, it is common to use at
+least a week of historical half-hourly temperatures and other weather
+observations \autocite{HF2010}. The relationships between the lagged
+temperatures and electricity demand are nonlinear (due to both heating
+and cooling effects), and involve complex interactions due to thermal
+inertia in buildings \autocite{FH2012}. Similarly, when forecasting bore
 levels, rainfall data from up to thousand days earlier can impact the
-result \autocite{Bakker2019} due to the complex flow dynamics of
-rainfall into aquifers.
-
-On the other hand, in most of these applications, the relationships
-between the predictors and the response variable exhibit complex
-nonlinear patterns. For instance, the relationship between electricity
-demand and temperature is often nonlinear \autocite{HF2010,FH2012}.
+result \autocite{Peterson2014,Bakker2019,Rajaee2019} due to the complex
+nonlinear flow dynamics of rainfall into aquifers.
 
 These examples suggest a possible nonlinear ``\emph{transfer function}''
 model of the form \begin{equation}\phantomsection\label{eq-transferfun}{
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
 }\end{equation} where \(y_{t}\) is the observation of the response
 variable at time \(t\), \(\bm{x}_{t}\) is a vector of predictors at time
-\(t\), and \(\varepsilon_{t}\) is the random error. By including lagged
-values of \(y_{t}\) along with the lagged predictors, we allow for any
-serial correlation in the data. However, it makes the resulting function
-difficult to interpret. An alternative formulation is \[
- y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}) + g(\varepsilon_{t}, \varepsilon_{t-1},\dots,\varepsilon_{t-k}),
-\] which is more difficult to estimate, but makes it simpler to
-interpret the effect of the predictors on the response variable.
+\(t\), and \(\varepsilon_{t}\) is an iid random error. By including
+lagged values of \(y_{t}\) along with the lagged predictors, we allow
+for any serial correlation in the data.
 
-When applying the transfer function model to forecast lengthy time
-series with complex patterns, the form of \(f\) is nonlinear, involving
-complicated interactions and with a high value of \(p\). Typically, the
-form of \(f\) involves many ad hoc model choices. It is essentially
-impossible to estimate a \(p\)-dimensional function for large \(p\) due
-to the curse of dimensionality \autocite{Bellman57,Stone82}. Instead, we
-normally impose some form of additivity, along with some low-order
-interactions.
+The form of \(f\) is typically nonlinear, and involves complicated
+interactions with a high value of \(p\) (and possibly also large \(k\)).
+It is infeasible to estimate \(f\) in high-dimensional settings (where
+\(p\) is large) due to the curse of dimensionality
+\autocite{Bellman57,Stone82}. Instead, we normally impose some form of
+additivity constraint, and ignore interactions of more than 2 or 3
+variables. There are also usually many ad hoc model choices in selecting
+the appropriate predictors to include.
 
 For example, \textcite{FH2012} proposed a \textbf{\emph{semi-parametric
 additive model}} to obtain short-term forecasts of the half-hourly
@@ -447,23 +438,26 @@ Electricity Market. In this model, \(f\) is assumed to be fully
 additive, and is used to capture the effects of recent predictor values
 on the demand. The main objective behind the use of this proposed
 semi-parametric model is to allow nonparametric components in a
-regression-based modelling framework with serially correlated errors
-\autocite{FH2012}. The model fitted for each half-hourly period (\(q\))
-can be written as \[
- \log(y_{t,q}) = h_{q}(t) + f_{q}(w_{1,t},w_{2,t}) + a_{q}(y_{t-,p}) + \varepsilon_{t},
-\] where the response variable is the logarithm of electricity demand at
-time \(t\) during period \(q\). The term \(h_{q}(t)\) models several
-calendar effects as linear terms. Temperature effects are modelled using
-the nonparametric component \(f_{q}(w_{1,t},w_{2,t})\), while
-\(a_{q}(y_{t-,p})\) captures the lagged effects of the response. It is
-important to notice here that the error term \(\varepsilon_{t}\) is
-serially uncorrelated in each half-hourly model, because the serial
-correlation is eliminated by the inclusion of lagged responses in the
-model. However, some correlation may still exist between residuals from
-various half-hourly models \autocite{FH2012}.
+regression-based modelling framework with serially correlated errors.
+The model fitted for each half-hourly period (\(q\)) can be written as
+\begin{equation}\phantomsection\label{eq-FH}{
+ \log(y_{t,q}) = h_{q}(t) + f_{q}(\bm{w}_{1,t},\bm{w}_{2,t}) + \sum_{j=1}^k a_{q,j}(y_{t-j}) + \varepsilon_{t},
+}\end{equation} where the response variable is the logarithm of
+electricity demand at time \(t\) during period \(q\). The term
+\(h_{q}(t)\) models several calendar effects as linear or smooth terms.
+Temperature effects are modelled using the nonparametric component
+\(f_{q}(\bm{w}_{1,t},\bm{w}_{2,t})\), where
+\(\bm{w}_{i,t} = [w_{i,t},\dots,w_{i,t-p}]'\) is a vector of lagged
+temperatures at site \(i\). The terms \(a_{q,j}(y_{t-j})\) capture the
+lagged effects of the response. It is important to notice here that the
+error term \(\varepsilon_{t}\) is serially uncorrelated within each
+half-hourly model, because the serial correlation is eliminated by the
+inclusion of lagged responses in the model. However, some correlation
+may still exist between residuals from various half-hourly models
+\autocite{FH2012}.
 
 Similarly, a \textbf{\emph{distributed lag model}} was proposed by
-\textcite{Wood2017} to forecast daily death rate in Chicago using
+\textcite{Wood2017} to forecast daily death rates in Chicago using
 measurements of several air pollutants. The response variable is
 modelled via a sum of smooth functions of lagged predictor variables,
 which is quite similar to the semi-parametric additive model used by
@@ -473,8 +467,9 @@ the same covariate to vary smoothly over lags, preventing large
 differences in estimated effects between adjacent lags. Thus, the model
 is of the form \[
  \log(y_{t}) = f_{1}(t) + \sum_{k=0}^{K} f_{2}(p_{t-k}, k) + \sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k),
-\] where \(y_{t}\) is the death rate at day \(t\), and \(f_{1}\) is a
-nonparametric term to capture the \emph{time} effect. The model
+\] where \(y_{t}\) is the death rate at day \(t\), \(f_{1}\) is a
+nonparametric term to capture the \emph{time} effect, and \(p_t\),
+\(o_t\), and \(w_t\) are various predictor variables. The model
 incorporates the current value (\(k = 0\)) and several lagged values
 (\(k = 1, \dots, K\)) of the predictors, where the distributed lag
 effect of a single predictor variable, and of an interaction of two
@@ -484,51 +479,65 @@ predictor variables are captured by the sum of
 functions \(f_{2}\) and \(f_{3}\) are proposed to be estimated using
 tensor product smooths.
 
-For more examples, \textcite{Ho2020} used semi-parametric additive
-models to estimate ground-level \(PM_{2.5}\) concentrations in Taiwan,
-while nonparametric additive models were utilised by
-\textcite{Ibrahim2021} for predicting census survey response rates.
-Furthermore, \textcite{Ravindra2019} provided a comprehensive review of
-the applications of additive models in environmental data, with a
-special focus on air pollution, climate change, and human health related
+Further examples include \textcite{Ho2020}, who used semi-parametric
+additive models to estimate ground-level \(\text{PM}_{2.5}\)
+concentrations in Taiwan, while nonparametric additive models were
+utilised by \textcite{Ibrahim2021} for predicting census survey response
+rates. \textcite{Ravindra2019} provides a comprehensive review of the
+applications of additive models in environmental data, with a special
+focus on air pollution, climate change, and human health related
 studies.
 
-While such models have been used to address problems including
-electricity demand, air quality related mortality rate and groundwater
-level forecasting etc.
-\autocite{FH2012,HF2010,Wood2017,Peterson2014,Rajaee2019}, there are
-still a number of unresolved issues in their applications. In this
-paper, we attempt to address two of those issues. Firstly, even though
-nonparametric additive models act as a remedy to the curse of
-dimensionality, the estimation of the model is still challenging in
-high-dimensional settings due to the large number of nonparametric
-components to be estimated. Secondly, there is a noticeable subjectivity
-in selecting predictor variables (from the available predictors) for the
-model, where in most of the applications of interest we discussed above,
-the choices are mainly based on empirical explorations or domain
-expertise.
-
-There are a number of previous studies that have attempted to address
-the issue of variable selection in nonparametric/semi-parametric
-additive models using various techniques. For example,
-\textcite{Huang2010} used a \emph{Least Absolute Shrinkage and Selection
-Operator (LASSO)} \autocite{Tibshirani1996} based procedure for variable
-selection in nonparametric additive models, whereas \textcite{FH2012}
-used a straightforward backward elimination technique to achieve
-selection. Moreover, \textcite{Ibrahim2021} and \textcite{Hazimeh2023}
-used Mixed Integer Programming based methodologies to provide a solution
-to the \emph{best subset selection} problem in nonparametric additive
-models. More details of these methods are discussed later in
-Section~\ref{sec-background}.
-
-In this paper, however, we are interested in high-dimensional
-applications that exhibit complicated interactions among predictors,
-particularly in the presence of large number of lagged variables, and
-correlated errors. In such a situation, \emph{index models} (refer to
-Section~\ref{sec-Index}) prove beneficial in improving the flexibility
-of the broader class of nonparametric additive models
+In this paper, we are interested in high-dimensional applications that
+exhibit complicated interactions among predictors, particularly in the
+presence of a large number of lagged variables, and correlated errors.
+In such situations, \emph{index models} prove beneficial in improving
+the flexibility of the broader class of nonparametric additive models
 \autocite{Radchenko2015}, while mitigating the difficulty of estimating
 a nonparametric component for each individual predictor.
+
+While such models have been used to address problems from diverse
+application areas, there are several unresolved issues in using them. In
+this paper, we attempt to address two of those issues. First, the
+estimation of the model is challenging in high-dimensional settings due
+to the large number of nonparametric components to be estimated. Second,
+there is a noticeable subjectivity in selecting predictor variables
+(from the available predictors) for the model, and in identifying which
+terms to include together to model interactions. In most of the
+applications discussed above, the choices were based on empirical
+explorations or domain expertise.
+
+We propose to address these issues using a Sparse Multiple Index (SMI)
+model with automatic variable selection. This semiparametric model can
+be written as \begin{equation}\phantomsection\label{eq-semipara}{
+  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
+}\end{equation} where \(y_{i}\) is the univariate response,
+\(\beta_{0}\) is the model intercept,
+\(\bm{x}_{ij} \in \mathbb{R}^{l_{j}}\), \(j = 1, \dots, p\) are \(p\)
+subsets of all the predictors entering indices, \(\bm{\alpha}_{j}\) is a
+vector of index coefficients corresponding to the index
+\(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\), \(g_{j}\) is a smooth
+nonlinear function (possibly estimated by a spline). Note that we also
+allow for the inclusion of predictors that do not enter any of the
+indices, including covariates \(w_{ik}\) that relate to the response
+through the nonlinear functions \(f_{k}\), \(k = 1, \dots, d\), and
+linear covariates denoted by \(\bm{u}_{i}\). Although our interest is in
+forecasting time series data, the model can be used more widely, and so
+we have not included any notation specific to time series specific in
+the model formulation.
+
+This model subsumes the models discussed above, and includes fully
+additive models (where each predictor is in its own index), and single
+index models (where all predictors are in a single index). The greater
+generality allows us to address the two issues mentioned earlier. First,
+the number of parameters to estimate is reduced by combining variables
+using linear indices, and by grouping predictors into indices to limit
+the order and form of interactions allowed. In our model formulation,
+the number of indices \(p\) is unknown, and the predictor grouping among
+indices is unknown. We propose algorithmic selection of the predictors
+to include in each indices, thereby reducing the subjectivity in model
+formulation. We assume that no predictor enters more than one index
+(i.e.~overlapping of predictors among indices is not allowed).
 
 To our knowledge, no previous research has been done to explore how
 predictor choices can be made more objective and principled in
@@ -537,16 +546,16 @@ methodology for optimal predictor selection in the context of
 high-dimensional nonparametric additive index models. Moreover, due to
 computational advancements in the field, the use of mathematical
 optimisation concepts in solving statistical problems has gained a lot
-of interest in the recent past \autocite{Theusl2020}. This motivated us
-to develop a variable selection algorithm based on mathematical
-optimisation techniques.
+of recent interest \autocite{Theusl2020}. This motivated us to develop a
+variable selection algorithm based on mathematical optimisation
+techniques.
 
-Additionally, it is crucial to point out that any such variable
-selection methodology naturally renders inferential statistics invalid,
-since we do not assume that the resulting model obtained through the
-variable selection procedure to represent the true data generating
-process. Hence, our focus in this paper is only on improving forecasts,
-but not on making inferences on the resulting parameter estimates.
+It is crucial to point out that any variable selection methodology
+naturally renders inferential statistics invalid, since we do not assume
+that the resulting model obtained through the variable selection
+procedure represents the true data generating process. Hence, our focus
+in this paper is only on improving forecasts, but not on making
+inferences on the resulting parameter estimates.
 
 The rest of this paper is organised as follows. In
 Section~\ref{sec-background}, we provide a concise exposition of related
@@ -566,59 +575,37 @@ are given in Section~\ref{sec-conclusion}.
 \subsection{Variable Selection in Nonparametric Additive
 Models}\label{variable-selection-in-nonparametric-additive-models}
 
-As discussed in Section~\ref{sec-introduction}, the estimation of
-nonparametric function \(f\) (Equation~\ref{eq-transferfun}) becomes
-infeasible in high-dimensional settings (i.e.~number of predictors is
-very large) due to curse of dimensionality. As a result,
-\emph{nonparametric additive models} have been employed with growing
-popularity. Let \((y_{i}, \bm{x}_{i}), i = 1, \dots, n\), be independent
-and identically distributed (i.i.d) observations, and
+Let \((y_{i}, \bm{x}_{i}), i = 1, \dots, n\), be independent and
+identically distributed (i.i.d) observations, and
 \(\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}\) be a \(p\)-dimensional
 vector of predictor values. Then a nonparametric additive model can be
 written as \begin{equation}\phantomsection\label{eq-add}{
  y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \varepsilon_{i}, \quad i = 1, \dots, n,
 }\end{equation} where \(f_{j}\)'s are unknown functions (probably
 non-linear and smooth), and \(\varepsilon_{i}\) is the random error
-\autocite{Lian2012}. Even such an additivity condition is imposed,
-estimating the optimal predictive model will still be troublesome when
-\(p\) is very large (probably even larger than the sample size \(n\))
-due to over-fitting \autocite{Lian2012}. Thus, it is natural to bring in
-the sparsity assumption, and assume that some of \(f_{j}\)'s are zero,
-which gives rise to the need of a variable selection method to
-differentiate between zero and non-zero components, while estimating the
-non-zero components \autocite{Huang2010}.
+\autocite{Lian2012}. Even with such a strong additivity condition
+imposed, estimating the optimal predictive model will still be
+troublesome when \(p\) is large due to over-fitting \autocite{Lian2012}.
+Thus, it is natural to also bring in a sparsity assumption, and assume
+that some of \(f_{j}\)'s are zero, which gives rise to the need of a
+variable selection method \autocite{Huang2010}.
 
 \subsubsection{Backward Elimination}\label{sec-backward}
 
-In the problem of forecasting long-term peak electricity demand,
-\textcite{HF2010} used a stepwise procedure for variable selection
-through cross-validation. In the each half-hourly model fitted, the data
-is split into training and validation sets, and the predictors are
-selected into the model based on the Mean Squared Error (MSE) calculated
-for the validation set. Starting from the full model, the predictive
-power of each variable is evaluated by dropping one at a time. A
-predictor, the removal of which contributed to a decrease in the
-validation MSE, is omitted from the model in subsequent steps
-\autocite{HF2010}. \textcite{FH2012} used a similar method except for
-the fact that they considered the Mean Absolute Percentage Error (MAPE)
-as the selection criterion. Therefore, both of these prior work use
-stepwise variable selection methodology based on out-of-sample
-forecasting performance.
+\textcite{FH2012} used a stepwise procedure for variable selection
+through cross-validation to find a model of the form of
+Equation~\ref{eq-FH}. In each half-hourly model, the data is split into
+training and validation sets, and the predictors are selected based on
+the Mean Absolute Percentage Error (MAPE) calculated for the validation
+set. Starting from the full model with all predictors, the predictive
+power of each variable is evaluated by dropping one at a time. When the
+validation MAPE increases with the exclusion of a predictor, the
+predictor is omitted from the model in subsequent steps.
 
 \subsubsection{Penalisation Methods}\label{penalisation-methods}
 
-According to \textcite{Huang2010}, there are numerous penalised methods
-for variable selection and parameter estimation in high-dimensional
-settings, including the \emph{bridge estimator} proposed by
-\textcite{Frank1993}, the \emph{Least Absolute Shrinkage and Selection
-Operator (LASSO)} by \textcite{Tibshirani1996}, the \emph{Smoothly
-Clipped Absolute Deviation Penalty} (SCAD) by \textcite{Fan2001}, and
-the \emph{Minimum Concave Penalty} (MCP) by \textcite{Zhang2010}. Among
-them, we observe that the LASSO and the SCAD penalties are appearing
-popularly in literature.
-
-\textcite{Tibshirani1996} introduced the regularisation method,
-\textbf{\emph{LASSO}}, for estimating linear models, which minimises the
+\textcite{Tibshirani1996} introduced the \textbf{\emph{LASSO}}
+regularisation method for estimating linear models, which minimises the
 sum of squared residuals subject to the \(\ell_{1}\) penalty on the
 coefficients. Assume the classical linear regression model
 \(y_{i} = \sum_{j=1}^{p} {\beta_{j}x_{ij}} +\varepsilon_{i}\), fitted
@@ -706,7 +693,7 @@ Lasso method \autocite{Yuan2006}.
 
 When the nonparametric additive model in Equation~\ref{eq-add} is
 considered, an obvious possibility is that some of the additive
-components (i.e.~\(f_{j}\)'s) are being linear. For example, recall the
+components (i.e.~\(f_{j}\)'s) are linear. For example, recall the
 electricity demand forecasting problem \autocite{HF2010,FH2012}, where
 some of the calendar effects are included into the model as linear
 variables, whereas lagged temperature and lagged demand variables are
@@ -1080,39 +1067,7 @@ along with optimal predictor selection.
 \subsection{The SMI Model}\label{sec-model}
 
 The model of interest is a semi-parametric additive index model, which
-can be written as \begin{equation}\phantomsection\label{eq-semipara}{
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-}\end{equation} where \(y_{i}\) is the univariate response,
-\(\beta_{0}\) is the model intercept,
-\(\bm{x}_{ij} \in \mathbb{R}^{l_{j}}\), \(j = 1, \dots, p\) are \(p\)
-subsets of all the predictors entering indices, \(\bm{\alpha}_{j}\) is a
-vector of index coefficients corresponding to the index
-\(h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}\), \(g_{j}\) is a nonlinear
-link function (possibly estimated by a spline). Note that we also allow
-for the inclusion of predictors that do not enter any of the indices.
-These additional predictors are two-fold: a covariate \(w_{ik}\) that
-relates to the response through the nonlinear function \(f_{k}\),
-\(k = 1, \dots, d\), and linear covariates denoted by \(\bm{u}_{i}\).
-
-We make three main assumptions as follows to define the \textbf{SMI
-Model}:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  The number of indices (i.e.~the number of subsets of predictors) \(p\)
-  is unknown;
-\item
-  The predictor grouping among indices is unknown; and
-\item
-  No predictor enters more than one index (i.e.~overlapping of
-  predictors among indices is not allowed).
-\end{enumerate}
-
-These assumptions further imply that the index coefficient vectors
-\(\bm{\alpha}_{j}\)s and the nonlinear link functions \(g_{j}\)s are
-also unknown, and will need to be estimated.
+can be written as Equation~\ref{eq-semipara}.
 
 One of the key features of the proposed SMI model is to allow for zero
 index coefficients for predictors, so that the predictors with zero
