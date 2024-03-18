@@ -97,281 +97,77 @@ $$
 $$ {#eq-semipara}
 where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are $p$ subsets of all the predictors entering indices, $\bm{\alpha}_{j}$ is a vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is a smooth nonlinear function (possibly estimated by a spline). Note that we also allow for the inclusion of predictors that do not enter any of the indices, including covariates $w_{ik}$ that relate to the response through the nonlinear functions $f_{k}$, $k = 1, \dots, d$, and linear covariates denoted by $\bm{u}_{i}$. Although our interest is in forecasting time series data, the model can be used more widely, and so we have not included any notation specific to time series in the model formulation.
 
-This model subsumes the models discussed above, and includes fully additive models (where each predictor is in its own index), and single index models (where all predictors are in a single index). The greater generality allows us to address the two issues mentioned earlier. First, the number of parameters to estimate is reduced by combining variables using linear indices, and by grouping predictors into indices to limit the order and form of interactions allowed. In our model formulation, the number of indices $p$ is unknown, and the predictor grouping among indices is unknown. We propose algorithmic selection of the predictors to include in each indices, thereby reducing the subjectivity in model formulation. We assume that no predictor enters more than one index (i.e. overlapping of predictors among indices is not allowed).
+This model subsumes the models discussed above, and includes fully additive models [@Wood2011;@Wood2017], where each predictor is in its own index, and single index models [@Stoker1986;@Hardle1993;@Radchenko2015], where all predictors are in a single index. The greater generality allows us to address the two issues mentioned earlier. First, the number of parameters to estimate is reduced by combining variables using linear indices, and by grouping predictors into indices to limit the order and form of interactions allowed. In our model formulation, the number of indices $p$ is unknown, and the predictor grouping among indices is unknown. We propose algorithmic selection of the predictors to include in each indices, thereby reducing the subjectivity in model formulation. We assume that no predictor enters more than one index (i.e. overlapping of predictors among indices is not allowed).
 
 To our knowledge, no previous research has been done to explore how predictor choices can be made more objective and principled in nonparametric additive index models. Hence, our goal was to develop a methodology for optimal predictor selection in the context of high-dimensional nonparametric additive index models. Moreover, due to computational advancements in the field, the use of mathematical optimisation concepts in solving statistical problems has gained a lot of recent interest [@Theusl2020]. This motivated us to develop a variable selection algorithm based on mathematical optimisation techniques.
 
 It is crucial to point out that any variable selection methodology naturally renders inferential statistics invalid, since we do not assume that the resulting model obtained through the variable selection procedure represents the true data generating process. Hence, our focus in this paper is only on improving forecasts, but not on making inferences on the resulting parameter estimates.
 
-The rest of this paper is organised as follows. In @sec-background, we provide a concise exposition of related ideas and previous work, while establishing the foundation for this paper. @sec-SMI presents our proposed model, *Sparse Multiple Index Model* (SMI Model), and describes the variable selection algorithm and estimation procedure. In @sec-simulation, we demonstrate the functionality and the characteristics of the proposed algorithm through a simulation experiment. @sec-application illustrates two empirical applications of the proposed estimation and variable selection methodology, related to forecasting heat exposure related daily mortality and daily solar intensity. Concluding remarks are given in @sec-conclusion.
-
-# Background {#sec-background}
-
-## Variable Selection in Nonparametric Additive Models
-
-Let $(y_{i}, \bm{x}_{i}), i = 1, \dots, n$, be independent and identically distributed (i.i.d) observations, and $\bm{x}_{i} = (x_{i1}, \dots, x_{ip})^{T}$ be a $p$-dimensional vector of predictor values. Then a nonparametric additive model can be written as
-$$
- y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$ {#eq-add}
-where $f_{j}$'s are unknown functions (probably non-linear and smooth), and $\varepsilon_{i}$ is the random error [@Lian2012]. Even with such a strong additivity condition imposed, estimating the optimal predictive model will still be troublesome when $p$ is large due to over-fitting [@Lian2012]. Thus, it is natural to also bring in a sparsity assumption, and assume that some of $f_{j}$'s are zero, which gives rise to the need of a variable selection method [@Huang2010].
-
-### Backward Elimination {#sec-backward}
-
-@FH2012 used a stepwise procedure for variable selection through cross-validation to find a model of the form of @eq-FH. In each half-hourly model, the data is split into training and validation sets, and the predictors are selected based on the Mean Absolute Percentage Error (MAPE) calculated for the validation set. Starting from the full model with all predictors, the predictive power of each variable is evaluated by dropping one at a time. When the validation MAPE increases with the exclusion of a predictor, the predictor is omitted from the model in subsequent steps.
-
-### Penalisation Methods
-
-@Tibshirani1996 introduced the ***LASSO*** regularisation method for estimating linear models, which minimises the sum of squared residuals subject to the $\ell_{1}$ penalty on the coefficients. Assume the classical linear regression model $y_{i} = \sum_{j=1}^{p} {\beta_{j}x_{ij}} +\varepsilon_{i}$, fitted for the data $(y_{i}, \bm{x_{i}})$, $i = 1, \dots, n$, where $y_{i}$ is the response, $\bm{x_{i}} = (x_{i1}, \dots, x_{ip})^T$ is a $p$-dimensional vector of predictors, $\bm{\beta} = (\beta_{1}, \dots, \beta_{p})^{T}$ is the parameter vector corresponding to $\bm{x_{i}}$, and $\varepsilon_{i}$ is the random error. Then, the LASSO estimator, $\bm{\hat{\beta}}_{LASSO}$, can be obtained by
-$$
- \bm{\hat{\beta}}_{LASSO} = \min_{\bm{\beta}}\left\{\left\lVert\bm{y} - \sum_{j=1}^{p} {\bm{x_{j}}\beta_{j}}\right\rVert_{2}^{2} + \lambda\sum_{j=1}^{p} {|\beta_{j}|}\right\},
-$$
-where $\bm{x_{j}} = \left (x_{1j}, \dots, x_{nj}\right )^{T}$, and $\lambda$ is a non-negative tuning parameter. The LASSO estimator reduces to the Ordinary Least Squares (OLS) estimator if $\lambda$ is equal to zero [@Konzen2016]. Due to the nature of the penalty applied, LASSO shrinks some of the coefficients towards zero, and sets the others exactly to zero, where the estimation of coefficients and variable selection are performed simultaneously [@Konzen2016].
-
-While showing that the LASSO is not consistent for variable selection in certain situations, @Zou2006 introduced ***Adaptive Lasso*** (popularly known as "adaLASSO"); an extension of the LASSO method, which uses adaptive weights to penalise coefficients using the LASSO (i.e. $\ell_{1}$) penalty. Thus, the adaLASSO objective function can be written as
-$$
- \bm{\hat{\beta}}_{adaLASSO} = \min_{\bm{\beta}}\left\{\left\lVert\bm{y} - \sum_{j=1}^{p} {\bm{x_{j}}\beta_{j}}\right\rVert_{2}^{2} + \lambda\sum_{j=1}^{p} {w_{j}|\beta_{j}|}\right\},
-$$
-where the vector of weights $\bm{w} = \left (w_{1}, \dots, w_{p} \right )^{T}$ is estimated by $\bm{\hat{w}} = 1/|\bm{\hat{\beta}}|^{\gamma}$ for $\gamma > 0$, which is a tuning parameter, and $\bm{\hat{\beta}}$ being any consistent estimator of $\bm{\beta}$ [@Zou2006].
-
-@Yuan2006 considered the problem of selecting groups of variables, and discussed extensions of three variable selection and estimation methods namely, *LASSO* [@Tibshirani1996], *Least Angle Regression Selection* [LARS, @Efron2004], and *Non-negative Garrotte* [@Breiman1995]. Consider an $n$-dimensional response vector $\bm{y}$, and an $n \times p$ matrix of predictor values $\bm{X}$. Then the ***Group Lasso*** estimator of the coefficients vector $\bm{\beta}$ is obtained by minimising
-$$
- \frac{1}{2}\left\lVert\bm{y} - \sum_{\ell=1}^{L} {\bm{X}_{\ell}\bm{\beta}_{\ell}}\right\rVert_{2}^{2} + \lambda\sum_{\ell=1}^{L} {\lVert\bm{\beta}_{\ell}\rVert}_{\bm{K}_{\ell}},
-$$
-where $\bm{X}_{\ell}$ is an $n \times p_{\ell}$ sub-matrix in $\bm{X}$ that corresponds to the $\ell^{th}$ group of predictors ($p_{\ell}$ is the number of predictors in $\ell^{th}$ group), $\bm{\beta}_{\ell}$ is the corresponding vector of coefficients, $\ell = 1, \dots, L$, $\lVert\bm{\beta}_{\ell}\rVert_{\bm{K}_{\ell}} = (\bm{\beta}_{\ell}' \bm{K}_{\ell} \bm{\beta}_{\ell})^{\frac{1}{2}}$ with $\bm{K}_{1}, \dots, \bm{K}_{L}$ being a set of given positive definite matrices, and $\lambda$ is a non-negative tuning parameter. Moreover, @Simon2013 proposed ***Sparse-Group Lasso***, which is a convex combination of general Lasso and Group Lasso methods, where the focus is on both "groupwise sparsity" (the number of groups with at least one nonzero coefficient), and "within group sparsity" (the number of nonzero coefficients within each nonzero group).
-
-According to @Fan2001, a penalty function used in penalised least squares approaches should have three properties. Firstly, it should be singular at origin to generate a solution that is sparse. Secondly, it should fulfil certain conditions to be stable in model selection. Finally, it should be able to generate unbiased estimates for large coefficients via being bounded by a constant. They argued that all those three conditions are not satisfied by the penalisation methods such as the bridge regression [@Frank1993] and the LASSO [@Tibshirani1996]. Hence they proposed the ***SCAD*** penalty function, which is defined in terms of its first derivative as
-$$
- p_{\lambda}'(\theta) = \lambda\left\{I(\theta\le\lambda) + \frac{(a\lambda - \theta)_{+}}{(a - 1)\lambda}I(\theta > \lambda)\right\},
-$$
-for some $a > 2$, and $\theta > 0$ [@Fan2001]. According to @Fan2001, the SCAD penalty function retains the favourable properties of both best subset selection and ridge regression, while having all three desired features, i.e., sparsity, stability, and unbiasedness.
-
-Based on the above penalisation methods that are originally developed for linear models, @Huang2010 proposed a new penalisation method for variable selection in nonparametric additive model (@eq-add), named ***Adaptive Group Lasso***. They approximated $f_{j}$'s using normalised B-spline bases, so that a linear combination of B-spline basis functions is used to represent an individual nonparametric component $f_{j}$. The proposed method is a generalisation of Adaptive Lasso method [@Zou2006] to the Group Lasso method [@Yuan2006].
-
-When the nonparametric additive model in @eq-add is considered, an obvious possibility is that some of the additive components (i.e. $f_{j}$'s) are linear. For example, recall the electricity demand forecasting problem [@HF2010; @FH2012], where some of the calendar effects are included into the model as linear variables, whereas lagged temperature and lagged demand variables are included using nonlinear additive components. Such situations suggest the use of *semi-parametric partially linear additive models* that can be mathematically represented as
-$$
- y_{i} = \sum_{j=1}^{p} {f_{j}(x_{ij})} + \sum_{k=1}^{q} {w_{ik}\beta_{k}} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where $\bm{x}_{j}$'s, $j = 1, \dots, p$, are a set of predictors that enter the model as nonparametric components, whereas $\bm{w}_{k}$'s, $k = 1, \dots, q$ are another set of predictors that are included as linear components. While several studies have assumed that the number of nonparametric components are fixed, and performed variable selection only among the linear components of the model [@Lian2012; @Guo2013; @Liu2011], @Wang2014 introduced a methodology for selecting both linear and nonlinear components simultaneously, in the context of correlated, longitudinal data. They proposed the use of a ***Penalised Quadratic Inference Function (PQIF) with double SCAD penalties*** for variable selection and model estimation, where the correlation structure of the data was incorporated into the estimation method (see @Wang2014 for details).
-
-### Time Series Aspect
-
-It is worthwhile to briefly mention that there are extensions of the penalisation methods discussed above, which have specifically proposed to take the autocorrelation and lag structures in time series data into account.
-
-@Wang2007 proposed an extension of the LASSO method for Regression with Autoregressive Error (REGAR) models. @Park2013 and @Konzen2016 proposed modifications to Adaptive Lasso method to incorporate the lag structures presented in Autoregressive Distributed Lag (ADL) models into the variable selection and estimation methodology. The ***Ordered Lasso*** was introduced by @Tibshirani2016 to deal with time-lagged regression problems, where we forecast the response value at time $t$ using the predictor values from $K$ previous time points, assuming that the magnitude of regression coefficients decreases as the lagged predictor moves away from time $t$.
-
-However, it is important to note that all the models considered in the above time series related work are linear; none of them include nonparametric terms.
-
-## Index Models {#sec-Index}
-
-### Single Index Model
-
-The nonparametric additive model (@eq-add) estimates the relationship between the response and the predictors using a sum of univariate nonlinear functions corresponding to each individual predictor variable. Hence, it is incapable of handling the interactions among the predictors, which are ubiquitous in real-world problems [@Zhang2008].
-
-As a remedy, the ***Single Index Model***, a generalisation of the linear regression model where the linear predictor is replaced by a semi-parametric component, is popularly being used in the literature [@Radchenko2015]. Let $y_{i}$ be the response, and $\bm{x}_{i}$ be a $p$-dimensional predictor vector. Then the single index model can be written as
-$$
-  y_{i} = g \left ( \bm{\alpha}^{T} \bm{x}_{i} \right ) + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where $\bm{\alpha}$ is a $p$-dimensional vector of unknown coefficients (i.e. parameters), $g$ is an unknown univariate function, and $\varepsilon_{i}$ is the random error [@Stoker1986; @Hardle1993]. The linear combination $\bm{\alpha}^{T} \bm{x}_{i}$ is called the *index*. Single index model is viewed as a viable alternative to the additive model since it offers more flexibility and interpretability [@Radchenko2015].
-
-According to @Radchenko2015, single index models have widely been used in scenarios with fairly low and moderate dimensionality, where the corresponding estimation and variable selection techniques are not directly applicable to the high-dimensional setting. The error sum of squares of the model being non-convex with respect to index coefficients, is the main reason behind the existence of very limited number of methods in high-dimensional case [@Radchenko2015]. For an extensive summary of available methods, we refer to @Radchenko2015.
-
-### Multiple Index Models {#sec-multi-index}
-
-**Projection Pursuit Regression**
-
-@Friedman1981 introduced ***Projection Pursuit Regression (PPR)*** by extending the nonparametric additive model (@eq-add) to enable the modelling of interactions among predictor variables. On the other hand, PPR is an extension of the single index model to an  ***Additive Index Model ***, given by
-$$
-  y_{i} = \sum_{j=1}^{q} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where $y_{i}$ is the response, $\bm{x}_{i}$ is a $p$-dimensional predictor vector, $\bm{\alpha}_{j} = \left ( \alpha_{j1}, \dots, \alpha_{jp} \right )^{T}, j = 1, \dots, q$ are $p$-dimensional projection vectors (or vectors of *"index coefficients"*), $g_{j}$'s are unknown univariate functions, and $\varepsilon_{i}$ is the random error.
-
-Instead of estimating a single index, PPR estimates multiple indices and connects them to the response through a sum of univariate nonlinear functions. These indices are constructed through a *Projection Pursuit (PP)* [@Kruskal1969; @Friedman1974] algorithm, which is considered to be "interesting" low-dimensional projections of a high-dimensional feature space, obtained through the maximisation of an appropriate objective function or a "projection index" [@Huber1985].
-
-According to @Zhang2008, PPR increases the power of additive models in high-dimensional settings, but it has two major drawbacks. Firstly, since PP increases the freedom of the additive model, it tends to overfit in a situation, where there are a lot of unimportant predictors. Secondly, the interpretation of the model estimated by PPR will be troublesome as many non-zero elements will be present in each projection vector $\bm{\alpha}_{j}$. To overcome these issues, @Zhang2008 introduced an $\ell_{1}$ regularised projection pursuit algorithm, where the resultant regression model is named as ***Sparse Projection Pursuit Regression*** (SpPPR). In SpPPR, an $\ell_{1}$ penalty (i.e. a LASSO penalty) on index coefficients is added to the cost function (the squared error) at each iteration of the PP, thereby performing variable selection and model estimation simultaneously. See @Zhang2008 for more details.
-
-Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations. \newline
-
-**Group-wise Additive Index Model**
-
-Even though PPR introduces flexibility and the ability to model interactions among predictors into additive models, the indices obtained through PPR contain all the predictors at hand. Hence, even with a variable selection mechanism like SpPPR [@Zhang2008], PPR creates indices possibly by mixing heterogeneous variables in a single linear combination, making very little sense in terms of interpretability [@Masselot2022].
-
-Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015].
-
-This suggests the use of a ***Group-wise Additive Index Model (GAIM)***, which can be written as
-$$
-  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictors, which are $p$ non-overlapping subsets of $\bm{x}_{i}$ - the vector of all predictors, $\bm{\alpha}_{j}$ is a $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022].
-
-Since GAIM uses groups of predictors that are naturally or logically belonging together to construct indices, such derived indices will be more expressive and interpretable. However, at the same time, this introduces a certain level of subjectivity into the model formulation as different users can group the available predictors in different ways based on different logical reasoning.
-
-In this paper, our aim is to reduce that subjectivity induced by personal judgement or domain expertise. Hence, we propose a methodology that injects more objectivity into the estimation of multiple index models by algorithmically grouping predictors into indices, resulting in a model with a higher predictive accuracy. \newline
-
-**Constrained Group-wise Additive Index Model**
-
-The ***Constrained Group-wise Additive Index Model (CGAIM)*** was proposed by @Masselot2022 for constructing comprehensive and easily interpretable indices from a large set of explanatory variables. The model of interest is a *semi-parametric group-wise additive index model* given by
-$$
-  y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
-$$
-where $y_{i}$ is the univariate response, $\beta_{0}$ is the model intercept, $\bm{x}_{ij} \in \mathbb{R}^{l_{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictor vectors (i.e. it is assumed that the predictor groupings are known in advance), which are $p$ subsets of $\bm{x}_{i}$ - the $q$-dimensional vector of all predictors entering indices, $\bm{\alpha}_{j}$ is the vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, and $g_{j}$ is the corresponding nonlinear link function (possibly estimated by a spline). The additional predictor variables that are helpful in predicting $y_{i}$, but do not enter any of the indices are two-fold: a covariate that relates to the response through a nonlinear function $f_{k}$, denoted by $w_{ik}$, and the vector of linear covariates denoted by $\bm{u}_{i}$.
-
-This is an extension of the GAIM that allows to impose constraints on the index coefficients as well as on the nonlinear link functions. In CGAIM, linear constraints of the form $\bm{C}_{j}\bm{\alpha}_{j} \ge 0$ can be imposed on the index coefficients, where $\bm{C}_{j} \in \mathbb{R}^{d_{j} \times l_{j}}$, and $d_{j}$ is the number of constraints. Moreover, shape constraints such as monotonicity, convexity or concavity can be imposed on the nonparametric functions. This modification allows to incorporate prior knowledge or operational requirements into the model estimation.
-
-First, considering only the additive index part of the model, and given $(y_{i}, x_{i1}, \dots, x_{iq}), \quad i = 1, \dots, n$ be the observed data, where the $q$ predictors are grouped into $p$ groups, the estimation problem of the CGAIM can be formulated as
-$$
-\begin{aligned}
-  \min_{\bm{\alpha}, \beta_{0}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij})\right ]^{2}, \\
-  \text{s.t.} \quad & \bm{C}\bm{\alpha} \ge 0, \quad g_{j} \in m,
-\end{aligned}
-$$ {#eq-3}
-where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\beta_{0}$ is the model intercept, $\bm{C} \in \mathbb{R}^{d \times q}$, $d$ is the number of constraints on the index coefficients vector $\bm{\alpha}$, and $m$ is a shape constraint imposed on $g_{j}$ [@Masselot2022].
-
-Notice that $\bm{\alpha}_{j}$s behave non-linearly in @eq-3, and hence, this is a non-linear least squares problem. Accordingly, @Masselot2022 introduced an efficient iterative algorithm for estimating the CGAIM based on ***Sequential Quadratic Programming*** (SQP), one of the most successful techniques for solving nonlinear constrained optimisation problems [@Boggs1995]. For details of the CGAIM algorithm refer to @Masselot2022.
-
-## Mathematical Optimisation for Variable Selection
-
-### Mathematical Optimisation
-
-*Optimisation* plays a major role in both decision science and physical systems evaluation. ***Mathematical Optimisation*** or ***Mathematical Programming*** can be defined as the minimisation (or maximisation) of a function subject to restrictions on the unknowns/parameters of that function [@Nocedal2006]. Hence, a mathematical optimisation problem can be written as
-$$
-\begin{aligned}
-  \min_{\bm{x}} \quad & f_{0}(\bm{x})\\
-  \text{s.t.} \quad & f_{i}(\bm{x}) \le b_{i}, \quad i = 1, \dots, m
-\end{aligned}
-$$ {#eq-opt}
-where the vector of unknowns or parameters of the problem is given by $\bm{x} = \left ( x_{1}, \dots, x_{n} \right )^{T}$, the *objective function* is denoted by $f_{0} : \mathbb{R}^{n} \rightarrow \mathbb{R}$, the *constraint functions* are given by $f_{i} : \mathbb{R}^{n} \rightarrow \mathbb{R}$, $i = 1, \dots, m$, and the bounds of the constraints are denoted by $\bm{b} = \left (b_{1}, \dots, b_{m} \right )^{T}$. A vector of values $\bm{x^{*}}$ that results in the smallest value for the objective function among all vectors that satisfy the stated constraints, is called the *optimal* value or the *solution* to the problem [@Boyd2004]. After mathematically formulating the optimisation problem as above (@eq-opt), an appropriate *optimisation algorithm* is used to obtain the solution $\bm{x^{*}}$ [@Nocedal2006].
-
-Based on the form of the objective function and the constraints, various types of optimisation problems are identified.
-
-An optimisation problem is known as a ***Linear Programming*** (LP) when both the objective function and the constraints in @eq-opt (i.e. all $f_{i}$, $i = 0, \dots, m$) are linear. Hence, a LP can be written as
-$$
-\begin{aligned}
-  \min_{\bm{x}} \quad & \bm{a_{0}}^{T}\bm{x}\\
-  \text{s.t.} \quad & \bm{A}\bm{x} \le \bm{b},
-\end{aligned}
-$$ {#eq-lp}
-where $\bm{x}$ is the vector that contains the parameters to be optimised, and $\bm{a_{0}} \in \mathbb{R}^{n}$ is the vector of coefficients of the objective function. The matrix of coefficients in the constraints is denoted by $\bm{A} \in \mathbb{R}^{m \times n}$, and $\bm{b}$ is the vector containing the upper bounds of the constraints. All LPs are *convex* optimisation problems [@Theusl2020].
-
-The LP problem given in @eq-lp can be generalised to involve a quadratic term in the objective function, in which case it is called a ***Quadratic Programming*** (QP). A QP can be written as
-$$
-\begin{aligned}
-  \min_{\bm{x}} \quad & \frac{1}{2} \bm{x}^{T} \bm{Q_{0}} \bm{x} + \bm{a_{0}}^{T}\bm{x}\\
-  \text{s.t.} \quad & \bm{A}\bm{x} \le \bm{b},
-\end{aligned}
-$$
-where $\bm{Q_{0}} \in \mathbb{R}^{n \times n}$. Unless the matrix $\bm{Q_{0}}$ is positive semi-definite, a QP is non-convex [@Theusl2020].
-
-If a linear objective function is minimised over a *convex cone*, such an optimisation problem is called a ***Conic Programming*** (CP), which can be written as
-$$
-\begin{aligned}
-  \min_{\bm{x}} \quad & \bm{a_{0}}^{T}\bm{x} \\
-  \text{s.t.} \quad & \bm{A}\bm{x} + s = \bm{b}, \quad s \in \mathcal{K},
-\end{aligned}
-$$
-where $\mathcal{K}$ denotes a nonempty closed convex cone. CPs are designed to model convex optimisation problems [@Theusl2020].
-
-If we restrict some of the unknowns/parameters in an optimisation problem to take only integer values, then that optimisation problem is called a ***Mixed Integer Programming*** (MIP). For example, if we constraint $x_{k} \in \mathbb{Z}$ for at least one $k$, $k \in \{1, \dots, n\}$ in the optimisation problem given by @eq-opt, then the optimisation problem becomes a MIP. If all the unknowns of an optimisation problem are constrained to be integers, such a problem is referred to as a pure ***Integer Programming*** (IP), whereas if all the unknowns are bounded between zero and one (i.e. $\bm{x} \in \{ 0, 1 \}^{n}$), the optimisation problem is referred to as a ***Binary (Integer) Programming*** [@Theusl2020]. MIPs are hard to solve as they are non-convex due to the integer constraints. However, a growth in the number of commercial as well as non-commercial MIP solvers has made it possible to solve MIP problems conveniently and directly.
-
-### Variable Selection
-
-Mathematical optimisation is fundamentally important in statistics, as many statistical problems including regression, classification, and other types of estimation/approximation problems can be re-interpreted as optimisation problems [@Theusl2020]. Thus, the problem of variable selection - one of the prolonged interests of statisticians, has also benefited from using optimisation concepts, particularly MIP and convex optimisation, in the recent past.
-
-For example, @Bertsimas2016 used a mixed integer optimisation procedure to solve the classical best subset selection problem in a linear regression. They developed a discrete optimisation method by extending modern first-order continuous optimisation techniques. The method can produce near-optimal solutions that would serve as warm starts for a MIP algorithm, which would choose the best $k$ features out of $p$ predictors. Similarly, @Hazimeh2020 developed fast and efficient algorithms based on coordinate descent and local combinatorial optimisation to solve the same best subset selection (or $\ell_{0}$-regularised least squares) problem through re-formulating local combinatorial search problems as structured MIPs.
-
-Furthermore, @Hazimeh2023 proposed a group-wise variable selection methodology, based on discrete mathematical optimisation, which is applicable to both $\ell_{0}$-regularised linear regression and nonparametric additive models in a high-dimensional setting. They formulated the group $\ell_{0}$-based estimation problem as a ***Mixed Integer Second Order Cone Programming*** (MISOCP), and proposed a new customised Branch-and-Bound (BnB) algorithm [@Land1960; @Little1963] to obtain the global optimal solution to the MISOCP.
-
-Through the study of above literature, we noticed that the mathematical optimisation based algorithms reduce computational cost of variable selection procedures in high-dimensional settings. This is largely due to the availability of efficient commercial solvers such as *Gurobi* and *CPLEX*. This motivated us to focus on a mathematical optimisation based procedure for developing our variable selection methodology.
-
+The rest of this paper is organised as follows. @sec-SMI presents our proposed *Sparse Multiple Index Model* and describes the variable selection algorithm and estimation procedure. Some benchmark comparison methods are briefly introduced in @sec-benchmark. In @sec-simulation, we demonstrate the functionality and the characteristics of the proposed algorithm through a simulation experiment. @sec-application illustrates two empirical applications of the proposed estimation and variable selection methodology, related to forecasting heat exposure related daily mortality and daily solar intensity. Concluding remarks are given in @sec-conclusion.
 
 # Sparse Multiple Index Model {#sec-SMI}
 
-In this section, we develop a ***Sparse Multiple Index Model*** (hereafter referred to as SMI Model) to establish an objective and a principled methodology for estimating high-dimensional nonparametric additive index models, highlighting predictor grouping along with optimal predictor selection.
-
-## The SMI Model {#sec-model}
-
-The model of interest is a semi-parametric additive index model, which can be written as @eq-semipara.
-
-One of the key features of the proposed SMI model is to allow for zero index coefficients for predictors, so that the predictors with zero coefficients are dropped out from the model, achieving variable selection. The other key feature of the SMI model is its flexibility in allowing a variable number of indices, ranging from $1$ (i.e. all $q$ predictors are passed to a single index) to $q$ (i.e. each predictor goes into a separate index). Hence, both the Single Index Model and the Additive Model are special cases of the proposed SMI Model.
-
 ## Optimisation Problem Formulation
 
-Let $q$ be the total number of predictors entering $p$ non-overlapping subsets of size $l_{j}$, $j = 1, \dots, p$ (i.e. $\sum_{j = 1}^{p} l_{j} = q$). The optimisation problem we seek to address is of the form below, where the sum of the squared error of the model (@eq-semipara) is minimised together with an $\ell_{0}$ penalty term and an $\ell_{2}$ (ridge) penalty term:
+We implement variable selection for the proposed semi-parametric additive index (SMI) model (@eq-semipara) by allowing for zero index coefficients for predictors. Suppose we observe $y_1,\dots,y_n$, along with a set of potential predictors, $\bm{x}_1,\dots,\bm{x}_n$, with each vector $\bm{x}_i$ containing $q$ predictors. The optimisation problem we seek to address is of the form below, where the sum of the squared error of the model (@eq-semipara) is minimised together with an $\ell_{0}$ penalty term and an $\ell_{2}$ (ridge) penalty term:
+\begin{align}
+  & \min_{\beta_{0}, p, \bm{\alpha}, \bm{g}, \bm{f}, \bm{\theta}} \quad \sum_{i = 1}^{n}\Bigg [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\Bigg]^{2} \label{eq-smi}\\
+  & \hspace*{8cm} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\mathbb{1}(\alpha_{jm} \neq 0) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2 \nonumber \\
+  & \text{such that}\quad \sum_{j=1}^p \mathbb{1}(\alpha_{jm} \neq 0) \in \{0,1\} \quad \forall m ,\nonumber
+\end{align}
+where $\bm{\alpha} = [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, $\bm{f} = \{f_{1}, f_{2}, \dots, f_{d}\}$, $\mathbb{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors entering indices, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients. The condition ensures that a predictor can only have non-zero coefficient in at most one index.
+
+Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when there is a low signal-to-noise ratio (SNR).
+
+To solve the optimisation problem in Equation \ref{eq-smi}, we present a big-$M$ based ***Mixed Integer Quadratic Programming*** (MIQP) formulation:
 $$
 \begin{aligned}
-  \min_{\beta_{0}, p, \bm{\alpha}, \bm{g}, \bm{f}, \bm{\theta}} \quad \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) - \sum_{k = 1}^{d}f_{k}(w_{ik}) - \bm{\theta}^{T}\bm{u}_{i}\right]^{2} \\
-  + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{l_{j}}\bm{1}\left(\alpha_{jm} \neq 0\right) + \lambda_{2}\sum_{j = 1}^{p}\|\bm{\alpha}_{j}\|_2^2
-\end{aligned}
-$$ {#eq-smi}
-where $\bm{\alpha} = \left [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} \right ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, $\bm{f} = \{f_{1}, f_{2}, \dots, f_{d}\}$, $\bm{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors entering indices, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients.
-
-Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when a low signal-to-noise ratio (SNR) is present.
-
-## MIQP Formulation
-
-To solve the optimisation problem in @eq-smi, we present a big-M based ***Mixed Integer Quadratic Programming*** (MIQP) formulation:
-$$
-\begin{aligned}
-  \min_{\beta_{0}, p, \bm{\alpha}, \bm{g}, \bm{f}, \bm{\theta}, \bm{z}} \quad & \sum_{i = 1}^{n}\left [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\right ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q} \alpha_{jm}^{2} \\
-  \text{s.t.} \quad & \left |\alpha_{jm}\right | \le Mz_{jm} \quad \forall j, \forall m, \\
+  \min_{\beta_{0}, p, \bm{\alpha}, \bm{g}, \bm{f}, \bm{\theta}, \bm{z}} \quad & \sum_{i = 1}^{n}\Bigg [ y_{i} - \beta_{0} - \sum_{j = 1}^{p}{g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} - \sum_{k = 1}^{d} {f_{k}(w_{ik})} - \bm{\theta}^{T}\bm{u}_{i}\Bigg ]^{2} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q} \alpha_{jm}^{2} \\
+  \text{s.t.} \quad & |\alpha_{jm}| \le Mz_{jm} \quad \forall j, \forall m, \\
   & \sum_{j = 1}^{p}z_{jm} \le 1 \quad \forall m, \\
-  & z_{jm} \in \{0, 1\}, \\
-  & j = 1, \dots, p, \quad m = 1, \dots, q,
+  & z_{jm} \in \{0, 1\},
 \end{aligned}
 $$ {#eq-smi-mip}
-where $p$ is the (unknown) number of indices, $\bm{x}_{i}$ is the $q$-dimensional vector of all predictors entering indices, and $\bm{z} = \left (\bm{z}_{1}^{T}, \dots, \bm{z}_{p}^{T} \right )^{T}$, $\bm{z}_{j} = \left (z_{j1}, \dots, z_{jq} \right )^{T}$, $j = 1, \dots, p$ such that $z_{jm} \in \{0, 1\}, m = 1, \dots, q$ for all $j$. In other words, we introduce a binary (i.e. indicator) variable corresponding to each predictor in each index. A pre-specified *big-M parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is the optimal solution to the problem given in @eq-smi-mip, then the big-M parameter should satisfy $\max \left (\left |\alpha_{jm}^{*}\right | \right ) \le M$, where $j \in \{1, \dots, p\}$, and $m \in \{1, \dots, q\}$.
+where $\bm{z} = (\bm{z}_{11}, \dots, \bm{z}_{pm})^{T}$, $j = 1, \dots, p$, and $m = 1, \dots, q$. In other words, we have introduced binary variables $z_{jm} = \mathbb{1}(\alpha_{jm} \neq 0)$ to indicate in which index (if any) each predictor enters.
 
-Notice that, here we formulate the MIQP to include all $q$ predictors in each index so that in this case, $\bm{\alpha}_{j}$ is a $q$-dimensional vector of index coefficients. However at the same time, as mentioned earlier, we introduce a set of binary variables corresponding to each predictor in each index, which serves two main purposes: firstly, these binary variables are used to make the *"on-or-off"* decisions of the predictors in the model; secondly, they contribute to decide which predictors belong to which index.
-
-To further elaborate, first, the big-M constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $\left |\alpha_{jm}\right | \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Therefore, these components together perform a variable selection.
-
-Next, when a set of binary variables $\{z_{1m}, z_{2m}, \dots, z_{pm}\}$ corresponding to the $m^{th}$, $m = 1, \dots, q$, predictor in all $p$ indices is considered, according to the constraint $\sum_{j = 1}^{p}z_{jm} \le 1$, only one or no binary variables in the set can take the value one, ensuring that the $m^{th}$ predictor does not repeat in more than one index. If all the elements of the set are zero, then the $m^{th}$ predictor will be dropped out from the model.
-
-Thus, our main contribution in this paper is two-fold. Firstly, we propose a novel algorithm to objectively estimate a semi-parametric additive index model, while contributing towards an estimated model with a higher forecasting accuracy. Secondly, the proposed methodology will contribute towards estimating a parsimonious model in a high-dimensional setting, a crucial aspect of interpretability, even if the required domain knowledge for selecting the optimal set of predictors is unavailable.
+The pre-specified *big-$M$ parameter* is denoted by $M < \infty$, and it should be sufficiently large. If $\bm{\alpha^{*}}$ is the optimal solution to the problem given in @eq-smi-mip, then the big-$M$ parameter should satisfy $\max \big ( |\alpha_{jm}^{*} | \big) \le M$. The big-$M$ constraints ensure that $\alpha_{jm}$ is zero if and only if $z_{jm}$ is zero, and if $z_{jm} = 1$, then $|\alpha_{jm}| \le M$. At the same time, the $\ell_{0}$-penalty term $\lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}$ influences some of the binary variables $z_{jm}$ to be zero, while the $\ell_{2}$-penalty term $\lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{2}$ enforces additional shrinkage on the estimated coefficients. Together, these components perform variable selection.
 
 ## Estimation Algorithm
 
-In this section, we show how to efficiently find a minimiser for the problem given in @eq-smi-mip. Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, as well as the set of nonparametric functions $\bm{g}$ are unknown, it is mathematically impossible to solve the above MIQP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve the problem.
+We now show how to efficiently find a minimiser for the problem given in @eq-smi-mip. Since the number of indices $p$, the vector of index coefficients $\bm{\alpha}$, and the set of nonparametric functions $\bm{g}$ are all unknown, it is impossible to solve the above MIQP given in @eq-smi-mip directly. Hence, we propose an iterative algorithm to solve the problem.
 
 ### Initialising the Index Structure and Index Coefficients {#sec-step1}
 
-First, we need to provide an initialisation for the index structure (i.e. number of indices $p$ and the grouping of predictors among indices) and the index coefficients ($\bm{\alpha}$) of the model in order to start solving the MIQP given in @eq-smi-mip.
+In order to start solving the MIQP given in @eq-smi-mip, we first need to provide an feasible initialisation for the index structure (i.e. the number of indices $p$ and the grouping of predictors among indices) as well as for the index coefficients ($\bm{\alpha}$) of the model.
 
-Based on several pre-experiments on the new algorithm, we propose five alternative methods for initialising the SMI Model as follows.
+Based on several experiments, we propose three alternative methods for initialising the SMI Model as follows.
 
-**1. "PPR" - Projection Pursuit Regression Based Initialisation:**
+1.  **PPR: Projection Pursuit Regression Based Initialisation**
 
-As discussed in @sec-Index, Projection Pursuit Regression model is a multiple index model, where each index consists of all the available predictors. Since in SMI Model we assume that there are no overlapping indices, it is impossible to use an estimated PPR model directly as a starting model for the algorithm. Thus, we follow the steps presented below to come up with a feasible initialisation for the index structure and the index coefficients.
+    A Projection Pursuit Regression model [@Friedman1981] is a multiple index model, where each index includes all the available predictors. Since the SMI Model requires that there are no overlapping indices, it is impossible to use an estimated PPR model directly as a starting model for the algorithm. Thus, we follow the steps presented below to come up with a feasible initialisation for the index structure and the index coefficients.
 
-a. Scale all the variables of the data set by dividing each variable by its standard deviation (so that it is possible to compare the estimated coefficients among predictors).
-b. Fit a PPR model and obtain estimated index coefficients. (The user can decide the number of indices to be estimated through *num_ind*; we use *num_ind = 5* as the default value.)
-c. Calculate a threshold as $threshold = 0.1 \times \max(\text{PPR coefficients})$.
-d. Set to zero all coefficients that fall below the calculated threshold.
-e. For predictors appearing in multiple indices, assign them to the index with the maximum coefficient and zero out their coefficients in other indices.
-f. After performing the above steps i-v, if any originally estimated index has all $\bm{z}$ero coefficients, it will be excluded from the model.
+    a. Scale all the variables of the data set by dividing each variable by its standard deviation (so that it is possible to compare the estimated coefficients among predictors).
+    b. Fit a PPR model and obtain estimated index coefficients. (The user can decide the number of initial indices $p^*$ to be estimated; we use $p^* = 5$ in our simulations and applications.)
+    c. Calculate a threshold $\tau = 0.1 \times \max(\text{PPR coefficients})$.
+    d. Set to zero all coefficients that fall below the calculated threshold.
+    e. For predictors appearing in multiple indices, assign them to the index with the maximum coefficient and zero out their coefficients in other indices.
+    f. After performing the above steps a-e, if any originally estimated index has all zero coefficients, it will be excluded from the model.
 
-Now, the index structure and the index coefficients obtained through the above steps are considered to be a feasible initialisation for the proposed algorithm. Once the optimal SMI Model is obtained through the algorithm, each index coefficient will be back-transformed into the original scale of the respective predictor variable, reversing the scaling effect applied at the beginning.
+    Now, the index structure and the index coefficients obtained through the above steps are considered to be a feasible initialisation for the proposed algorithm. Once the optimal SMI Model is obtained through the algorithm, each index coefficient will be back-transformed to the original scale of the respective predictor variable, reversing the scaling effect applied at the beginning.
 
-**2. "Additive" - Nonparametric Additive Model Based Initialisation:**
+2.  **Additive: Nonparametric Additive Model Based Initialisation**
 
-As mentioned previously in @sec-model, the nonparametric additive model is a special case of the SMI Model, where the number of indices equals the number of predictors entering indices ($p = q$) (i.e. each index contains only one predictor). Hence, it is a feasible starting point for our algorithm.
+    As a fully additive model is a special case of the SMI Model, we can set $p=q$ and assign each predictor to its own index.
 
-**3. "Linear" - Linear Regression Based Initialisation:**
+3. **Linear: Linear Regression Based Initialisation**
 
-In this option, we first regress the response variable on the predictors using a multiple linear regression. Then, we construct a single index (i.e. $p = 1$) using the estimated regression coefficients as the index coefficients of the predictors. Since single index model is also a special case of the SMI Model, this will be a candidate starting point.
+    We first regress the response variable on the predictors using a multiple linear regression. Then, we construct a single index (i.e. $p = 1$) using the estimated regression coefficients as the index coefficients of the predictors.
 
-**4. "Multiple" - Selecting an Initial Model by Comparing Multiple Models:**
+The final optimised SMI Model may change depending on the initialisation provided to the algorithm. Hence, we also considered using several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem. In our simulations and applications, this is denoted as **Multiple**.
 
-Through our pre-experiments on the new algorithm, we identified that in some situations, the final optimised SMI Model changes based on the initialisation provided to the algorithm. Hence, for this initialisation option, we consider several different models as initialisations, optimise the SMI Model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem.
+Of course, it is also possible for a user to specify an initialisation, based on their own domain expertise or prior knowledge in initialising the algorithm.
 
-Here, users can decide on the number of models to be considered (*num_models*) as well as the number of indices for all models (*num_ind* - same for all models). We use *num_models = 5* and *num_ind = 5* as default values.
-
-**5. "User Input" - User Specified Initialisation:**
-
-This option allows users to provide their desired initialisation for the algorithm by specifying the number of indices, the grouping of predictors among indices and the initial index coefficients. This option provides the freedom for users to utilise their domain expertise or prior knowledge in initialising the algorithm.
-
-In all of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficients for each index ($\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$) are scaled to have unit norm to ensure identifiability.
-
-The characteristics and the performance of the proposed algorithm differ based on the chosen initialisation options, depending on the application scenario. Further insights into these aspects will be discussed in @sec-simulation.
+In each of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficients for each index ($\hat{\bm{\alpha}}_{j} = \bm{\alpha}_{j, init}$) are scaled to have unit norm to ensure identifiability.
 
 ### Estimating Nonlinear Functions {#sec-step2}
 
@@ -389,13 +185,13 @@ We obtain the updated index coefficients $\bm{\alpha}^{new}$ through a MIQP:
 $$
 \begin{aligned}
   \min_{\bm{\alpha}^{new}, \bm{z}^{new}} & (\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{V}(\bm{\alpha}^{new} - \bm{\alpha}^{old}) - 2(\bm{\alpha}^{new} - \bm{\alpha}^{old})^{T}\bm{V}^{T}\bm{r} + \lambda_{0}\sum_{j = 1}^{p}\sum_{m = 1}^{q}z_{jm}^{new} + \lambda_{2}\sum_{j = 1}^{p}\sum_{m = 1}^{q}\alpha_{jm}^{(new)2} \\
-  \text{s.t. } & \left |\alpha_{jm}^{new}\right | \le Mz_{jm}^{new} \quad \forall j, \forall m,\\
+  \text{s.t. } & |\alpha_{jm}^{new}| \le Mz_{jm}^{new} \quad \forall j, \forall m,\\
   & z_{jm}^{new} \in \{0, 1\}, \\
   & \sum_{j = 1}^{p}z_{jm}^{new} \le 1 \quad \forall m, \\
   & j = 1, \dots, p, \quad m = 1, \dots, q,
 \end{aligned}
 $$ {#eq-smi-update}
-where $\bm{\alpha}^{old}$ is the current value of $\bm{\alpha}$, and $z_{jm}^{new}$ are the updated set of binary variables to be estimated. $\bm{V}$ is the matrix of partial derivatives of the right hand side of @eq-semipara, with respect to $\bm{\alpha}_{j}$. The $i^{th}$ line of $\bm{V}$ contains $\left [ \bm{v}_{i1}, \dots, \bm{v}_{ip} \right ]$, where $\bm{v}_{ij} = \bm{x}_{i}g_{j}^{'}(h_{ij})$. The current residual vector, which contains $r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{(old)T}\bm{x}_{i})$, is denoted by $\bm{r}$. It is important to note that the additional covariates $w_{ik}$ and $\bm{u}_{i}$ do not step in to the process of updating $\bm{\alpha}_{j}$, because they are constants with respect to $\bm{\alpha}_{j}$, and thus they disappear from $\bm{V}$.
+where $\bm{\alpha}^{old}$ is the current value of $\bm{\alpha}$, and $z_{jm}^{new}$ are the updated set of binary variables to be estimated. $\bm{V}$ is the matrix of partial derivatives of the right hand side of @eq-semipara, with respect to $\bm{\alpha}_{j}$. The $i^{th}$ line of $\bm{V}$ contains $[ \bm{v}_{i1}, \dots, \bm{v}_{ip}]$, where $\bm{v}_{ij} = \bm{x}_{i}g_{j}^{'}(h_{ij})$. The current residual vector, which contains $r_{i} = y_{i} - \beta_{0} - \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{(old)T}\bm{x}_{i})$, is denoted by $\bm{r}$. It is important to note that the additional covariates $w_{ik}$ and $\bm{u}_{i}$ do not step in to the process of updating $\bm{\alpha}_{j}$, because they are constants with respect to $\bm{\alpha}_{j}$, and thus they disappear from $\bm{V}$.
 
 Similar to the explanation given by @Masselot2022, the MIQP objective function in above @eq-smi-update ignores the Hessian (or the matrix of second derivatives of @eq-semipara, with respect to $\bm{\alpha}_{j}$), and considers only the matrix of first derivatives, which is a quasi-Newton step. The quasi-Newton Method is an alternative to the Newton's Method, avoiding the calculation of the Hessian to circumvent its computational burden [@Peng2022]. Therefore, the $\bm{\alpha}$ updating step given in above @eq-smi-update is assured to be in a descent direction.
 
@@ -406,7 +202,7 @@ The algorithm alternates updating the index coefficients $\bm{\alpha}$ and estim
 Next, we consider changing the index structure of the model to exploit any benefits in terms of further minimising the loss function in @eq-smi-mip. As indices can be automatically reduced by dropping zero indices in each optimisation iteration, this step focuses on potential index additions to the current model. Specifically, we consider adding a new index to the current model by identifying dropped predictors.
 If applicable, a new index is constructed with these dropped predictors, and the alternating updating process in the previous step is repeated. This increment step continues until one of these termination criteria is met: (i) the number of indices reaches $q$, selecting the final model as output; (ii) loss increases after the increment, selecting the previous iteration model as the final SMI model; or (iii) the solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance, choosing the model with the smaller loss as the final SMI model.
 
-Note that, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest loss function value. Moreover, it is also crucial to choose a suitable value for the big-M parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
+Note that, to obtain an estimated model with the best possible forecasting accuracy, it is important to select appropriate values for the non-negative penalty parameters $\lambda_{0}$ and $\lambda_{2}$. One possible way to do this is to estimate the model over a grid of possible values for $\lambda_{0}$ and $\lambda_{2}$, and then select the combination that yields the lowest loss function value. Moreover, it is also crucial to choose a suitable value for the big-$M$ parameter, as the strength of the MIP formulation depends on the choice of a good lower bound [@Bertsimas2016]. According to @Hazimeh2023, several methods have been used to select $M$ in practice. For a description on estimating $M$ in a linear regression setting, refer to @Bertsimas2016.
 
 The following ***Algorithm 1*** summarises the key steps of the SMI Modelling algorithm. \newline
 
@@ -428,6 +224,44 @@ The following ***Algorithm 1*** summarises the key steps of the SMI Modelling al
    - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
 
 Throughout the experiments in the paper, we use $M = 10$, a convergence tolerance of $0.001$, and a maximum of $50$ iterations in step 4 of Algorithm 1, and a convergence tolerance of $0.001$ for coefficients in step 6 of Algorithm 1, in estimating all the SMI Models.
+
+# Benchmark Methods {#sec-benchmark}
+
+Before demonstrating the SMI model on simulated and real data, we will briefly introduce three popular benchmark methods that can be used in comparisons.
+
+### Backward Elimination {#sec-backward}
+
+@FH2012 used a stepwise procedure for variable selection through cross-validation to find a model of the form of @eq-FH. In each half-hourly model, the data is split into training and validation sets, and the predictors are selected based on the Mean Absolute Percentage Error (MAPE) calculated for the validation set. Starting from the full model with all predictors, the predictive power of each variable is evaluated by dropping one at a time. When the validation MAPE increases with the exclusion of a predictor, the predictor is omitted from the model in subsequent steps.
+
+## Projection Pursuit Regression {#sec-ppr}
+
+@Friedman1981 introduced ***Projection Pursuit Regression (PPR)*** given by
+$$
+  y_{i} = \sum_{j=1}^{q} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $y_{i}$ is the response, $\bm{x}_{i}$ is a $p$-dimensional predictor vector, $\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}, j = 1, \dots, q$ are $p$-dimensional projection vectors (or vectors of *"index coefficients"*), $g_{j}$'s are unknown univariate functions, and $\varepsilon_{i}$ is the random error.
+
+Instead of estimating a single index, PPR estimates multiple indices and connects them to the response through a sum of univariate nonlinear functions. These indices are constructed through a *Projection Pursuit (PP)* [@Kruskal1969; @Friedman1974] algorithm, which is considered to be "interesting" low-dimensional projections of a high-dimensional feature space, obtained through the maximisation of an appropriate objective function or a "projection index" [@Huber1985].
+
+According to @Zhang2008, PPR increases the power of additive models in high-dimensional settings, but it has two major drawbacks. Firstly, since PP increases the freedom of the additive model, it tends to overfit in a situation, where there are a lot of unimportant predictors. Secondly, the interpretation of the model estimated by PPR will be troublesome as many non-zero elements will be present in each projection vector $\bm{\alpha}_{j}$. To overcome these issues, @Zhang2008 introduced an $\ell_{1}$ regularised projection pursuit algorithm, where the resultant regression model is named as ***Sparse Projection Pursuit Regression*** (SpPPR). In SpPPR, an $\ell_{1}$ penalty (i.e. a LASSO penalty) on index coefficients is added to the cost function (the squared error) at each iteration of the PP, thereby performing variable selection and model estimation simultaneously. See @Zhang2008 for more details.
+
+Although @Zhang2008 claimed that the SpPPR algorithm can detect important predictors even in a noisy data set, our experiments show that it is not particularly scalable for large data sets with both higher number of predictors and observations.
+
+## Group-wise Additive Index Model {#sec-gaim}
+
+Even though PPR introduces flexibility and the ability to model interactions among predictors into additive models, the indices obtained through PPR contain all the predictors at hand. Hence, even with a variable selection mechanism like SpPPR [@Zhang2008], PPR creates indices possibly by mixing heterogeneous variables in a single linear combination, making model interpretation challenging [@Masselot2022].
+
+Typically, in many real-world problems, natural groupings can be identified in predictor variables. For example, naturally interacting variables can be grouped together, such as several lags of a predictor, weather related variables, and genes or proteins that are grouped by biological pathways in a biological study [@Masselot2022; @Wang2015].
+
+This suggests the use of a ***Group-wise Additive Index Model (GAIM)***, which can be written as
+$$
+  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, \quad i = 1, \dots, n,
+$$
+where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are naturally occurring $p$ groups of predictors, which are $p$ non-overlapping subsets of $\bm{x}_{i}$ - the vector of all predictors, $\bm{\alpha}_{j}$ is a $l_{j}$-dimensional vector of index coefficients corresponding to the index $h_{ij} = \bm{\alpha}_{j}^{T}\bm{x}_{ij}$, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022].
+
+Since GAIM uses groups of predictors that are naturally or logically belonging together to construct indices, such derived indices will be more expressive and interpretable. However, at the same time, this introduces a certain level of subjectivity into the model formulation as different users can group the available predictors in different ways based on different logical reasoning.
+
+In this paper, our aim is to reduce that subjectivity induced by personal judgement or domain expertise. Hence, we propose a methodology that injects more objectivity into the estimation of multiple index models by algorithmically grouping predictors into indices, resulting in a model with a higher predictive accuracy.
 
 # Simulation Experiment {#sec-simulation}
 
@@ -485,7 +319,7 @@ kable(results_sim,
       col.names = c("True Model", "Predictors", "PPR", "Additive", "Linear", "Multiple")) %>%
   #add_header_above(c("", "", "Low noise level" = 4, "High noise level" = 4), align = "c") %>%
   pack_rows(index = c("Low noise level" = 12, "High noise level" = 12)) %>%
-  kable_styling(latex_options = c("hold_position", "repeat_header", "scale_down")) %>%
+  kable_styling(latex_options = c("repeat_header", "scale_down")) %>%
   row_spec(0, bold = TRUE) %>%
   collapse_rows(columns = 1:2, valign = "middle")
 ```
@@ -625,7 +459,7 @@ Note that in this application, we assumed that the future values of the maximum/
 
 The MSE and MAE values for the estimated SMI Models on two different test sets are presented in @tbl-heat. We observe that the SMI Model estimated with "PPR" initialisation, ***SMI Model (12, 0) - PPR ***, shows the best forecasting performance on both test sets, compared to the other two estimated SMI models.
 
-Furthermore, we present the forecasting errors of three benchmark models in @tbl-heat for comparison with the estimated SMI Models. The first benchmark is a nonparametric additive model formulated through backward elimination, as proposed by @FH2012 (@sec-backward). Next, a GAIM (@sec-multi-index) is also presented. In the case of GAIM, maximum temperature lags, minimum temperature lags, and vapour pressure lags are categorised into three groups, where an index estimated for each group. Finally, we present the forecasting errors of a PPR model. The number of indices in the PPR model was taken as 3, matching the number of indices estimated by the GAIM.
+Furthermore, we present the forecasting errors of three benchmark models in @tbl-heat for comparison with the estimated SMI Models. The first benchmark is a nonparametric additive model formulated through backward elimination, as proposed by @FH2012 (@sec-backward). Next, a GAIM (@sec-gaim) is also presented. In the case of GAIM, maximum temperature lags, minimum temperature lags, and vapour pressure lags are categorised into three groups, where an index estimated for each group. Finally, we present the forecasting errors of a PPR model. The number of indices in the PPR model was taken as 3, matching the number of indices estimated by the GAIM.
 
 ```{r}
 #| label: tbl-heat
@@ -638,7 +472,7 @@ kable(results_heat,
       escape = FALSE,
       col.names = c("Model", "Predictors", "Indices", "MSE", "MAE", "MSE", "MAE")) %>%
   add_header_above(c("", "", "", "Test Set 1" = 2, "Test Set 2" = 2), align = "c") %>%
-  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
+  kable_styling(latex_options = c("repeat_header")) %>%
     row_spec(0, align = "c") %>%
   column_spec(4, bold = if_else(results_heat$MSE1 == min(results_heat$MSE1), TRUE, FALSE)) %>%
   column_spec(5, bold = if_else(results_heat$MAE1 == min(results_heat$MAE1), TRUE, FALSE)) %>%
@@ -824,7 +658,7 @@ kable(results_solar,
       escape = FALSE,
       col.names = c("Model", "Predictors", "Indices", "MSE", "MAE")) %>%
   add_header_above(c("", "", "", "Test Set" = 2), align = "c") %>%
-  kable_styling(latex_options = c("hold_position", "repeat_header")) %>%
+  kable_styling(latex_options = c("repeat_header")) %>%
     row_spec(0, align = "c") %>%
   column_spec(4, bold = if_else(results_solar$MSE == min(results_solar$MSE), TRUE, FALSE)) %>%
   column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
@@ -883,7 +717,7 @@ Moreover, we admit that the empirical examples presented in the paper may not be
 
 Furthermore, the MIQP in the algorithm is somewhat analogous to the *best subset selection* method frequently used in least squares problems. Thus, another limitation of the proposed algorithm is the increase in computational time as the number of predictors and number of indices increase. Therefore, it would be an interesting research to obtain further insights regarding the algorithm to see what improvements can be made to the algorithm design to reduce the computational cost in a high-dimensional context.
 
-\textbf{\large{Acknowledgements}}
+# Acknowledgements {-}
 
 We thank Professor Louise Ryan for joining the discussions during the initial stage of the project, and for her valuable comments and feedback on this research work.
 
