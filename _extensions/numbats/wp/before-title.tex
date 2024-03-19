@@ -55,6 +55,8 @@
   {\fontsize{12}{14}\bfseries\sffamily}
   {\thesubsection}
   {0.4em}{}
+\titleformat{\paragraph}[runin]
+  {\normalfont\normalsize\bfseries}{}{1em}{}
 \titlespacing{\section}{0pt}{*5}{*1}
 \titlespacing{\subsection}{0pt}{*2}{*0.2}
 
@@ -87,6 +89,6 @@
 \makeatother
 
 %% PAGE BREAKING to avoid widows and orphans
-\clubpenalty = 5000
-\widowpenalty = 5000
+\clubpenalty = 10000
+\widowpenalty = 10000
 \usepackage{microtype}
