@@ -26,7 +26,7 @@ author:
       country: Australia
       postal-code: 3800
   email: xiaoqian.wang@monash.edu
-abstract: Forecasting often involves high-dimensional predictors which have nonlinear relationships with the outcome of interest. Nonparametric additive index models can capture these relationships, while addressing the curse of dimensionality. This paper introduces a new algorithm, ***S***parse ***M***ultiple ***I***ndex (***SMI***) ***Modelling***, tailored for estimating high-dimensional nonparametric additive index models, while limiting the number of parameters to estimate, by optimising predictor selection and predictor grouping. The SMI Modelling algorithm uses an iterative approach based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with linear constraints. We demonstrate the performance of the proposed algorithm through a simulation study, along with two empirical applications to forecast heat-related daily mortality and daily solar intensity.
+abstract: Forecasting often involves high-dimensional predictors, which have nonlinear relationships with the outcome of interest. Nonparametric additive index models can capture these relationships, while addressing the curse of dimensionality. This paper introduces a new algorithm, ***S***parse ***M***ultiple ***I***ndex (***SMI***) ***Modelling***, tailored for estimating high-dimensional nonparametric additive index models, while limiting the number of parameters to estimate, by optimising predictor selection and predictor grouping. The SMI Modelling algorithm uses an iterative approach based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with linear constraints. We demonstrate the performance of the proposed algorithm through a simulation study, along with two empirical applications to forecast heat-related daily mortality and daily solar intensity.
 keywords: [Additive index models, Variable selection, Dimension reduction, Predictor grouping, Mixed integer programming]
 bibliography: references.bib
 wpnumber: no/yr
@@ -65,7 +65,7 @@ theme_set(theme_get() + theme(text = element_text(family = "Source Sans Pro")))
 
 # Introduction {#sec-introduction}
 
-Forecasts are often contingent on a very long history of predictors which are nonlinearly related to the variable of interest. For example, when forecasting half-hourly electricity demand, it is common to use at least a week of historical half-hourly temperatures and other weather observations [@HF2010]. The relationships between the lagged temperatures and electricity demand are nonlinear (due to both heating and cooling effects), and involve complex interactions due to thermal inertia in buildings [@FH2012].
+Forecasts are often contingent on a very long history of predictors, which are nonlinearly related to the variable of interest. For example, when forecasting half-hourly electricity demand, it is common to use at least a week of historical half-hourly temperatures and other weather observations [@HF2010]. The relationships between the lagged temperatures and electricity demand are nonlinear (due to both heating and cooling effects), and involve complex interactions due to thermal inertia in buildings [@FH2012].
 Similarly, when forecasting bore levels, rainfall data from up to thousand days earlier can impact the result [@Peterson2014;@Bakker2019;@Rajaee2019] due to the complex nonlinear flow dynamics of rainfall into aquifers.
 
 These examples suggest a possible nonlinear "*transfer function*" model of the form
@@ -141,7 +141,7 @@ We now show how to efficiently find a minimiser for the problem given in @eq-smi
 
 ### Initialising the Index Structure and Index Coefficients {#sec-step1}
 
-In order to start solving the MIQP given in @eq-smi-mip, we first need to provide an feasible initialisation for the index structure (i.e. the number of indices $p$ and the grouping of predictors among indices) as well as for the index coefficients ($\bm{\alpha}$) of the model.
+In order to start solving the MIQP given in @eq-smi-mip, we first need to provide a feasible initialisation for the index structure (i.e. the number of indices $p$ and the grouping of predictors among indices) as well as for the index coefficients ($\bm{\alpha}$) of the model.
 
 Based on several experiments, we propose three alternative methods for initialising the SMI Model as follows.
 
