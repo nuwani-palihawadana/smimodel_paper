@@ -591,17 +591,15 @@ In addition to current temperature, dew point, wind speed, rain and humidity, th
 
 #### 3) Calendar effects:
 
-Finally, a couple of calendar variables: *Month* (12 months of the year) and *Season* (the four seasons: Spring, Summer, Autumn and Winter), are incorporated into the model to capture annual seasonality, and control for autocorrelation in residuals.
-
-\todo[inline]{These need to be categorical, not numerical. But then there will be identifiability issues by including Month and Season. You only need Month.}
+Finally, a calendar variable, *Month* (12 months of the year), is incorporated into the model to capture annual seasonality, and control for autocorrelation in residuals.
 
 ### Modelling Framework
 
-The lags of solar intensity, and the lags of weather variables are considered as predictors that may  enter indices. The two calendar variables, *Month* and *Season*, are included into the model as linear (categorical) predictor variables.
+The lags of solar intensity, and the lags of weather variables are considered as predictors that may  enter indices. The calendar variable *Month* is included into the model as a linear (categorical) predictor variable.
 
 Hence, the relevant SMI Model can be written as
 $$
-  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{Month} + \theta_{2}\textbf{Season}+ \bm{\varepsilon},
+  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \bm{M}\bm{\theta} + \bm{\varepsilon},
 $$ {#eq-solar}
 where
 
@@ -611,7 +609,8 @@ where
 - $\bm{X}$ is a matrix containing the $q=23$ predictor variables that may enter indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
 - $\bm{\alpha}_{j}$, $j = 1, \dots, p$ are the index coefficient vectors, each of length $q$;
 - $g_{1}, \dots, g_{p}$ are unknown nonparametric functions;
-- $\theta_{1}$ and $\theta_{2}$ are the coefficients corresponding to the two linear predictor variables; and\todo{Categorical variables have more than one coefficient each}
+- $\bm{M}$ is a matrix containing the $11$ dummy variables corresponding to the categorical variable *Month* (month January is taken as the base level);
+- $\bm{\theta}$ is a vector of coefficients of length $11$ corresponding to the dummy variables in $\bm{M}$; and
 - $\bm{\varepsilon}$ is the error term.
 
 The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.
@@ -622,16 +621,16 @@ Then we apply the proposed SMI Modelling algorithm to the training set to estima
 
 We estimated SMI Models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear". We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
 
-The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables *Month* and *Season*. Notice that all three estimated SMI Models have $\lambda_{2} = 0$, indicating that all three models have omitted the $\ell_{2}$-penalty in the estimation process.
+The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (1, 12) - PPR ***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a nonparametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables *Month* and *Season*. Notice that all three estimated SMI Models have $\lambda_{2} = 0$, indicating that all three models have omitted the $\ell_{2}$-penalty in the estimation process.
 
 @tbl-solar presents the MSE and MAE values for the estimated SMI Models on the test set. The results indicate that the SMI Model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
 
-We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI Models. Here, the GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the two categorical calendar variables were excluded when estimating the PPR model.
+We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI Models. Here, the GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the categorical calendar variable was excluded when estimating the PPR model.
 
 ```{r}
 #| label: tbl-solar
 #| tbl-cap: Daily solar intensity forecasting - Out-of-sample point forecast results.
-results_solar <- readr::read_csv("data/solarResults_table_final.csv")
+results_solar <- readr::read_csv("results/solar_results.csv")
 kable(results_solar,
   format = "latex",
   booktabs = TRUE,
@@ -656,7 +655,7 @@ The actual solar intensity and the predicted values from the SMI Model (1, 0) - 
 ```{r}
 #| label: fig-solarPred
 #| fig-cap: Actual solar intensity vs. predicted solar intensity from "SMI Model (1, 0) - Additive" and benchmark models.
-SolarPreds <- readr::read_csv("data/solar_predictions_3lags.csv") |> 
+SolarPreds <- readr::read_csv("results/solar_predictions.csv") |> 
   rename(
     `SMI Model (1,0) - Additive` = SMImodel_Additive,
     `Backward Elimination` = Backward

@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{21 March 2024}
+\date{24 March 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 21 March 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 24 March 2024}
 
 % Keywords
 
@@ -1448,23 +1448,20 @@ forecasting model.
 
 \paragraph{3) Calendar effects:}\label{calendar-effects-1}
 
-Finally, a couple of calendar variables: \emph{Month} (12 months of the
-year) and \emph{Season} (the four seasons: Spring, Summer, Autumn and
-Winter), are incorporated into the model to capture annual seasonality,
-and control for autocorrelation in residuals.
-
-\todo[inline]{These need to be categorical, not numerical. But then there will be identifiability issues by including Month and Season. You only need Month.}
+Finally, a calendar variable, \emph{Month} (12 months of the year), is
+incorporated into the model to capture annual seasonality, and control
+for autocorrelation in residuals.
 
 \subsubsection{Modelling Framework}\label{modelling-framework-1}
 
 The lags of solar intensity, and the lags of weather variables are
-considered as predictors that may enter indices. The two calendar
-variables, \emph{Month} and \emph{Season}, are included into the model
-as linear (categorical) predictor variables.
+considered as predictors that may enter indices. The calendar variable
+\emph{Month} is included into the model as a linear (categorical)
+predictor variable.
 
 Hence, the relevant SMI Model can be written as
 \begin{equation}\phantomsection\label{eq-solar}{
-  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{Month} + \theta_{2}\textbf{Season}+ \bm{\varepsilon},
+  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \bm{M}\bm{\theta} + \bm{\varepsilon},
 }\end{equation} where
 
 \begin{itemize}
@@ -1487,9 +1484,12 @@ Hence, the relevant SMI Model can be written as
 \item
   \(g_{1}, \dots, g_{p}\) are unknown nonparametric functions;
 \item
-  \(\theta_{1}\) and \(\theta_{2}\) are the coefficients corresponding
-  to the two linear predictor variables;
-  and\todo{Categorical variables have more than one coefficient each}
+  \(\bm{M}\) is a matrix containing the \(11\) dummy variables
+  corresponding to the categorical variable \emph{Month} (month January
+  is taken as the base level);
+\item
+  \(\bm{\theta}\) is a vector of coefficients of length \(11\)
+  corresponding to the dummy variables in \(\bm{M}\); and
 \item
   \(\bm{\varepsilon}\) is the error term.
 \end{itemize}
@@ -1515,9 +1515,9 @@ We also tuned the penalty parameters \(\lambda_{0}\) and
 respectively.
 
 The penalty parameter combination
-\((\lambda_{0} = 12, \lambda_{2} = 0)\) was selected for the model
+\((\lambda_{0} = 1, \lambda_{2} = 12)\) was selected for the model
 fitted with ``PPR'' initialisation. The estimated model,
-\textbf{\emph{SMI Model (12, 0) - PPR }}, resulted in five indices
+\textbf{\emph{SMI Model (1, 12) - PPR }}, resulted in five indices
 without dropping any of the index variables. The optimal penalty
 parameter combination for the model estimated taking ``Additive'' model
 as the starting point was \((\lambda_{0} = 1, \lambda_{2} = 0)\). The
@@ -1544,8 +1544,8 @@ Table~\ref{tbl-solar}, to compare with the estimated SMI Models. Here,
 the GAIM is fitted by grouping the lags of each weather variable into a
 different group, resulting in six indices. The number of indices of the
 PPR model was taken as six, matching the number of indices estimated by
-the GAIM. Note that here, the two categorical calendar variables were
-excluded when estimating the PPR model.
+the GAIM. Note that here, the categorical calendar variable was excluded
+when estimating the PPR model.
 
 \begin{table}
 
@@ -1561,11 +1561,11 @@ Out-of-sample point forecast results.}
 \cmidrule(l{3pt}r{3pt}){4-5}
 \multicolumn{1}{c}{Model} & \multicolumn{1}{c}{Predictors} & \multicolumn{1}{c}{Indices} & \multicolumn{1}{c}{MSE} & \multicolumn{1}{c}{MAE}\\
 \midrule
-SMI Model (12, 0) - PPR & 25 & 5 & 1745.030 & 33.246\\
-SMI Model (1, 0) - Additive & 25 & 23 & 1112.181 & 26.975\\
-SMI Model (1, 0) - Linear & 2 & 0 & 2009.847 & 35.346\\
-Backward Elimination & 16 &  & 911.570 & 25.035\\
-GAIM & 25 & 6 & 2203.530 & 37.788\\
+SMI Model (1, 12) - PPR & 24 & 5 & 1745.309 & 33.249\\
+SMI Model (1, 0) - Additive & 24 & 23 & 1112.079 & 26.973\\
+SMI Model (1, 0) - Linear & 1 & 0 & 2009.847 & 35.346\\
+Backward Elimination & 15 &  & 911.509 & 25.034\\
+GAIM & 24 & 6 & 2958.719 & 44.097\\
 PPR & 23 & 6 & \textbf{796.779} & \textbf{22.455}\\
 \bottomrule
 \end{tabular}
