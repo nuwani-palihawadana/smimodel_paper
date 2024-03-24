@@ -1,2 +1,2 @@
 # smimodel_paper
-This is a (work in progress) draft of the Chapter 2 (Paper 1) of my PhD thesis, and will be submitted to ISF 2024.
+Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting. (A draft submitted to ISF 2024.)
