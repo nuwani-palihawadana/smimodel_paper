@@ -495,7 +495,7 @@ Next, we utilise the SMI Modelling algorithm to forecast daily solar intensity, 
 
 ### Description of the Data
 
-We use solar intensity and other weather variables measured at the Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every five minutes, from 21 February 2006 to 27 February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV. We converted the five minutes data to daily data by averaging each variable.
+We use solar intensity and other weather variables measured at the Davis weather station in Amherst, Massachusetts, obtained from the *UMass Trace Repository* [@Umass2023]. The data was recorded at every five minutes, from 24 February 2006 to 27 February 2013, using sensors for measuring temperature, wind chill, humidity, dew point, wind speed, wind direction, rain, pressure, solar intensity, and UV. We converted the five minutes data to daily data by averaging each variable.
 
 @fig-solar shows the time plot of daily solar intensity for the entire period, which clearly depicts the annual seasonality in the data. The gaps show days for which the observations were missing; these were excluded from the analysis.
 
@@ -613,7 +613,7 @@ where
 - $\bm{\theta}$ is a vector of coefficients of length $11$ corresponding to the dummy variables in $\bm{M}$; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2013 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2012 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.
 
 Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using MSE and MAE. We assumed that the future values of the weather variables are known; thus it is a post hoc analysis.
 
