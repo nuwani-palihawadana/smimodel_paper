@@ -2,6 +2,7 @@
 library(cgaim)
 library(dplyr)
 library(fabletools)
+library(ggplot2)
 library(readr)
 library(ROI)
 library(ROI.plugin.gurobi)

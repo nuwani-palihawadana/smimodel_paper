@@ -420,7 +420,7 @@ The MSE and MAE values for the estimated SMI Models on two different test sets a
 #| label: tbl-heat
 #| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results.
 #| tbl-pos: "!hb"
-results_heat <- readr::read_csv("data/heat_results_corrected.csv")
+results_heat <- readr::read_csv("results/heat_results.csv")
 kable(results_heat,
     format = "latex",
     booktabs = TRUE,
@@ -462,7 +462,7 @@ where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vec
 ```{r}
 #| label: fig-heatPred
 #| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (12, 0) - PPR" and benchmark models for Test Set 2.
-readr::read_csv(here::here("data/heat_predictions_corrected.csv")) |> 
+readr::read_csv(here::here("results/heat_predictions.csv")) |> 
   select(-SMImodel_Additive, -SMImodel_Linear) |> 
   rename(
     `SMI Model (12, 0) - PPR` = SMImodel_PPR,
