@@ -1629,11 +1629,12 @@ were fitted using the R package \textbf{\emph{mgcv}}
 \section{Conclusions and Further Research}\label{sec-conclusion}
 
 In this paper, we presented a novel algorithm for estimating a
-nonparametric additive index model with optimal predictor selection,
-which we refer to as Sparse Multiple Index (SMI) Model. The SMI
-Modelling algorithm is an iterative procedure that is developed based on
-mixed integer programming to solve an \(\ell_{0}\)-regularised nonlinear
-least squares optimisation problem with linear constraints.
+nonparametric additive index model with optimal predictor selection and
+predictor grouping, which we refer to as Sparse Multiple Index (SMI)
+Model. The SMI Modelling algorithm is an iterative procedure that is
+developed based on mixed integer programming to solve an
+\(\ell_{0}\)-regularised nonlinear least squares optimisation problem
+with linear constraints.
 
 The proposed SMI Modelling algorithm has a number of key features: 1) It
 performs automatic selection of both the number of indices and the
@@ -1668,7 +1669,7 @@ A limitation of the proposed algorithm is the difficulty of specifying
 an initialisation that works in general. Hence, an interesting future
 research problem would be to explore the potential for determining a
 generalised initialisation for the SMI Modelling algorithm that will
-work across various applications.
+work well across various applications.
 
 This study should be viewed as a first attempt to develop a more
 objective methodology for variable selection and model estimation in the
@@ -1699,7 +1700,7 @@ eResearch Centre through the use of the MonARCH (Monash Advanced
 Research Computing Hybrid) HPC Cluster, and by the Australian Research
 Council Industrial Transformation Training Centre in Optimisation
 Technologies, Integrated Methodologies, and Applications (OPTIMA),
-Project ID IC200100009.~
+Project ID IC200100009.
 
 
 \printbibliography
