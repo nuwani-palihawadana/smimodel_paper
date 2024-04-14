@@ -1023,19 +1023,20 @@ the missing signal.
 
 When the fitted models are evaluated for \(y_{1}\), in both cases of
 ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'', all
-initialisations result in a test set MSE of \(\approx 0.01\), which
-corresponds to the variance of the true model error. This confirms the
-accuracy with which the SMI Modelling algorithm estimates the index
-structure for \(y_{1}\). For \(y_{2}\), all the estimated models result
-in a test set MSE of \(\approx 0.16\). This is an interesting result as
-the test set MSE of an estimated model with incorrect index structure,
-but with correct predictors (``Linear'') is similar to the models with
-correct index structure (``PPR'', ``Additive'', and ``Multiple''). This
-suggests that the selection of the predictor variables is more important
-than determining the index structure of the model in this case. For both
-\(y_{1}\) and \(y_{2}\), in the case of ``some \(\bm{x}\) + all
-\(\bm{z}\)'', MSE on the test set increases in comparison to the above
-cases, probably due to the inclusion of the noise variables.
+initialisations result in a test set Mean Squared Error (MSE) of
+\(\approx 0.01\), which corresponds to the variance of the true model
+error. This confirms the accuracy with which the SMI Modelling algorithm
+estimates the index structure for \(y_{1}\). For \(y_{2}\), all the
+estimated models result in a test set MSE of \(\approx 0.16\). This is
+an interesting result as the test set MSE of an estimated model with
+incorrect index structure, but with correct predictors (``Linear'') is
+similar to the models with correct index structure (``PPR'',
+``Additive'', and ``Multiple''). This suggests that the selection of the
+predictor variables is more important than determining the index
+structure of the model in this case. For both \(y_{1}\) and \(y_{2}\),
+in the case of ``some \(\bm{x}\) + all \(\bm{z}\)'', MSE on the test set
+increases in comparison to the above cases, probably due to the
+inclusion of the noise variables.
 
 Moreover, in contrast to \(y_{1}\), the test set MSE values for
 \(y_{2}\) are higher than the variance of the true model error.
@@ -1081,7 +1082,7 @@ suitable initial model for a given application.
 
 \subsection{Forecasting Daily Mortality}\label{sec-mortality}
 
-We apply the SMI Modelling algorithm to a data set from
+We apply the SMI Modelling algorithm to a data set used in
 \textcite{Masselot2022}, to forecast daily mortality based on heat
 exposure. Studying the effects of various environmental exposures such
 as weather related variables, pollutants and man-made environmental
@@ -1094,9 +1095,9 @@ For this analysis, we consider daily mortality and heat exposure data
 for the Metropolitan Area of Montreal, Québec, Canada, from 1990 to
 2014, for the months June, July, and August (i.e.~summer). The daily
 all-cause mortality data were obtained from the National Institute of
-Public Health, Québec, while \emph{DayMet}, a 1 km × 1 km grid data set
-\autocite{Thornton2021}, was used to extract daily temperature and
-humidity data \autocite{Masselot2022}.
+Public Health, Québec, while \emph{DayMet}, a \(1km \times 1km\) grid
+data set \autocite{Thornton2021}, was used to extract daily temperature
+and humidity data.
 
 Figure~\ref{fig-deaths} shows the time plots of daily deaths during the
 summer for the years from 1990 to 1993. The series for each of the four
@@ -1117,7 +1118,7 @@ from 1990 to 1993.}
 
 The three main predictors considered in this empirical study are maximum
 temperature, minimum temperature, and vapour pressure (to represent the
-level of humidity). The number of daily deaths are plotted against each
+level of humidity). The number of daily deaths is plotted against each
 of these predictors in Figures \ref{fig-Tmax}--\ref{fig-Vp},
 respectively, where we can observe that the relationships between these
 predictors and the response are slightly non-linear.
@@ -1184,8 +1185,7 @@ considered as predictors, as a proxy for the level of humidity.
 Finally, a couple of calendar variables (\emph{day of the season (DOS)}
 and \emph{Year}) are incorporated into the model to capture annual trend
 and seasonality, and also to control the autocorrelation in residuals,
-which is a common practice in environmental epidemiology
-\autocite{Masselot2022}.
+which is a common practice in environmental epidemiology.
 
 \subsubsection{Modelling Framework}\label{modelling-framework}
 
@@ -1193,7 +1193,7 @@ Maximum temperature lags, minimum temperature lags, and vapour pressure
 lags are predictors that may enter indices. The two calendar variables,
 \emph{DOS} and \emph{Year}, are included in the model as separate
 nonparametric components that do not enter any of the indices. Hence,
-the relevant SMI Model can be written as
+the relevant SMI model can be written as
 \begin{equation}\phantomsection\label{eq-heat}{
   \textbf{Deaths} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
 }\end{equation} where
@@ -1207,7 +1207,7 @@ the relevant SMI Model can be written as
   \(\beta_{0}\) is the model intercept;
 \item
   \(p\) is the unknown number of indices to be estimated via the
-  algorithm;
+  proposed algorithm;
 \item
   \(\bm{X}\) is a matrix containing the \(q=45\) predictor variables
   that may enter indices (i.e.~maximum temperature lags, minimum
@@ -1227,6 +1227,7 @@ model, while the data of year 2014 are used as the test set for
 evaluating forecasting performance. The data from the three summer
 months of year 2013 are kept aside as a validation set, which is used to
 estimate benchmark models for comparison purposes.
+\todo[inline]{Have the model refitted using the data from 1990 to 2013?}
 
 We apply the proposed SMI Modelling algorithm to the training set to
 estimate the model. The forecasting accuracy on the test set is
@@ -1235,9 +1236,47 @@ future values of the maximum/minimum temperatures and vapour pressure
 are known to use in the forecasting model; thus it is a post hoc
 analysis.
 
+\subsubsection{Benchmark Methods}\label{sec-benchmark}
+
+In addition to our proposed SMI model, we also evaluate three benchmark
+models for comparison purposes.
+
+The first benchmark is a nonparametric additive model formulated through
+\textbf{\emph{Backward Elimination}}, as proposed by \textcite{FH2012}.
+The process starts with all variables included in an additive model, and
+variables are progressively omitted until the optimal model is obtained
+based on the validation set.
+\todo[inline]{Is this the only method that has used the validation set?}
+
+The second benchmark is a \textbf{\emph{Group-wise Additive Index Model
+(GAIM)}}, which can be written in the form \[
+  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, 
+\] where \(y_{i}\) is the univariate response,
+\(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are
+pre-specified non-overlapping subsets of \(\bm{x}_{i}\), and
+\(\bm{\alpha}_j\) are the corresponding index coefficients, \(g_{j}\) is
+an unknown (possibly nonlinear) component function, and
+\(\varepsilon_{i}\) is the random error, which is independent of
+\(\bm{x}_{i}\) \autocite{Wang2015-mp,Masselot2022}. For this model,
+maximum temperature lags, minimum temperature lags, and vapour pressure
+lags are intuitively categorised into three separate groups, with an
+index estimated for each group.
+
+The third benchmark is a \textbf{\emph{Projection Pursuit Regression
+(PPR)}} model \autocite{Friedman1981} given by \[
+  y_{i} = \sum_{j=1}^{p} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i},
+\] where \(y_{i}\) is the response, \(\bm{x}_{i}\) is the
+\(q\)-dimensional predictor vector,
+\(\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}\),
+\(j = 1, \dots, p\) are \(q\)-dimensional projection vectors (or vectors
+of ``index coefficients''), \(g_{j}\)'s are unknown nonlinear functions,
+and \(\varepsilon_{i}\) is the random error. The number of indices in
+the PPR model was taken as three, matching the number of indices
+estimated by the GAIM.
+
 \subsubsection{Results}\label{results}
 
-We estimated SMI Models for the mortality data using three different
+We estimated SMI models for the mortality data using three different
 initialisation options: ``PPR'', ``Additive'' and ``Linear'', for
 comparison purposes. We tuned the penalty parameters \(\lambda_{0}\) and
 \(\lambda_{2}\) over ranges of integers from 1 to 12, and 0 to 12
@@ -1265,17 +1304,18 @@ subsets of the original test set:
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{\emph{Test Set 1:}} original test set spanning 3 months (June,
-  July and August 2014); and
+  \textbf{\emph{Test Set 1:}} original test set spanning three months
+  (June, July and August 2014); and
 \item
-  \textbf{\emph{Test Set 2:}} a test set covering 1 month (June 2014).
+  \textbf{\emph{Test Set 2:}} a test set covering one month (June 2014).
 \end{enumerate}
 
-The MSE and MAE values for the estimated SMI Models on two different
-test sets are presented in Table~\ref{tbl-heat}. We observe that the SMI
-Model estimated with ``PPR'' initialisation, \textbf{\emph{SMI Model
-(12, 0) - PPR }}, shows the best forecasting performance on both test
-sets, compared to the other two estimated SMI models.
+The MSE and MAE values on the two different test sets for the estimated
+SMI models along with all benchmark methods considered are presented in
+Table~\ref{tbl-heat}. We observe that the SMI model estimated with
+``PPR'' initialisation, \textbf{\emph{SMI Model (12, 0) - PPR }}, shows
+the best forecasting performance on both test sets, compared to the
+other two estimated SMI models.
 
 \begin{table}[!hb]
 
@@ -1304,48 +1344,11 @@ PPR & 47 & 3 & 82.877 & 7.202 & 104.217 & 8.404\\
 
 \end{table}%
 
-\subsubsection{Benchmark Methods}\label{sec-benchmark}
-
-We also present the forecasting errors of three benchmark models in
-Table~\ref{tbl-heat} for comparison with the estimated SMI Models.
-
-The first benchmark is a nonparametric additive model formulated through
-\textbf{backward elimination}, as proposed by \textcite{FH2012}. The
-process starts with all variables included in an additive model, and
-variables are progressively omitted until the optimal model is obtained
-based on a validation set.
-
-The second benchmark is a \textbf{\emph{Group-wise Additive Index Model
-(GAIM)}}, which can be written in the form \[
-  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, 
-\] where \(y_{i}\) is the univariate response,
-\(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are
-pre-specified non-overlapping subsets of \(\bm{x}_{i}\), and
-\(\bm{\alpha}_j\) are the corresponding index coefficients, \(g_{j}\) is
-an unknown (possibly nonlinear) component function, and
-\(\varepsilon_{i}\) is the random error, which is independent of
-\(\bm{x}_{i}\) \autocite{Wang2015-mp,Masselot2022}. For this model,
-maximum temperature lags, minimum temperature lags, and vapour pressure
-lags are categorised into three groups, where an index estimated for
-each group.
-
-The third benchmark is a \textbf{\emph{Projection Pursuit Regression
-(PPR)}} model \autocite{Friedman1981} given by \[
-  y_{i} = \sum_{j=1}^{p} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i},
-\] where \(y_{i}\) is the response, \(\bm{x}_{i}\) is the
-\(q\)-dimensional predictor vector,
-\(\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}\),
-\(j = 1, \dots, p\) are \(q\)-dimensional projection vectors (or vectors
-of ``index coefficients''), \(g_{j}\)'s are unknown nonlinear functions,
-and \(\varepsilon_{i}\) is the random error. The number of indices in
-the PPR model was taken as 3, matching the number of indices estimated
-by the GAIM.
-
-Table~\ref{tbl-heat} shows that \textbf{\emph{SMI Model (12, 0) - PPR}}
-outperforms all three benchmark models in terms of forecasting accuracy,
-for both \emph{Test Set 1} and \emph{Test Set 2}. However, the SMI
-Models estimated using ``Additive'' or ``Linear'' initialisations have
-inferior forecasting performance compared to all benchmark models
+Table~\ref{tbl-heat} also shows that \textbf{\emph{SMI Model (12, 0) -
+PPR}} outperforms all three benchmark models in terms of forecasting
+accuracy, for both \emph{Test Set 1} and \emph{Test Set 2}. However, the
+SMI Models estimated using ``Additive'' or ``Linear'' initialisations
+have inferior forecasting performance compared to all benchmark models
 considered. The actual number of deaths and the predicted values from
 the \textbf{\emph{SMI Model (12, 0) - PPR}} and benchmark models on
 \emph{Test Set 2} are plotted in Figure~\ref{fig-heatPred} for further
@@ -1364,8 +1367,6 @@ number of deaths from ``SMI Model (12, 0) - PPR'' and benchmark models
 for Test Set 2.}
 
 \end{figure}%
-
-\pagebreak
 
 \subsection{Forecasting Daily Solar Intensity}\label{sec-solar}
 
