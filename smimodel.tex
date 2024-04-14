@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{14 April 2024}
+\date{15 April 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 14 April 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 15 April 2024}
 
 % Keywords
 
@@ -706,14 +706,15 @@ initialising the SMI model as follows.
   multiple linear regression. Then, we construct a single index
   (i.e.~\(p = 1\)) using the estimated regression coefficients as the
   initial index coefficients of the predictors.
-\end{enumerate}
+\item
+  \textbf{Multiple: Picking One From Multiple Initialisations}
 
-The final optimised SMI model may change depending on the initialisation
-provided to the algorithm. Hence, we also consider using several
-different models as initialisations, optimise the SMI model for each of
-them, and pick the initial model that results in the lowest loss for the
-MIQP problem. In our simulations and applications, this is denoted as
-\textbf{Multiple}.
+  The final optimised SMI model may change depending on the
+  initialisation provided to the algorithm. Hence, we also consider
+  using several different models as initialisations, optimise the SMI
+  model for each of them, and pick the initial model that results in the
+  lowest loss for the MIQP problem.
+\end{enumerate}
 
 Of course, it is also possible for a user to specify an initialisation,
 based on their own domain expertise or prior knowledge in initialising
@@ -877,34 +878,34 @@ coefficients in step 6 of Algorithm 1.
 This section presents the results of a simulation experiment designed to
 demonstrate the performance and characteristics of the proposed SMI
 Modelling algorithm. In particular, we investigate how the estimated SMI
-Model varies depending on the initialisation used.
+model varies depending on the initialisation used.
 
 \subsection{Data Generation}\label{sec-datagen}
 
 \textbf{Generating predictor variables:}
 
-First, we generate two iid time series each of length 1205: \(x_{0}\)
-from a uniform distribution on the interval \([0, 1]\), and \(z_{0}\)
-from a normal distribution \(N(5, 4)\). Next, we construct lagged series
-of both \(x_{0}\) and \(z_{0}\), where \(x_i\) denotes the \(i^{th}\)
-lag of \(x_{0}\), and \(z_i\) denotes the \(i^{th}\) lag of \(z_{0}\).
-Then \(\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}\), and
-\(\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}\)) were taken as predictors in
+First, we generate two time series, each of length 1205: \(x_{0}\) from
+a uniform distribution on the interval \([0, 1]\), and \(z_{0}\) from a
+normal distribution \(N(5, 4)\). Next, we construct lagged series of
+both \(x_{0}\) and \(z_{0}\), where \(x_i\) denotes the \(i^{th}\) lag
+of \(x_{0}\), and \(z_i\) denotes the \(i^{th}\) lag of \(z_{0}\). Then
+\(\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}\), and
+\(\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}\)) are taken as predictors in
 the simulation experiment.
 
 \textbf{Generating response variables:}
 
-We generated two response variables \(y_{1}\) and \(y_{2}\), with two
-different index structures, and added a random normal noise component
-with two different strengths as follows:
+We generate two response variables \(y_{1}\) and \(y_{2}\), using two
+different index structures and a normally distributed white noise
+component with two different variances as follows:
 
 \begin{itemize}
 \item
-  Low noise level - \(N(\mu = 0, \sigma = 0.1)\):\\
+  Low noise level - \(N(\mu = 0, \sigma^2 = 0.01)\):\\
   \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)\\
   \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)
 \item
-  High noise level - \(N(\mu = 0, \sigma = 0.5)\):\\
+  High noise level - \(N(\mu = 0, \sigma^2 = 0.25)\):\\
   \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)\\
   \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)
 \end{itemize}
@@ -914,20 +915,20 @@ consisting of the predictor variables \(x_{0}, x_{1}\), and \(x_{3}\),
 whereas the other response \(y_{2}\) is constructed using two indices,
 where the first index consists of the predictors \(x_{0}, x_{1}\), and
 \(x_{3}\), and the second index consists of \(x_{2}\) and \(x_{5}\).
-Neither the variable \(x_{4}\) nor any of the \(z\) variables were used
+Neither the variable \(x_{4}\) nor any of the \(z\) variables are used
 in generating \(y_{1}\) and \(y_{2}\).
 
 Once the data set is generated, the first five observations are
 discarded due to the missing values introduced by lagged variables,
-leaving a data set of 1200 observations. We use the first 1000
+leaving a data set with 1200 observations. We use the first 1000
 observations as the training set, while the remaining 200 observations
 are kept aside as the test set for evaluating the estimated models.
 
 \subsection{Experiment Setup}\label{sec-exp}
 
-We estimated SMI Models through the proposed algorithm for each of the
+We estimate SMI models through the proposed algorithm for each of the
 two response variables, using three different sets of predictors as
-inputs. Our aim was to assess the algorithm's capability to correctly
+inputs. Our aim is to assess the algorithm's capability to correctly
 pick the relevant predictor variables (and drop the irrelevant
 predictors), and to estimate the index structure of the true model.
 
@@ -937,30 +938,30 @@ The three different sets of predictors considered are as follows:
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  All \(\bm{x}\) variables (denoted as all \(\bm{x}\));
+  All \(\bm{x}\) variables (denoted as ``all \(\bm{x}\)'');
 \item
-  All \(\bm{x}\) variables and all \(\bm{z}\) variables (denoted as all
-  \(\bm{x}\) + all \(\bm{z}\));
+  All \(\bm{x}\) variables and all \(\bm{z}\) variables (denoted as
+  ``all \(\bm{x}\) + all \(\bm{z}\)'');
 \item
   The first three \(\bm{x}\) variables (i.e.~\(x_{0}, x_{1}\) and
-  \(x_{2}\)) and all \(\bm{z}\) variables (denoted as some \(\bm{x}\) +
-  all \(\bm{z}\)).
+  \(x_{2}\)) and all \(\bm{z}\) variables (denoted as ``some \(\bm{x}\)
+  + all \(\bm{z}\)'').
 \end{enumerate}
 
-We applied the proposed SMI Modelling algorithm with each of the above
+We apply the proposed SMI Modelling algorithm with each of the above
 predictor combinations, for both variations of the responses concerning
-the noise level. Moreover, we considered each of the initialisation
-options discussed in Section~\ref{sec-step1}, for each of the two
-responses.
+the noise level. Moreover, we consider every initialisation options
+discussed in Section~\ref{sec-step1}, for each of the two responses.
 
 \subsection{Results}\label{sec-sim-results}
 
 We summarise the results of the simulation experiment in
 Table~\ref{tbl-simulation}. In the columns, we indicate the index
 structure (i.e.~the predictor grouping among indices) estimated by the
-proposed algorithm under each of the initialisation options. This is
-detailed for each combination explored, considering response, input
-predictors, and noise levels.
+proposed algorithm under each of the initialisation options, i.e.,
+``PPR'', ``Additive'', ``Linear'', and ``Multiple''. This is detailed
+for each combination explored, considering response, input predictors,
+and noise levels.
 
 In the simulation experiment, we did not perform any tuning for the
 penalty parameters \(\lambda_{0}\) and \(\lambda_{2}\). Our experiments
@@ -1006,63 +1007,63 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 
 \end{table}%
 
-At low noise level, in both the cases ``all \(\bm{x}\)'' and ``all
+At a low noise level, in both cases of ``all \(\bm{x}\)'' and ``all
 \(\bm{x}\) + all \(\bm{z}\)'', all initialisations enable the algorithm
 to estimate the correct index structure for both \(y_{1}\) and
 \(y_{2}\), with an exception in the ``Linear'' option for \(y_{2}\). The
 ``Linear'' option for \(y_{2}\) selects the correct variables, but fails
-to identify the 2-index structure. This suggests that initialising the
-algorithm with a higher number of indices might be more effective than a
-lower number. In the case of ``some \(\bm{x}\) + all \(\bm{z}\)'', for
-both \(y_{1}\) and \(y_{2}\), the models estimated under all
-initialisations include some noise variables. This indicates that when
-the available predictors are insufficient to capture the data signal,
-the algorithm might select irrelevant variables to make up for the
-missing signal.
+to identify the two-index structure. This suggests that initialising the
+algorithm with a higher number of indices might be more effective than
+with a lower number. In the case of ``some \(\bm{x}\) + all
+\(\bm{z}\)'', for both \(y_{1}\) and \(y_{2}\), the models estimated
+under all initialisations include some noise variables. This indicates
+that when the available predictors are insufficient to capture the data
+signal, the algorithm might select irrelevant variables to make up for
+the missing signal.
 
-When the fitted models are evaluated, for \(y_{1}\), in both the cases
+When the fitted models are evaluated for \(y_{1}\), in both cases of
 ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'', all
-initialisations resulted in a test MSE of \(\approx 0.01\), which
+initialisations result in a test set MSE of \(\approx 0.01\), which
 corresponds to the variance of the true model error. This confirms the
-accuracy with which the SMI Modelling algorithm estimated the index
-structure for \(y_{1}\). For \(y_{2}\), all the models estimated
-resulted in a test MSE of \(\approx 0.16\). This is an interesting
-result as the test MSE of an estimated model with incorrect index
-structure, but with correct predictors (``Linear'') is similar to the
-models with correct index structure (``PPR'', ``Additive'', and
-``Multiple''). This suggests that the selection of the predictor
-variables is more important than determining the index structure of the
-model. For both \(y_{1}\) and \(y_{2}\), in the case of ``some
-\(\bm{x}\) + all \(\bm{z}\)'', the test MSEs increased in comparison to
-the above cases, probably due to the inclusion of noise variables.
+accuracy with which the SMI Modelling algorithm estimates the index
+structure for \(y_{1}\). For \(y_{2}\), all the estimated models result
+in a test set MSE of \(\approx 0.16\). This is an interesting result as
+the test set MSE of an estimated model with incorrect index structure,
+but with correct predictors (``Linear'') is similar to the models with
+correct index structure (``PPR'', ``Additive'', and ``Multiple''). This
+suggests that the selection of the predictor variables is more important
+than determining the index structure of the model in this case. For both
+\(y_{1}\) and \(y_{2}\), in the case of ``some \(\bm{x}\) + all
+\(\bm{z}\)'', MSE on the test set increases in comparison to the above
+cases, probably due to the inclusion of the noise variables.
 
-Moreover, in contrast to \(y_{1}\), the test MSE values for \(y_{2}\)
-are higher than the variance of the true model error. Intuitively, the
-complexity of the model \(y_{2}\) is higher than \(y_{1}\), where the
-total estimation error of two nonlinear functions (corresponding to the
-two indices) for \(y_{2}\), might be higher than the error of estimating
-a single nonlinear function for \(y_{1}\).
+Moreover, in contrast to \(y_{1}\), the test set MSE values for
+\(y_{2}\) are higher than the variance of the true model error.
+Intuitively, the complexity of the model \(y_{2}\) is higher than
+\(y_{1}\), where the total estimation error of two nonlinear functions
+(corresponding to the two indices) for \(y_{2}\), might be higher than
+the error of estimating a single nonlinear function for \(y_{1}\).
 
 As expected, the accuracy with which the SMI Modelling algorithm
 estimates the index structure is in general lower with the high noise
 level than with the low noise level. For both \(y_{1}\) and \(y_{2}\),
 most of the estimated models have selected irrelevant variables. In both
-the cases ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'',
+the cases of ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'',
 all the models estimated for \(y_{1}\) (except for the ``Additive''
-option in the ``all \(\bm{x}\)'' case) resulted in a test MSE of
+option in the ``all \(\bm{x}\)'' case) result in a test set MSE of
 \(\approx 0.23\) (which is slightly lower than the variance of the true
-model error) irrespective of the fact that in ``all \(\bm{x}\) + all
-\(\bm{z}\)'' case, ``Additive'' and ``Multiple'' options included a
-noise variable. The suggests over-fitting when there is low
-signal-to-noise ratio in the data. The observation is the same for
-\(y_{2}\), where irrespective of the different index structures and
-predictor choices, the estimated models in the above two predictor
-combinations produced similar test MSE values.
+model error) irrespective of the fact that in the ``all \(\bm{x}\) + all
+\(\bm{z}\)'' case, ``Additive'' and ``Multiple'' options include a noise
+variable. The suggests over-fitting when there is low signal-to-noise
+ratio in the data. The result is the same for \(y_{2}\), where
+irrespective of the different index structures and predictor choices,
+the estimated models in the above two predictor combinations produce
+similar MSE values on the test set.
 
 Similar to the previous case of low noise level, when only a part of
-\(\bm{x}\) variables are provided, the test MSE values increased for
+\(\bm{x}\) variables are provided, the test set MSE values increase for
 both \(y_{1}\) and \(y_{2}\), where the estimated models for \(y_{2}\)
-produced higher test MSE values in comparison to the models for
+produce higher test MSE values in comparison to the models for
 \(y_{1}\).
 
 It is worth mentioning here that in real-world forecasting problems, the
