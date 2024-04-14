@@ -424,14 +424,14 @@ where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vec
 
 We estimated SMI models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ over ranges of integers from 1 to 12, and 0 to 12 respectively, based on in-sample MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
 
-The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR ***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive ***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 12, \lambda_{2} = 5)$ (***SMI Model (12, 5) - Linear ***), and resulted in two indices, without dropping any of the index variables.
+The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 12, \lambda_{2} = 5)$ (***SMI Model (12, 5) - Linear***), and resulted in two indices, without dropping any of the index variables.
 
 We evaluated forecasting errors of the estimated models using two subsets of the original test set:
 
 1. ***Test Set 1:*** original test set spanning three months (June, July and August 2014); and
 2. ***Test Set 2:*** a test set covering one month (June 2014).
 
-The MSE and MAE values on the two different test sets for the estimated SMI models along with all benchmark methods considered are presented in @tbl-heat. We observe that the SMI model estimated with "PPR" initialisation, ***SMI Model (12, 0) - PPR ***, shows the best forecasting performance on both test sets, compared to the other two estimated SMI models.
+The MSE and MAE values on the two different test sets for the estimated SMI models along with all benchmark methods considered are presented in @tbl-heat. We observe that the SMI model estimated with "PPR" initialisation, ***SMI Model (12, 0) - PPR***, shows the best forecasting performance on both test sets, compared to the other two estimated SMI models.
 
 ```{r}
 #| label: tbl-heat
@@ -587,15 +587,15 @@ In addition to current temperature, dew point, wind speed, rain and humidity, th
 
 #### 3) Calendar effects:
 
-Finally, a calendar variable, *day of the year (DOY)* is incorporated into the model as a smooth function through fourier terms to capture annual seasonality, and control for autocorrelation in residuals. 
+Finally, a calendar variable, *day of the year (DOY)* is incorporated into the model as a smooth function through fourier terms to capture annual seasonality, and also to control the autocorrelation in residuals.
 
 ### Modelling Framework
 
 The lags of solar intensity, and the lags of weather variables are considered as predictors that may enter indices. The fourier terms capturing the day of the year effect are included into the model as linear variables (so that they are not part of the indices).
 
-We experimented with the number of pairs of fourier terms that best captures the day of the year effect, where we considered the values $K$ (pairs) $= 1$ to $K = 10$. The SMI Models fitted with $K = 1$ fourier terms resulted in the lowest test MSE. (i.e. the day of the year effect follows a simple sine wave.)
+We experimented with the number of pairs of fourier terms ($K$) that best captures the day of the year effect, considering values from $K = 1$ to $K = 10$. The SMI models fitted with one pair of fourier terms ($K = 1$) resulted in the lowest test MSE. (i.e. the day of the year seasonal pattern follows a simple sine wave.) \todo[inline]{Did you use the test set data when choosing K?}
 
-Hence, the relevant SMI Model can be written as
+Hence, the relevant SMI model can be written as
 $$
   \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{DOY}\_\textbf{S1} + \theta_{2}\textbf{DOY}\_\textbf{C1} + \bm{\varepsilon},
 $$ {#eq-solar}
@@ -611,7 +611,7 @@ where
 - $\theta_{1}$ and $\theta_{2}$ are the coefficients of $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ respectively; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2012 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison.
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2012 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison. \todo[inline]{Same question as in application 1.}
 
 Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using MSE and MAE. We assumed that the future values of the weather variables are known; thus it is a post hoc analysis.
 
@@ -619,11 +619,11 @@ Then we apply the proposed SMI Modelling algorithm to the training set to estima
 
 We estimated SMI Models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear". We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
 
-The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (1, 12) - PPR ***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI Model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive ***, is equivalent to a semi-parametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear ***, is just a linear model with the two linear variables $DOY\_S1$ and $DOY\_C1$. Notice that both ***SMI Model (1, 0) - Additive *** and ***SMI Model (1, 0) - Linear*** have $\lambda_{2} = 0$, indicating that these two models have omitted the $\ell_{2}$-penalty in the estimation process.
+The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (1, 12) - PPR***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive***, is equivalent to a semi-parametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear***, is just a linear model with the two linear variables $DOY\_S1$ and $DOY\_C1$. Notice that both ***SMI Model (1, 0) - Additive*** and ***SMI Model (1, 0) - Linear*** have $\lambda_{2} = 0$, indicating that these two models have omitted the $\ell_{2}$-penalty in the estimation process.
 
-@tbl-solar presents the MSE and MAE values for the estimated SMI Models on the test set. The results indicate that the SMI Model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
+@tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
 
-We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI Models. Here, the GAIM is fitted by grouping the lags of each weather variable into a different group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model.
+We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use fourier terms to allow for seasonal patterns in all benchmark methods?}
 
 ```{r}
 #| label: tbl-solar
@@ -644,11 +644,11 @@ kable(results_solar,
   column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
 ```
 
-According to @tbl-solar, the forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM and the PPR model. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform the semi-parametric additive model with backward elimination, which has resulted in the best forecasting accuracy in this case.
+@tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM and the PPR model. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform the semi-parametric additive model with backward elimination, which has resulted in the best forecasting accuracy in this case. \todo[inline]{Is it because Backward Elimination method has used the validation set to evaluate out-of-sample performance in the modelling process?}
 
-Here, it is worth considering the differences between the SMI Model and the backward elimination method that shows superior forecasting performance. The method proposed by @FH2012 formulates a semi-parametric additive model using a backward elimination of predictors, and does not perform any predictor grouping. In contrast, the SMI Model takes a more general and objective approach to estimate an additive index model (which includes the semi-parametric additive model as a special case), where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI Model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
+Here, it is worth considering the differences between the SMI model and the backward elimination method that shows superior forecasting performance. The method proposed by @FH2012 formulates a semi-parametric additive model using a backward elimination of predictors, and does not perform any predictor grouping. In contrast, the SMI model takes a more general and objective approach to estimate an additive index model (which includes the semi-parametric additive model as a special case), where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
 
-The actual solar intensity and the predicted values from the SMI Model (1, 0) - Additive and benchmark models are plotted in @fig-solarPred for further comparison.
+The actual solar intensity and the predicted values from the  ***SMI Model (1, 0) - Additive*** and benchmark models are plotted in @fig-solarPred for further comparison.
 
 ```{r}
 #| label: fig-solarPred
