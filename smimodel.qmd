@@ -88,7 +88,7 @@ $$
 $$
 where $y_{t}$ is the death rate at day $t$, $f_{1}$ is a nonparametric term to capture the *time* effect, and $p_t$, $o_t$, and $w_t$ are various predictor variables. The model incorporates the current value ($k = 0$) and several lagged values ($k = 1, \dots, K$) of the predictors, where the distributed lag effect of a single predictor variable, and of the interaction of two predictor variables are captured by the sums $\sum_{k=0}^{K} f_{2}(p_{t-k}, k)$ and $\sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k)$ respectively.
 
-Further examples include @Ho2020, who used semi-parametric additive models to estimate ground-level $\text{PM}_{2.5}$ concentrations in Taiwan, while nonparametric additive models were utilised by @Ibrahim2021 for predicting census survey response rates. @Ravindra2019 provided a comprehensive review of the applications of additive models in environmental data, with a special focus on air pollution, climate change, and human health related studies.
+Further examples include @Ho2020, who used semi-parametric additive models to estimate ground-level $\text{PM}_{2.5}$ concentrations in Taiwan, while nonparametric additive models were utilised by @Ibrahim2023 for predicting census survey response rates. @Ravindra2019 provided a comprehensive review of the applications of additive models in environmental data, with a special focus on air pollution, climate change, and human health related studies.
 
 In this paper, we are interested in high-dimensional applications that exhibit complicated interactions among predictors, particularly in the presence of a large number of lagged variables, and correlated errors. In such situations, *index models* prove beneficial in improving the flexibility of the broader class of nonparametric additive models [@Radchenko2015], while mitigating the difficulty of estimating a nonparametric component for each individual predictor.
 
@@ -120,7 +120,7 @@ We implement variable selection for the proposed ***Sparse Multiple Index*** (SM
 \end{align}
 where $\bm{\alpha} = [\bm{\alpha}_{1}^{T}, \dots, \bm{\alpha}_{p}^{T} ]^{T}$, $\bm{g} = \{g_{1}, g_{2}, \dots, g_{p}\}$, $\bm{f} = \{f_{1}, f_{2}, \dots, f_{d}\}$, $\mathbb{1}(\cdot)$ is the indicator function, $\lambda_{0} > 0$ is a tuning parameter that controls the number of selected predictors entering indices, and $\lambda_{2} \ge 0$ is another tuning parameter that controls the strength of the additional shrinkage imposed on the estimated index coefficients. The constraint ensures that every predictor can only have non-zero coefficient in at most one index.
 
-Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2022; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when there is a low signal-to-noise ratio (SNR).
+Applying an $\ell_{2}$-penalty in addition to the $\ell_{0}$-penalty is motivated by related literature [@Hazimeh2020; @Mazumder2023; @Hazimeh2023], where it is suggested that the prediction performance of best-subset selection is enhanced by the inclusion of an additional ridge penalty, especially when there is a low signal-to-noise ratio (SNR).
 
 To solve the optimisation problem in Equation \ref{eq-smi}, we present a big-$M$ based ***Mixed Integer Quadratic Programming*** (MIQP) formulation:
 $$
