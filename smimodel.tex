@@ -674,15 +674,16 @@ initialising the SMI model as follows.
     use \(p^* = 5\) in our simulations and applications.)
   \item
     Calculate a threshold
-    \(\tau = 0.1 \times \max(\text{PPR index coefficients})\).
-    \todo[inline]{Should it be: $\max(\mathrm{abs}(\text{PPR index coefficients}))$?}
+    \(\tau = 0.1 \times \max(\mathrm{abs}(\text{PPR index coefficients}))\).
+    \todo[inline]{Should it be: $\max(\mathrm{abs}(\text{PPR index coefficients}))$? - \textbf{Corrected}}
   \item
-    Set to zero all coefficients that fall below the calculated
-    threshold. \todo[inline]{Should it be: ...whose absolute values...?}
+    Set to zero all coefficients whose absolute values fall below the
+    calculated threshold.
+    \todo[inline]{Should it be: ...whose absolute values...? - \textbf{Corrected}}
   \item
     For predictors appearing in multiple indices, assign them to the
-    index with the maximum coefficient and zero out their coefficients
-    in other indices.
+    index with the maximum absolute coefficient and zero out their
+    coefficients in other indices.
   \item
     After performing the above steps a-e, if any originally estimated
     index has all zero coefficients, it will be excluded from the model.
@@ -977,7 +978,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \centering{
 
 \centering
-\resizebox{\linewidth}{!}{
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -990,16 +991,16 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 [0.4em]
 \hspace{1em}$y_{2}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
 \hspace{1em}$y_{2}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
-\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, z_{2}$) ($x_{2}$) ($z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
+\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}$) ($x_{2}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
 \addlinespace[0.6em]
 \multicolumn{6}{l}{\textbf{High noise level}}\\
-\hspace{1em}$y_{1}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}$) ($x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+\hspace{1em}$y_{1}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{4}, x_{5}$) & ($x_{0}, x_{1}$) ($x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
 \hspace{1em}$y_{1}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$)\\
 \hspace{1em}$y_{1}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
 [0.4em]
 \hspace{1em}$y_{2}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$)\\
-\hspace{1em}$y_{2}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
-\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, z_{0}, z_{3}$) ($x_{2}$) ($z_{1}, z_{4}, z_{5}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
+\hspace{1em}$y_{2}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{5}, z_{1}$) ($x_{2}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, z_{0}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
 \bottomrule
 \end{tabular}}
 
@@ -1053,9 +1054,10 @@ the cases of ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'',
 all the models estimated for \(y_{1}\) (except for the ``Additive''
 option in the ``all \(\bm{x}\)'' case) result in a test set MSE of
 \(\approx 0.23\) (which is slightly lower than the variance of the true
-model error) irrespective of the fact that in the ``all \(\bm{x}\) + all
-\(\bm{z}\)'' case, ``Additive'' and ``Multiple'' options include a noise
-variable. The suggests over-fitting when there is low signal-to-noise
+model error) irrespective of the fact that in the ``all \(\bm{x}\)''
+case, ``PPR'' option, and in the ``all \(\bm{x}\) + all \(\bm{z}\)''
+case, ``Additive'' and ``Multiple'' options include irrelevant
+variables. This suggests over-fitting when there is low signal-to-noise
 ratio in the data. The result is the same for \(y_{2}\), where
 irrespective of the different index structures and predictor choices,
 the estimated models in the above two predictor combinations produce
