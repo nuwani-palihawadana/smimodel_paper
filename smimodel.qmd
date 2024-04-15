@@ -623,7 +623,7 @@ The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was sele
 
 @tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
 
-We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods?}
+We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods? - \textbf{Yes, used Fourier terms in GAIM and backward elimination, but not in PPR because it is impossible to include separate linear terms in stats::ppr().}}
 
 ```{r}
 #| label: tbl-solar

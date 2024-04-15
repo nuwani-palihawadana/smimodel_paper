@@ -1548,7 +1548,7 @@ distinct group, resulting in six indices. The number of indices of the
 PPR model was taken as six, matching the number of indices estimated by
 the GAIM. Note that here, the calendar variable \emph{DOY} was excluded
 when estimating the PPR model.
-\todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods?}
+\todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods? - \textbf{Yes, used Fourier terms in GAIM and backward elimination, but not in PPR because it is impossible to include separate linear terms in stats::ppr().}}
 
 \begin{table}
 
