@@ -977,7 +977,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 \centering{
 
 \centering
-\resizebox{\linewidth}{!}{
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -1438,20 +1438,20 @@ forecasting model.
 \paragraph{3) Calendar effects:}\label{calendar-effects-1}
 
 Finally, a calendar variable, \emph{day of the year (DOY)} is
-incorporated into the model as a smooth function through fourier terms
+incorporated into the model as a smooth function through Fourier terms
 to capture annual seasonality, and also to control the autocorrelation
 in residuals.
 
 \subsubsection{Modelling Framework}\label{modelling-framework-1}
 
 The lags of solar intensity, and the lags of weather variables are
-considered as predictors that may enter indices. The fourier terms
+considered as predictors that may enter indices. The Fourier terms
 capturing the day of the year effect are included into the model as
 linear variables (so that they are not part of the indices).
 
-We experimented with the number of pairs of fourier terms (\(K\)) that
+We experimented with the number of pairs of Fourier terms (\(K\)) that
 best captures the day of the year effect, considering values from
-\(K = 1\) to \(K = 10\). The SMI models fitted with one pair of fourier
+\(K = 1\) to \(K = 10\). The SMI models fitted with one pair of Fourier
 terms (\(K = 1\)) resulted in the lowest test MSE. (i.e.~the day of the
 year seasonal pattern follows a simple sine wave.)
 \todo[inline]{Did you use the test set data when choosing K?}
@@ -1482,7 +1482,7 @@ Hence, the relevant SMI model can be written as
   \(g_{1}, \dots, g_{p}\) are unknown nonparametric functions;
 \item
   \(\textbf{DOY}\_\textbf{S1}\) and \(\textbf{DOY}\_\textbf{C1}\) are
-  the sine and cosine terms of the first pair of fourier terms
+  the sine and cosine terms of the first pair of Fourier terms
   corresponding to the variable \(\textbf{DOY}\) respectively (seasonal
   period = 365.25);
 \item
@@ -1546,7 +1546,7 @@ distinct group, resulting in six indices. The number of indices of the
 PPR model was taken as six, matching the number of indices estimated by
 the GAIM. Note that here, the calendar variable \emph{DOY} was excluded
 when estimating the PPR model.
-\todo[inline]{Just to double check, did you also use fourier terms to allow for seasonal patterns in all benchmark methods?}
+\todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods?}
 
 \begin{table}
 

@@ -587,13 +587,13 @@ In addition to current temperature, dew point, wind speed, rain and humidity, th
 
 #### 3) Calendar effects:
 
-Finally, a calendar variable, *day of the year (DOY)* is incorporated into the model as a smooth function through fourier terms to capture annual seasonality, and also to control the autocorrelation in residuals.
+Finally, a calendar variable, *day of the year (DOY)* is incorporated into the model as a smooth function through Fourier terms to capture annual seasonality, and also to control the autocorrelation in residuals.
 
 ### Modelling Framework
 
-The lags of solar intensity, and the lags of weather variables are considered as predictors that may enter indices. The fourier terms capturing the day of the year effect are included into the model as linear variables (so that they are not part of the indices).
+The lags of solar intensity, and the lags of weather variables are considered as predictors that may enter indices. The Fourier terms capturing the day of the year effect are included into the model as linear variables (so that they are not part of the indices).
 
-We experimented with the number of pairs of fourier terms ($K$) that best captures the day of the year effect, considering values from $K = 1$ to $K = 10$. The SMI models fitted with one pair of fourier terms ($K = 1$) resulted in the lowest test MSE. (i.e. the day of the year seasonal pattern follows a simple sine wave.) \todo[inline]{Did you use the test set data when choosing K?}
+We experimented with the number of pairs of Fourier terms ($K$) that best captures the day of the year effect, considering values from $K = 1$ to $K = 10$. The SMI models fitted with one pair of Fourier terms ($K = 1$) resulted in the lowest test MSE. (i.e. the day of the year seasonal pattern follows a simple sine wave.) \todo[inline]{Did you use the test set data when choosing K?}
 
 Hence, the relevant SMI model can be written as
 $$
@@ -607,7 +607,7 @@ where
 - $\bm{X}$ is a matrix containing the $q=23$ predictor variables that may enter indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
 - $\bm{\alpha}_{j}$, $j = 1, \dots, p$ are the index coefficient vectors, each of length $q$;
 - $g_{1}, \dots, g_{p}$ are unknown nonparametric functions;
-- $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ are the sine and cosine terms of the first pair of fourier terms corresponding to the variable $\textbf{DOY}$ respectively (seasonal period = 365.25);
+- $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ are the sine and cosine terms of the first pair of Fourier terms corresponding to the variable $\textbf{DOY}$ respectively (seasonal period = 365.25);
 - $\theta_{1}$ and $\theta_{2}$ are the coefficients of $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ respectively; and
 - $\bm{\varepsilon}$ is the error term.
 
@@ -623,7 +623,7 @@ The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was sele
 
 @tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
 
-We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use fourier terms to allow for seasonal patterns in all benchmark methods?}
+We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods?}
 
 ```{r}
 #| label: tbl-solar
