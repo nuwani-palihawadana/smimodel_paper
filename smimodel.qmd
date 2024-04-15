@@ -523,8 +523,8 @@ p1 <- dataSolar |>
   ylab("Solar Intensity") +
   ggtitle("Solar Intensity against Temperature") +
   theme(
-    axis.title = element_text(size = 6),
-    plot.title = element_text(size = 8)
+    axis.title = element_text(size = 8),
+    plot.title = element_text(size = 9)
   )
 
 p2 <- dataSolar |>
@@ -535,8 +535,8 @@ p2 <- dataSolar |>
   ylab("Solar Intensity") +
   ggtitle("Solar Intensity against Dew Point") +
   theme(
-    axis.title = element_text(size = 6),
-    plot.title = element_text(size = 8)
+    axis.title = element_text(size = 8),
+    plot.title = element_text(size = 9)
   )
 
 p3 <- dataSolar |>
@@ -546,8 +546,8 @@ p3 <- dataSolar |>
   ylab("Solar Intensity") +
   ggtitle("Solar Intensity against Wind Speed") +
   theme(
-    axis.title = element_text(size = 6),
-    plot.title = element_text(size = 8)
+    axis.title = element_text(size = 8),
+    plot.title = element_text(size = 9)
   )
 
 p4 <- dataSolar |>
@@ -557,8 +557,8 @@ p4 <- dataSolar |>
   ylab("Solar Intensity") +
   ggtitle("Solar Intensity against Rain") +
   theme(
-    axis.title = element_text(size = 6),
-    plot.title = element_text(size = 8)
+    axis.title = element_text(size = 8),
+    plot.title = element_text(size = 9)
   )
 
 p5 <- dataSolar |>
@@ -568,8 +568,8 @@ p5 <- dataSolar |>
   ylab("Solar Intensity") +
   ggtitle("Solar Intensity against Humidity") +
   theme(
-    axis.title = element_text(size = 6),
-    plot.title = element_text(size = 8)
+    axis.title = element_text(size = 8),
+    plot.title = element_text(size = 9)
   )
 
 grid.arrange(p1, p2, p3, p4, p5, nrow = 3, ncol = 2)
