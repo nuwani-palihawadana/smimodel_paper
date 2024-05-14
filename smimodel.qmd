@@ -315,7 +315,7 @@ For this analysis, we consider daily mortality and heat exposure data for the Me
 ```{r}
 #| label: fig-deaths
 #| fig-cap: Daily mortality in summer in Montreal, Canada from 1990 to 1993.
-dataHeat <- readRDS("data/heat_data_corrected.rds")
+dataHeat <- readRDS("data/Heat_Corrected.rds")
 dataHeat |>
   mutate(Date = as.POSIXct(Date)) |>
   filter(Date <= "1993-08-31") |>
@@ -327,7 +327,7 @@ dataHeat |>
   labs(x = "Date", y = "Number of Deaths", title = "")
 ```
 
-The three main predictors considered in this empirical study are maximum temperature, minimum temperature, and vapour pressure (to represent the level of humidity). The number of daily deaths is plotted against each of these predictors in Figures [-@fig-Tmax]--[-@fig-Vp], respectively, where we can observe that the relationships between these predictors and the response are slightly nonlinear.
+Maximum temperature, minimum temperature, and vapour pressure (to represent the level of humidity) are considered as predictors in this empirical study. The number of daily deaths is plotted against each of these predictors in Figures [-@fig-Tmax]--[-@fig-Vp], respectively, where we can observe that the relationships between these predictors and the response are slightly nonlinear.
 
 ```{r}
 #| label: fig-Tmax
@@ -370,21 +370,25 @@ dataHeat |>
 
 ### Predictors Considered
 
-#### 1) Current maximum/minimum temperatures and lags:
+#### 1) Daily deaths lags:
+
+Fourteen lags of the daily deaths itself are used as predictors to incorporate the serial correlations presented in the data into the modelling process.
+
+#### 2) Current maximum/minimum temperatures and lags:
 
 In addition to current maximum and minimum temperatures, the temperature measurements up to 14 days prior are considered as predictors in the forecasting model. This accounts for the cumulative impact of both current and recent past temperatures on a person's heat exposure.
 
-#### 2) Current vapour pressure and lags:
+#### 3) Current vapour pressure and lags:
 
 Similarly, the current value and 14 lags of vapour pressure are considered as predictors, as a proxy for the level of humidity.
 
-#### 3) Calendar effects:
+#### 4) Calendar effects:
 
-Finally, a couple of calendar variables (*day of the season (DOS)* and *Year*) are incorporated into the model to capture annual trend and seasonality, and also to control the autocorrelation in residuals, which is a common practice in environmental epidemiology.
+Finally, a couple of calendar variables (*day of the season (DOS)* and *Year*) are incorporated into the model to capture annual trend and seasonality, which is a common practice in environmental epidemiology.
 
 ### Modelling Framework
 
-Maximum temperature lags, minimum temperature lags, and vapour pressure lags are predictors that may enter indices. The two calendar variables, *DOS* and *Year*, are included in the model as separate nonparametric components that do not enter any of the indices. Hence, the relevant SMI model can be written as
+Death lags, maximum temperature lags, minimum temperature lags, and vapour pressure lags are predictors that may enter indices. The two calendar variables, *DOS* and *Year*, are included in the model as separate nonparametric components that do not enter any of the indices. Hence, the relevant SMI model can be written as
 $$
   \textbf{Deaths} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
 $$ {#eq-heat}
@@ -393,51 +397,57 @@ where
 - $\textbf{Deaths}$ is the vector containing daily deaths observations;
 - $\beta_{0}$ is the model intercept;
 - $p$ is the unknown number of indices to be estimated via the proposed algorithm;
-- $\bm{X}$ is a matrix containing the $q=45$ predictor variables that may enter indices (i.e. maximum temperature lags, minimum temperature lags, and vapour pressure lags);
+- $\bm{X}$ is a matrix containing the $q=59$ predictor variables that may enter indices (i.e. death lags, maximum temperature lags, minimum temperature lags, and vapour pressure lags);
 - $\bm{\alpha}_{j}$, $j = 1, \dots, p$ are the index coefficient vectors, each of length $q$;
 - $g_{1}, \dots,g_p$, $f_{1}$, and $f_{2}$ are unknown nonparametric functions; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from 1990 to 2012 are used as the training set to estimate the model, while the data of year 2014 are used as the test set for evaluating forecasting performance. The data from the three summer months of year 2013 are kept aside as a validation set, which is used to estimate benchmark models for comparison purposes. \todo[inline]{Have the model refitted using the data from 1990 to 2013?}
+The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI model. Here, once the tuning for the two penalty parameters is completed, the model is re-fitted for the entire data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
 
-We apply the proposed SMI Modelling algorithm to the training set to estimate the model. The forecasting accuracy on the test set is evaluated using MSE and Mean Absolute Error (MAE). We assume that the future values of the maximum/minimum temperatures and vapour pressure are known to use in the forecasting model; thus it is a post hoc analysis.
+\todo[inline]{Have the model refitted using the data from 1990 to 2013?}
+\todo[inline]{**Comment addressed**}
+
+The forecasting accuracy on the test set is evaluated using MSE and Mean Absolute Error (MAE). We assume that the future values of the maximum/minimum temperatures and vapour pressure are known to use in the forecasting model; thus it is a post hoc analysis.
 
 ### Benchmark Methods {#sec-benchmark}
 
 In addition to our proposed SMI model, we also evaluate three benchmark models for comparison purposes.
 
-The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. \todo[inline]{Is this the only method that has used the validation set?}
+The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. Once the optimal model is obtained, the final model is re-fitted for the entire data set combining training and validation sets. 
+
+\todo[inline]{Is this the only method that has used the validation set?}
+\todo[inline]{**Comment addressed**}
 
 The second benchmark is a ***Group-wise Additive Index Model (GAIM)***, which can be written in the form
 $$
   y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, 
 $$
-where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are pre-specified non-overlapping subsets of $\bm{x}_{i}$, and $\bm{\alpha}_j$ are the corresponding index coefficients, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022]. For this model, maximum temperature lags, minimum temperature lags, and vapour pressure lags are intuitively categorised into three separate groups, with an index estimated for each group. 
+where $y_{i}$ is the univariate response, $\bm{x}_{ij} \in \mathbb{R}^{l{j}}$, $j = 1, \dots, p$ are pre-specified non-overlapping subsets of $\bm{x}_{i}$, and $\bm{\alpha}_j$ are the corresponding index coefficients, $g_{j}$ is an unknown (possibly nonlinear) component function, and $\varepsilon_{i}$ is the random error, which is independent of $\bm{x}_{i}$ [@Wang2015-mp; @Masselot2022]. For this model, death lags, maximum temperature lags, minimum temperature lags, and vapour pressure lags are intuitively categorised into four separate groups, with an index estimated for each group. 
 
 The third benchmark is a ***Projection Pursuit Regression (PPR)*** model [@Friedman1981] given by
 $$
   y_{i} = \sum_{j=1}^{p} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i},
 $$
-where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vector, $\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}$, $j = 1, \dots, p$ are $q$-dimensional projection vectors (or vectors of "index coefficients"), $g_{j}$'s are unknown nonlinear functions, and $\varepsilon_{i}$ is the random error. The number of indices in the PPR model was taken as three, matching the number of indices estimated by the GAIM.
+where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vector, $\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}$, $j = 1, \dots, p$ are $q$-dimensional projection vectors (or vectors of "index coefficients"), $g_{j}$'s are unknown nonlinear functions, and $\varepsilon_{i}$ is the random error. The number of indices in the PPR model was taken as four, matching the number of indices estimated by the GAIM.
 
 ### Results
 
-We estimated SMI models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ over ranges of integers from 1 to 12, and 0 to 12 respectively, based on in-sample MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
+We estimated SMI models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ over ranges of integers from 1 to 12, and 0 to 12 respectively, based on validation set MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
 
-The penalty parameter combination $(\lambda_{0} = 12, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (12, 0) - PPR***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 12, \lambda_{2} = 5)$ (***SMI Model (12, 5) - Linear***), and resulted in two indices, without dropping any of the index variables.
+The penalty parameter combination $(\lambda_{0} = 5, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (5, 12) - PPR***, resulted in seven indices without dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 6, \lambda_{2} = 11)$ (***SMI Model (6, 11) - Linear***), and resulted in two indices, without dropping any of the index variables.
 
 We evaluated forecasting errors of the estimated models using two subsets of the original test set:
 
 1. ***Test Set 1:*** original test set spanning three months (June, July and August 2014); and
 2. ***Test Set 2:*** a test set covering one month (June 2014).
 
-The MSE and MAE values on the two different test sets for the estimated SMI models along with all benchmark methods considered are presented in @tbl-heat. We observe that the SMI model estimated with "PPR" initialisation, ***SMI Model (12, 0) - PPR***, shows the best forecasting performance on both test sets, compared to the other two estimated SMI models.
+The MSE and MAE values on the two different test sets for the estimated SMI models along with all benchmark methods considered are presented in @tbl-heat. We observe that the SMI model estimated with "PPR" initialisation, ***SMI Model (5, 12) - PPR***, shows the best forecasting performance on both test sets, compared to the other two estimated SMI models.
 
 ```{r}
 #| label: tbl-heat
 #| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results.
 #| tbl-pos: "!hb"
-results_heat <- readr::read_csv("results/heat_results.csv")
+results_heat <- readr::read_csv("results/heat_results_correct.csv")
 kable(results_heat,
     format = "latex",
     booktabs = TRUE,
@@ -455,15 +465,15 @@ kable(results_heat,
   column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-@tbl-heat also shows that ***SMI Model (12, 0) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance compared to all benchmark models considered. The actual number of deaths and the predicted values from the ***SMI Model (12, 0) - PPR*** and benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
+@tbl-heat also shows that ***SMI Model (5, 12) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance compared to GAIM and PPR models. The actual number of deaths and the predicted values from the ***SMI Model (5, 12) - PPR*** and benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
 #| label: fig-heatPred
 #| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (12, 0) - PPR" and benchmark models for Test Set 2.
-readr::read_csv(here::here("results/heat_predictions.csv")) |> 
+readr::read_csv(here::here("results/heat_predictions_correct.csv")) |> 
   select(-SMImodel_Additive, -SMImodel_Linear) |> 
   rename(
-    `SMI Model (12, 0) - PPR` = SMImodel_PPR,
+    `SMI Model (5, 12) - PPR` = SMImodel_PPR,
     `Backward Elimination` = Backward
   ) |> 
   tidyr::pivot_longer(Actual:GAIM, names_to = "Series", values_to = "Deaths") |> 
@@ -474,7 +484,7 @@ readr::read_csv(here::here("results/heat_predictions.csv")) |>
   ggtitle("Actual vs. Predicted Number of Deaths") +
   scale_colour_manual(name = "Series", values = c(
     "Actual" = "grey",
-    "SMI Model (12, 0) - PPR" = "#D55E00",
+    "SMI Model (5, 12) - PPR" = "#D55E00",
     "PPR" = "#0072B2",
     "Backward Elimination" = "#009E73",
     "GAIM" = "#CC79A7"
