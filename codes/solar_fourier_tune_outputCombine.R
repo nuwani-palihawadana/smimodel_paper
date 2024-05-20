@@ -19,6 +19,11 @@ solar_train <- solarData %>%
   as_tsibble(index = Date) %>%
   drop_na()
 
+# Validation set
+solar_val <- solarData %>%
+  filter((Date >= "2012-11-01") & (Date <= "2012-12-31")) %>%
+  as_tsibble(index = Date)
+
 # Test set
 solar_test <- solarData %>%
   filter((Date >= "2013-01-01") & (Date <= "2013-02-28"))
@@ -50,72 +55,38 @@ combRDS_fourier <- function(pathList, numFourier){
   return(result)
 }
 
-# Function to calculate and compare test MSEs
-min_testMSE <- function(models.list, newdata, yvar, recursive_colRange){
-  testMSE <- vector(mode = "list", length = length(models.list$num_fourier))
+# Function to calculate and compare validation set MSEs
+min_valMSE <- function(models.list, valdata, yvar, recursive_colRange){
+  valMSE <- vector(mode = "list", length = length(models.list$num_fourier))
   for(j in 1:length(models.list$num_fourier)){
     # Obtain predictions
-    preds <- predict(object = models.list$smimodel[[j]], newdata = newdata,
+    preds <- predict(object = models.list$smimodel[[j]], newdata = valdata,
                      recursive = TRUE, recursive_colRange = recursive_colRange)
     # Test MSE
-    testMSE[[j]] <- MSE(.resid = (preds[ , {{yvar}}][[1]] - preds$.predict))
+    valMSE[[j]] <- MSE(.resid = (preds[ , {{yvar}}][[1]] - preds$.predict))
   }
-  min_ind <- which.min(testMSE)
+  min_ind <- which.min(valMSE)
   min_num_fourier <- models.list$num_fourier[[min_ind]]
-  min_MSE <- testMSE[[min_ind]]
+  min_MSE <- valMSE[[min_ind]]
   min_smimodel <- models.list$smimodel[[min_ind]]
   output <- list("min_num_fourier" = min_num_fourier,
                  "min_MSE" = min_MSE,
                  "min_smimodel" = min_smimodel,
-                 "testMSE_list" = testMSE)
+                 "valMSE_list" = valMSE)
   return(output)
 }
 
-# PPR starting point -----------------------------------------------------------
-# Reading and combining outputs
-pathList_ppr <- list.files(path="./smimodelSolar_fourier_tune_ppr_results/results",
-                           pattern = ".rds$", full.names = TRUE)
-# Replace "path" appropriately in the above line of code.
-combModels_ppr <- combRDS_fourier(pathList_ppr, numFourier)
-
-# Select number of fourier terms
-minimum_error_ppr <- min_testMSE(models.list = combModels_ppr,
-                                 newdata = solar_test,
-                                 yvar = "Solar_lag_000",
-                                 recursive_colRange = 23:25)
-minimum_error_ppr$min_num_fourier
-minimum_error_ppr$min_MSE
-
 # Linear starting point --------------------------------------------------------
 # Reading and combining outputs
-pathList_linear <- list.files(path="./smimodelSolar_fourier_tune_linear_results/results",
+pathList_linear <- list.files(path="./smimodel_Solar_fourier_tune_linear_final/results",
                               pattern = ".rds$", full.names = TRUE)
 # Replace "path" appropriately in the above line of code.
 combModels_linear <- combRDS_fourier(pathList_linear, numFourier)
 
 # Select number of fourier terms
-minimum_error_linear <- min_testMSE(models.list = combModels_linear,
-                                    newdata = solar_test,
-                                    yvar = "Solar_lag_000",
-                                    recursive_colRange = 23:25)
+minimum_error_linear <- min_valMSE(models.list = combModels_linear,
+                                   valdata = solar_val,
+                                   yvar = "Solar_lag_000",
+                                   recursive_colRange = 23:25)
 minimum_error_linear$min_num_fourier
 minimum_error_linear$min_MSE
-
-# Additive starting point ------------------------------------------------------
-# The optimisation was run with MIPGap = 5e-2, TimeLimit = 600 due to 
-# computational time being longer for some models.
-
-# Reading and combining outputs
-pathList_additive <- list.files(path="./smimodelSolar_fourier_tune_additive_limit_results/results",
-                                pattern = ".rds$", full.names = TRUE)
-# Replace "path" appropriately in the above line of code.
-combModels_additive <- combRDS_fourier(pathList_additive, numFourier)
-
-# Select number of fourier terms
-minimum_error_additive <- min_testMSE(models.list = combModels_additive,
-                                      newdata = solar_test,
-                                      yvar = "Solar_lag_000",
-                                      recursive_colRange = 23:25)
-minimum_error_additive$min_num_fourier
-minimum_error_additive$min_MSE
-

@@ -1,0 +1,67 @@
+# Loading required packages ----------------------------------------------------
+library(dplyr)
+library(fabletools)
+library(lubridate)
+library(ROI)
+library(ROI.plugin.gurobi)
+library(smimodel)
+library(tibble)
+library(tidyr)
+library(tsibble)
+
+conflicted::conflict_prefer("filter", "dplyr")
+conflicted::conflict_prefer("lag", "dplyr")
+conflicted::conflict_prefer("unpack", "tidyr")
+
+# Data -------------------------------------------------------------------------
+solarData <- readRDS("./data/solar_data_withFourier.rds")
+
+# Training set
+solar_train <- solarData %>%
+  filter(Date <= "2012-10-31") %>%
+  as_tsibble(index = Date) %>%
+  drop_na()
+
+# Validation set
+solar_val <- solarData %>%
+  filter((Date >= "2012-11-01") & (Date <= "2012-12-31")) %>%
+  as_tsibble(index = Date)
+
+# greedy ---------------------------------------------------------------------
+# L0 penalty
+lambda0 = seq(1, 12, by = 1)
+# L2 penalty
+lambda2 = seq(0, 12, by = 1)
+# Full grid
+grid1 <- expand.grid(lambda0, lambda2)
+
+# Starting point options
+starting <- grid1[c(1, 6, 12, 73, 78, 84, 145, 150, 156), ]
+# L0 penalty
+lambda0_start = as.numeric(unique(unlist(starting[1])))
+# L2 penalty
+lambda2_start = as.numeric(unique(unlist(starting[2])))
+
+# Index variables
+index.vars <- colnames(solarData)[23:45]
+linear.vars <- colnames(solarData)[2:17] # 8 pairs of Fourier terms
+
+smimodel_solar_ppr <- greedy_smimodel(data = solar_train,
+                                      val.data = solar_val,
+                                      yvar = "Solar_lag_000",
+                                      index.vars = index.vars,
+                                      initialise = "ppr", #Change initialisation
+                                      # option here
+                                      linear.vars = linear.vars,
+                                      lambda0_seq = lambda0, 
+                                      lambda2_seq = lambda2, 
+                                      lambda_step = 1,
+                                      lambda0_start_seq = lambda0_start, 
+                                      lambda2_start_seq = lambda2_start,
+                                      refit = TRUE,
+                                      recursive = TRUE,
+                                      recursive_colRange = 23:25)
+
+# Saving output
+saveRDS(smimodel_solar_ppr, file = paste0('./results/smimodel_solar_ppr_fourier8.rds'))
+

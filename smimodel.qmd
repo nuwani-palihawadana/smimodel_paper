@@ -402,7 +402,7 @@ where
 - $g_{1}, \dots,g_p$, $f_{1}$, and $f_{2}$ are unknown nonparametric functions; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI model. Here, once the tuning for the two penalty parameters is completed, the model is re-fitted for the entire data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
+The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models. Here, once the tuning for the two penalty parameters is completed, the models are re-fitted for the entire data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
 
 \todo[inline]{Have the model refitted using the data from 1990 to 2013?}
 \todo[inline]{**Comment addressed**}
@@ -429,6 +429,8 @@ $$
   y_{i} = \sum_{j=1}^{p} {g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{i})} + \varepsilon_{i},
 $$
 where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vector, $\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}$, $j = 1, \dots, p$ are $q$-dimensional projection vectors (or vectors of "index coefficients"), $g_{j}$'s are unknown nonlinear functions, and $\varepsilon_{i}$ is the random error. The number of indices in the PPR model was taken as four, matching the number of indices estimated by the GAIM.
+
+Since a validation set is not used in estimating the two benchmark models *GAIM* and *PPR*, these two models are estimated on the entire data set combining training and validation sets. 
 
 ### Results
 
@@ -465,11 +467,11 @@ kable(results_heat,
   column_spec(7, bold = if_else(results_heat$MAE2 == min(results_heat$MAE2), TRUE, FALSE))
 ```
 
-@tbl-heat also shows that ***SMI Model (5, 12) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI Models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance compared to GAIM and PPR models. The actual number of deaths and the predicted values from the ***SMI Model (5, 12) - PPR*** and benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
+@tbl-heat also shows that ***SMI Model (5, 12) - PPR*** outperforms all three benchmark models in terms of forecasting accuracy, for both *Test Set 1* and *Test Set 2*. However, the SMI models estimated using "Additive" or "Linear" initialisations have inferior forecasting performance compared to GAIM and PPR models. The actual number of deaths and the predicted values from the ***SMI Model (5, 12) - PPR*** and benchmark models on *Test Set 2* are plotted in @fig-heatPred for further comparison.
 
 ```{r}
 #| label: fig-heatPred
-#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (12, 0) - PPR" and benchmark models for Test Set 2.
+#| fig-cap: Actual number of deaths vs. predicted number of deaths from "SMI Model (5, 12) - PPR" and benchmark models for Test Set 2.
 readr::read_csv(here::here("results/heat_predictions_correct.csv")) |> 
   select(-SMImodel_Additive, -SMImodel_Linear) |> 
   rename(
@@ -603,11 +605,14 @@ Finally, a calendar variable, *day of the year (DOY)* is incorporated into the m
 
 The lags of solar intensity, and the lags of weather variables are considered as predictors that may enter indices. The Fourier terms capturing the day of the year effect are included into the model as linear variables (so that they are not part of the indices).
 
-We experimented with the number of pairs of Fourier terms ($K$) that best captures the day of the year effect, considering values from $K = 1$ to $K = 10$. The SMI models fitted with one pair of Fourier terms ($K = 1$) resulted in the lowest test MSE. (i.e. the day of the year seasonal pattern follows a simple sine wave.) \todo[inline]{Did you use the test set data when choosing K?}
+We considered the number of pairs of Fourier terms ($K$) from $K = 1$ to $K = 10$, and used the SMI model with "Linear" initialisation to determine the number of pairs that best captures the day of the year effect, based on validation set MSE. (i.e. Multiple SMI models were fitted using different numbers of pairs Fourier terms, and the number of pairs of Fourier terms corresponding to the model that resulted in the lowest validation set MSE was selected.) The SMI model (with "Linear" initialisation) estimated with $K = 8$ resulted in the lowest validation set MSE, and hence $K = 8$ was taken as the number of pairs of Fourier terms in estimating all the SMI models and benchmark models. 
+
+\todo[inline]{Did you use the test set data when choosing K?}
+\todo[inline]{**Corrected**}
 
 Hence, the relevant SMI model can be written as
 $$
-  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \theta_{1}\textbf{DOY}\_\textbf{S1} + \theta_{2}\textbf{DOY}\_\textbf{C1} + \bm{\varepsilon},
+  \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \sum_{k = 1}^{8}(\theta_{k}\textbf{DOY}\_\textbf{S}_{\bm{k}} + \delta_{k}\textbf{DOY}\_\textbf{C}_{\bm{k}}) + \bm{\varepsilon},
 $$ {#eq-solar}
 where
 
@@ -617,28 +622,31 @@ where
 - $\bm{X}$ is a matrix containing the $q=23$ predictor variables that may enter indices (i.e. solar intensity, temperature, dew point, wind speed, rain and humidity lags);
 - $\bm{\alpha}_{j}$, $j = 1, \dots, p$ are the index coefficient vectors, each of length $q$;
 - $g_{1}, \dots, g_{p}$ are unknown nonparametric functions;
-- $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ are the sine and cosine terms of the first pair of Fourier terms corresponding to the variable $\textbf{DOY}$ respectively (seasonal period = 365.25);
-- $\theta_{1}$ and $\theta_{2}$ are the coefficients of $\textbf{DOY}\_\textbf{S1}$ and $\textbf{DOY}\_\textbf{C1}$ respectively; and
+- $\textbf{DOY}\_\textbf{S}_{\bm{k}}$ and $\textbf{DOY}\_\textbf{C}_{\bm{k}}$, $k = 1, \dots, 8$ are the sine and cosine terms of the first eight pairs of Fourier terms corresponding to the variable $\textbf{DOY}$ respectively (seasonal period = 365.25);
+- $\theta_{k}$ and $\delta_{k}$, $k = 1, \dots, 8$ are the coefficients of $\textbf{DOY}\_\textbf{S}_{\bm{k}}$ and $\textbf{DOY}\_\textbf{C}_{\bm{k}}$ respectively; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data of January and February 2013 comprise the test set to evaluate the forecasting performance. The data from November and December 2012 are kept aside as a validation set, which is required to estimate some of the benchmark models for comparison. \todo[inline]{Same question as in application 1.}
+The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data from November and December 2012 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models as well as selecting the best number of pairs of Fourier terms to be used for the variable *DOY* in this application. Once the tuning for the two penalty parameters and the selection of the Fourier terms are completed, the models are re-fitted for the entire data set combining training and validation sets. The data of January and February 2013 comprise the test set to evaluate the forecasting performance of the estimated models.
 
-Then we apply the proposed SMI Modelling algorithm to the training set to estimate the model, and the forecasting accuracy on the test set is evaluated using MSE and MAE. We assumed that the future values of the weather variables are known; thus it is a post hoc analysis.
+\todo[inline]{Same question as in application 1.}
+\todo[inline]{**Comment addressed**}
+
+The forecasting accuracy of the estimated models on the test set is evaluated using MSE and MAE. We assumed that the future values of the weather variables are known; thus it is a post hoc analysis.
 
 ### Results
 
-We estimated SMI Models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear". We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
+We estimated SMI models for the solar intensity data using three different initialisation options: "PPR", "Additive" and "Linear". We also tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$, over ranges of integers from 1 to 12, and 0 to 12 respectively.
 
-The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (1, 12) - PPR***, resulted in five indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 1, \lambda_{2} = 0)$. The estimated SMI model did not drop any index variables or indices, and thus the final model, ***SMI Model (1, 0) - Additive***, is equivalent to a semi-parametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear***, is just a linear model with the two linear variables $DOY\_S1$ and $DOY\_C1$. Notice that both ***SMI Model (1, 0) - Additive*** and ***SMI Model (1, 0) - Linear*** have $\lambda_{2} = 0$, indicating that these two models have omitted the $\ell_{2}$-penalty in the estimation process.
+The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 0)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (1, 0) - PPR***, resulted in four indices without dropping any of the index variables. The optimal penalty parameter combination for the model estimated taking "Additive" model as the starting point was $(\lambda_{0} = 6, \lambda_{2} = 0)$. The estimated SMI model did not drop any index variables or indices, and thus the final model, ***SMI Model (6, 0) - Additive***, is equivalent to a semi-parametric additive model. The model estimated with "Linear" initialisation also selected $(\lambda_{0} = 1, \lambda_{2} = 0)$. Unlike the above models, this SMI Model dropped all index variables and resulted in null indices, and hence, the final model, ***SMI Model (1, 0) - Linear***, is just a linear model with the sixteen linear variables $\textbf{DOY}\_\textbf{S}_{\bm{k}}$ and $\textbf{DOY}\_\textbf{C}_{\bm{k}}$, $k = 1, \dots, 8$. Notice that the all three SMI models have $\lambda_{2} = 0$, indicating that the models have omitted the $\ell_{2}$-penalty in the estimation process.
 
-@tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "Additive" initialisation, ***SMI Model (1, 0) - Additive***, shows the best forecasting performance among the three estimated SMI Models.
+@tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "PPR" initialisation, ***SMI Model (1, 0) - PPR***, shows the best forecasting performance among the three estimated SMI models.
 
 We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods? - \textbf{Yes, used Fourier terms in GAIM and backward elimination, but not in PPR because it is impossible to include separate linear terms in stats::ppr().}}
 
 ```{r}
 #| label: tbl-solar
 #| tbl-cap: Daily solar intensity forecasting - Out-of-sample point forecast results.
-results_solar <- readr::read_csv("results/solar_results_fourier.csv")
+results_solar <- readr::read_csv("results/solar_results_fourier8.csv")
 kable(results_solar,
   format = "latex",
   booktabs = TRUE,
@@ -654,21 +662,24 @@ kable(results_solar,
   column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
 ```
 
-@tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - Additive*** is lower than the GAIM and the PPR model. However, the ***SMI Model (1, 0) - Additive*** is unable to outperform the semi-parametric additive model with backward elimination, which has resulted in the best forecasting accuracy in this case. \todo[inline]{Is it because Backward Elimination method has used the validation set to evaluate out-of-sample performance in the modelling process?}
+@tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - PPR*** is lower than the backward elimination and GAIM models. However, the ***SMI Model (1, 0) - PPR*** is unable to outperform the PPR model, which has resulted in the best forecasting accuracy in this case. 
 
-Here, it is worth considering the differences between the SMI model and the backward elimination method that shows superior forecasting performance. The method proposed by @FH2012 formulates a semi-parametric additive model using a backward elimination of predictors, and does not perform any predictor grouping. In contrast, the SMI model takes a more general and objective approach to estimate an additive index model (which includes the semi-parametric additive model as a special case), where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
+\todo[inline]{Is it because Backward Elimination method has used the validation set to evaluate out-of-sample performance in the modelling process?} 
+\todo[inline]{**Comment addressed**}
 
-The actual solar intensity and the predicted values from the  ***SMI Model (1, 0) - Additive*** and benchmark models are plotted in @fig-solarPred for further comparison.
+Here, it is worth considering the differences between the SMI model and the PPR model that shows superior forecasting performance. When estimating a PPR model, both the number of indices and the predictors within each index (each index includes all provided predictors that are entering indices) are pre-determined. In contrast, the SMI model takes a more general and objective approach, where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
+
+The actual solar intensity and the predicted values from the  ***SMI Model (1, 0) - PPR*** and benchmark models are plotted in @fig-solarPred for further comparison.
 
 ```{r}
 #| label: fig-solarPred
-#| fig-cap: Actual solar intensity vs. predicted solar intensity from "SMI Model (1, 0) - Additive" and benchmark models.
-SolarPreds <- readr::read_csv("results/solar_predictions_fourier.csv") |> 
+#| fig-cap: Actual solar intensity vs. predicted solar intensity from "SMI Model (1, 0) - PPR" and benchmark models.
+SolarPreds <- readr::read_csv("results/solar_predictions_fourier8.csv") |> 
   rename(
-    `SMI Model (1,0) - Additive` = SMImodel_Additive,
+    `SMI Model (1, 0) - PPR` = SMImodel_PPR,
     `Backward Elimination` = Backward
   ) |> 
-  select(-SMImodel_Linear, -SMImodel_PPR) |> 
+  select(-SMImodel_Additive, -SMImodel_Linear) |> 
   tidyr::pivot_longer(Actual:GAIM, names_to = "Series", values_to = "Intensity")
 SolarPreds |> 
   ggplot(aes(x = Date, y = Intensity, colour = Series)) +
@@ -680,7 +691,7 @@ SolarPreds |>
   ) +
   scale_colour_manual(name = "Series", values = c(
     "Actual" = "grey",
-    "SMI Model (1,0) - Additive" = "#D55E00",
+    "SMI Model (1, 0) - PPR" = "#D55E00",
     "PPR" = "#0072B2",
     "Backward Elimination" = "#009E73",
     "GAIM" = "#CC79A7"
@@ -701,15 +712,15 @@ In this paper, we presented a novel algorithm for estimating a nonparametric/sem
 
 The proposed SMI Modelling algorithm has a number of key features: 1) It performs automatic selection of both the number of indices and the predictor grouping when estimating the nonparametric additive index model. Users need to input the set of predictors entering indices and a starting model (index structure and a set of index coefficients) to initiate the algorithm. 2) It performs automatic variable selection, which is particularly beneficial in high-dimensional settings. This feature contributes to an objective and principled estimation, reducing subjectivity across different users. 3) It is capable of estimating a wide spectrum of models, from single index models (one index) to additive models (number of indices equals the number of predictors entering indices). Hence, the SMI Modelling algorithm is a more general estimation tool for nonparametric additive models. 4) It provides the flexibility to include separate nonlinear and linear predictors in the model that are not entering any indices, allowing the estimation of semi-parametric additive models.
 
-We demonstrated the performance of the proposed algorithm through a simulation study and two empirical applications. Due to the limited input information provided to the algorithm, the estimation of a SMI Model is a challenging problem.  
+We demonstrated the performance of the proposed algorithm through a simulation study and two empirical applications. Due to the limited input information provided to the algorithm, the estimation of a SMI model is a challenging problem.  
 
-The two empirical applications presented above highlight the challenge of finding a universally applicable initialisation option for the SMI Model across various scenarios. As mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
+In both of the empirical applications presented above, the SMI model estimated with "PPR" initialisation resulted in best forecasting performance out of the three different SMI models estimated, indicating that "PPR" initialisation might be a more viable option. However, just these two examples are not sufficient to establish a universally applicable initialisation option for the SMI model across various scenarios. Hence, as mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
 
 Since the difficulty of specifying an initialisation that works in general is a limitation of the proposed algorithm, an interesting future research problem would be to explore the potential for determining a generalised initialisation for the SMI Modelling algorithm that will work well across various applications.
 
 This study should be viewed as a first attempt to develop a more objective methodology for variable selection and model estimation in the broader class of nonparametric additive models for forecasting. An important future research problem is therefore, to assess the performance of the proposed SMI Modelling algorithm across various data sets with diverse properties, identifying scenarios where it outperforms other benchmark methods.
 
-Furthermore, the MIQP in the algorithm is somewhat analogous to the *best subset selection* method frequently used in least squares problems. Thus, another limitation of the proposed algorithm is the increase in computational time as the number of predictors and number of indices increase. Therefore, it would be an interesting research to obtain further insights regarding the algorithm to see what improvements can be made to the algorithm design to reduce the computational cost in a high-dimensional context.
+Furthermore, the MIQP in the algorithm is somewhat analogous to the *best subset selection* method frequently used in least squares problems. Thus, another limitation of the proposed algorithm is the increase in computational time as the number of predictors and the number of indices increase. Therefore, it would be an interesting research to obtain further insights regarding the algorithm to see what improvements can be made to the algorithm design to reduce the computational cost in a high-dimensional context.
 
 # Acknowledgements {-}
 

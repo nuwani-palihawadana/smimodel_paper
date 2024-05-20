@@ -1,15 +1,17 @@
-# Note: The estimation of SMI Models were conducted in MonARCH 
-# (Monash Advanced Research Computing Hybrid) HPC Cluster. The codes used to fit
-# the models in the HPC (in the folder "codes/solar_HPC"), and comparing the 
-# models fitted using different number of fourier terms to select the best 
-# models (file codes/solar_fourier_tune_outputCombine.R") are provided separately.
+# Note: The estimation of SMI Models were conducted in MonARCH (Monash Advanced
+# Research Computing Hybrid) HPC Cluster. The codes used to fit (in HPC)
+# multiple SMI models with linear initialisatrion to select fourier terms (in
+# the folder "codes/solar_HPC_fourier_tune"), comparing the models fitted using
+# different number of fourier terms to select the best model (file
+# codes/solar_fourier_tune_outputCombine.R"), and fit final SMI models (in HPC)
+# with the selected number of fourier terms (in the folder "codes/solar_HPC")are
+# provided separately.
 
 # Loading required packages ----------------------------------------------------
 library(cgaim)
 library(dplyr)
 library(fable)
 library(fabletools)
-library(forecast)
 library(ggplot2)
 library(lubridate)
 library(readr)
@@ -33,6 +35,11 @@ solar_train <- solarData %>%
   as_tsibble(index = Date) %>%
   drop_na()
 
+# Validation set
+solar_val <- solarData %>%
+  filter((Date >= "2012-11-01") & (Date <= "2012-12-31")) %>%
+  as_tsibble(index = Date)
+
 # Test set
 solar_test <- solarData %>%
   filter((Date >= "2013-01-01") & (Date <= "2013-02-28"))
@@ -50,15 +57,17 @@ numFourier <- 1:10
 # Index variables
 index.vars <- colnames(solarData)[23:45]
 # Linear variables
-linear.vars <- colnames(solarData)[2:3] # Using only one pair of fourier term
-# as the lowest test MSEs were reported using only one pair.
+linear.vars <- colnames(solarData)[2:17] # Using 8 pairs of fourier terms.
+# Number of pairs to use was determined based on the number of pairs selected 
+# by the SMI Model with linear initialisation.
 
 ## SMI Model - ppr #############################################################
-## Penalty = (1, 12)
-## Num_ind = 5
+## Penalty = (1, 0)
+## Num_ind = 4
+## Num_var = 23 + 16 = 39
 
 # Read output
-smimodel_solar_ppr <- readRDS("./results/smimodel_solar_ppr_fourier_tuned.rds")$fitted_model
+smimodel_solar_ppr <- readRDS("./results/smimodel_solar_ppr_fourier8.rds")
 
 # Obtain predictions
 solar_preds_ppr <- predict(object = smimodel_solar_ppr, newdata = solar_test,
@@ -71,11 +80,12 @@ MAE_SMI_ppr <- MAE(.resid = (solar_preds_ppr$Solar_lag_000 - solar_preds_ppr$.pr
 MAE_SMI_ppr
 
 ## SMI Model - additive ########################################################
-## Penalty = (1, 0)
+## Penalty = (6, 0)
 ## Num_ind = 23
+## Num_var = 23 + 16 = 39
 
 # Read output
-smimodel_solar_additive <- readRDS("./results/smimodel_solar_additive_fourier_tuned.rds")$fitted_model
+smimodel_solar_additive <- readRDS("./results/smimodel_solar_additive_fourier8.rds")
 
 # Obtain predictions
 solar_preds_additive <- predict(object = smimodel_solar_additive, newdata = solar_test,
@@ -90,9 +100,10 @@ MAE_SMI_additive
 ## SMI Model - linear ##########################################################
 ## Penalty = (1, 0)
 ## Num_ind = 0
+## Num_var = 0 + 16 = 16
 
 # Read output
-smimodel_solar_linear <- readRDS("./results/smimodel_solar_linear_fourier_tuned.rds")$fitted_model
+smimodel_solar_linear <- readRDS("./results/smimodel_solar_linear_fourier8.rds")
 
 # Obtain predictions
 solar_preds_linear <- predict(object = smimodel_solar_linear, newdata = solar_test,
@@ -107,23 +118,8 @@ MAE_SMI_linear
 
 ## Backward Elimination ########################################################
 
-# Validation set
-solar_val <- solarData %>%
-  filter((Date >= "2012-11-01") & (Date <= "2012-12-31")) %>%
-  as_tsibble(index = Date)
-
-# Model fitting
-# solar_backward <- model_backward(data = solar_train,
-#                                  val.data = solar_val,
-#                                  yvar = "Solar_lag_000",
-#                                  s.vars = index.vars,
-#                                  linear.vars = linear.vars)
-
-# Save output
-#saveRDS(solar_backward, file = paste0('./results/solar_backward_fourier.rds'))
-
 # Read output
-solar_backward <- readRDS("./results/solar_backward_fourier.rds")
+solar_backward <- readRDS("./results/solar_backward_fourier8.rds")
 
 # Obtain predictions
 backward_preds <- predict(object = solar_backward, newdata = solar_test,
@@ -136,19 +132,20 @@ MAE_backward
 
 ## GAIM ########################################################################
 
-# Model fitting
+combinedData <- dplyr::bind_rows(solar_train, solar_val)
+# # Model fitting
 # index.ind = c(rep(1, 3), rep(2, 4), rep(3, 4), rep(4, 4), rep(5, 4), rep(6, 4))
-# solar_gaim <- model_gaim(data = solar_train, 
+# solar_gaim <- model_gaim(data = combinedData,
 #                          yvar = "Solar_lag_000",
 #                          index.vars = index.vars,
 #                          index.ind = index.ind,
 #                          linear.vars = linear.vars)
 # 
 # # Save output
-# saveRDS(solar_gaim, file = paste0('./results/solar_gaim_fourier.rds'))
+# saveRDS(solar_gaim, file = paste0('./results/solar_gaim_fourier8.rds'))
 
 # Read output
-solar_gaim <- readRDS("./results/solar_gaim_fourier.rds")
+solar_gaim <- readRDS("./results/solar_gaim_fourier8.rds")
 
 # Obtain predictions
 gaim_preds <- predict(object = solar_gaim, newdata = solar_test,
@@ -161,16 +158,16 @@ MAE_gaim
 
 ## PPR #########################################################################
 
-# Model fitting
-# solar_ppr <- model_ppr(data = solar_train, yvar = "Solar_lag_000",
+# # Model fitting
+# solar_ppr <- model_ppr(data = combinedData, yvar = "Solar_lag_000",
 #                        index.vars = index.vars, num_ind = 6)
-# num_ind = number of indices in GAIM
-
-# Save output
-# saveRDS(solar_ppr, file = paste0('./results/solar_ppr.rds'))
+# # num_ind = number of indices in GAIM
+# 
+# # Save output
+# saveRDS(solar_ppr, file = paste0('./results/solar_ppr_correct.rds'))
 
 # Read output
-solar_ppr <- readRDS("./results/solar_ppr.rds")
+solar_ppr <- readRDS("./results/solar_ppr_correct.rds")
 
 # Obtain predictions
 ppr_preds <- predict(object = solar_ppr, newdata = solar_test,
@@ -183,14 +180,14 @@ MAE_ppr
 
 # Creating a data frame of test set errors and writing to a csv
 results_solar <- tibble(
-  Model = c("SMI Model (1, 12) - PPR", "SMI Model (1, 0) - Additive", 
+  Model = c("SMI Model (1, 0) - PPR", "SMI Model (6, 0) - Additive", 
             "SMI Model (1, 0) - Linear", "Backward Elimination", "GAIM", "PPR"), 
-  Predictors = c("25", "25", "2", "17", "25", "23"),
-  Indices = c("5", "23", "0", "NA", "6", "6"),
+  Predictors = c("39", "39", "16", "36", "39", "23"),
+  Indices = c("4", "23", "0", "NA", "6", "6"),
   MSE = c(MSE_SMI_ppr, MSE_SMI_additive, MSE_SMI_linear, MSE_backward, MSE_gaim, MSE_ppr),
   MAE = c(MAE_SMI_ppr, MAE_SMI_additive, MAE_SMI_linear, MAE_backward, MAE_gaim, MAE_ppr)
 )
-write_csv(results_solar, "./results/solar_results.csv")
+write_csv(results_solar, "./results/solar_results_fourier8.csv")
 
 # Predictions for test set
 solar_test <- solarData %>%
@@ -206,15 +203,15 @@ SolarPreds <- tibble(
   Backward = as.numeric(backward_preds$.predict),
   GAIM = as.numeric(gaim_preds$.predict)
 )
-write_csv(SolarPreds, "./results/solar_predictions.csv")
+write_csv(SolarPreds, "./results/solar_predictions_fourier8.csv")
 
 # Graph
-SolarPreds <- readr::read_csv("results/solar_predictions.csv") |> 
+SolarPreds <- readr::read_csv("results/solar_predictions_fourier8.csv") |> 
   rename(
-    `SMI Model (1,0) - Additive` = SMImodel_Additive,
+    `SMI Model (1, 0) - PPR` = SMImodel_PPR,
     `Backward Elimination` = Backward
   ) |> 
-  select(-SMImodel_Linear, -SMImodel_PPR) |> 
+  select(-SMImodel_Linear, -SMImodel_Additive) |> 
   tidyr::pivot_longer(Actual:GAIM, names_to = "Series", values_to = "Intensity")
 SolarPreds |> 
   ggplot(aes(x = Date, y = Intensity, colour = Series)) +
@@ -226,7 +223,7 @@ SolarPreds |>
   ) +
   scale_colour_manual(name = "Series", values = c(
     "Actual" = "grey",
-    "SMI Model (1,0) - Additive" = "#D55E00",
+    "SMI Model (1, 0) - PPR" = "#D55E00",
     "PPR" = "#0072B2",
     "Backward Elimination" = "#009E73",
     "GAIM" = "#CC79A7"
