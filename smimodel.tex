@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{21 May 2024}
+\date{30 May 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 21 May 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 30 May 2024}
 
 % Keywords
 
@@ -675,11 +675,9 @@ initialising the SMI model as follows.
   \item
     Calculate a threshold
     \(\tau = 0.1 \times \max(\mathrm{abs}(\text{PPR index coefficients}))\).
-    \todo[inline]{Should it be: $\max(\mathrm{abs}(\text{PPR index coefficients}))$? - \textbf{Corrected}}
   \item
     Set to zero all coefficients whose absolute values fall below the
     calculated threshold.
-    \todo[inline]{Should it be: ...whose absolute values...? - \textbf{Corrected}}
   \item
     For predictors appearing in multiple indices, assign them to the
     index with the maximum absolute coefficient and zero out their
@@ -1239,9 +1237,6 @@ the entire data set combining training and validation sets. The data of
 year 2014 are used as the test set for evaluating forecasting
 performance.
 
-\todo[inline]{Have the model refitted using the data from 1990 to 2013?}
-\todo[inline]{**Comment addressed**}
-
 The forecasting accuracy on the test set is evaluated using MSE and Mean
 Absolute Error (MAE). We assume that the future values of the
 maximum/minimum temperatures and vapour pressure are known to use in the
@@ -1259,9 +1254,6 @@ variables are progressively omitted until the optimal model is obtained
 based on the validation set. Once the optimal model is obtained, the
 final model is re-fitted for the entire data set combining training and
 validation sets.
-
-\todo[inline]{Is this the only method that has used the validation set?}
-\todo[inline]{**Comment addressed**}
 
 The second benchmark is a \textbf{\emph{Group-wise Additive Index Model
 (GAIM)}}, which can be written in the form \[
@@ -1480,9 +1472,6 @@ the lowest validation set MSE, and hence \(K = 8\) was taken as the
 number of pairs of Fourier terms in estimating all the SMI models and
 benchmark models.
 
-\todo[inline]{Did you use the test set data when choosing K?}
-\todo[inline]{**Corrected**}
-
 Hence, the relevant SMI model can be written as
 \begin{equation}\phantomsection\label{eq-solar}{
   \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \sum_{k = 1}^{8}(\theta_{k}\textbf{DOY}\_\textbf{S}_{\bm{k}} + \delta_{k}\textbf{DOY}\_\textbf{C}_{\bm{k}}) + \bm{\varepsilon},
@@ -1532,9 +1521,6 @@ the models are re-fitted for the entire data set combining training and
 validation sets. The data of January and February 2013 comprise the test
 set to evaluate the forecasting performance of the estimated models.
 
-\todo[inline]{Same question as in application 1.}
-\todo[inline]{**Comment addressed**}
-
 The forecasting accuracy of the estimated models on the test set is
 evaluated using MSE and MAE. We assumed that the future values of the
 weather variables are known; thus it is a post hoc analysis.
@@ -1578,8 +1564,8 @@ the GAIM is fitted by grouping the lags of each weather variable into
 distinct group, resulting in six indices. The number of indices of the
 PPR model was taken as six, matching the number of indices estimated by
 the GAIM. Note that here, the calendar variable \emph{DOY} was excluded
-when estimating the PPR model.
-\todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods? - \textbf{Yes, used Fourier terms in GAIM and backward elimination, but not in PPR because it is impossible to include separate linear terms in stats::ppr().}}
+when estimating the PPR model because including separate linear terms is
+not feasible in a PPR model.
 
 \begin{table}
 
@@ -1613,9 +1599,6 @@ Table~\ref{tbl-solar} shows that the forecasting errors of
 elimination and GAIM models. However, the \textbf{\emph{SMI Model (1, 0)
 - PPR}} is unable to outperform the PPR model, which has resulted in the
 best forecasting accuracy in this case.
-
-\todo[inline]{Is it because Backward Elimination method has used the validation set to evaluate out-of-sample performance in the modelling process?} 
-\todo[inline]{**Comment addressed**}
 
 Here, it is worth considering the differences between the SMI model and
 the PPR model that shows superior forecasting performance. When

@@ -149,8 +149,8 @@ Based on several experiments, we propose three alternative methods for initialis
 
     a. Scale all the variables of the data set by dividing each variable by its standard deviation (so that it is possible to compare the estimated coefficients among predictors).
     b. Fit a PPR model and obtain estimated index coefficients. (The user can decide the number of initial indices $p^*$ to be estimated; we use $p^* = 5$ in our simulations and applications.)
-    c. Calculate a threshold $\tau = 0.1 \times \max(\mathrm{abs}(\text{PPR index coefficients}))$. \todo[inline]{Should it be: $\max(\mathrm{abs}(\text{PPR index coefficients}))$? - \textbf{Corrected}}
-    d. Set to zero all coefficients whose absolute values fall below the calculated threshold. \todo[inline]{Should it be: ...whose absolute values...? - \textbf{Corrected}}
+    c. Calculate a threshold $\tau = 0.1 \times \max(\mathrm{abs}(\text{PPR index coefficients}))$.
+    d. Set to zero all coefficients whose absolute values fall below the calculated threshold.
     e. For predictors appearing in multiple indices, assign them to the index with the maximum absolute coefficient and zero out their coefficients in other indices.
     f. After performing the above steps a-e, if any originally estimated index has all zero coefficients, it will be excluded from the model.
 
@@ -404,19 +404,13 @@ where
 
 The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models. Here, once the tuning for the two penalty parameters is completed, the models are re-fitted for the entire data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
 
-\todo[inline]{Have the model refitted using the data from 1990 to 2013?}
-\todo[inline]{**Comment addressed**}
-
 The forecasting accuracy on the test set is evaluated using MSE and Mean Absolute Error (MAE). We assume that the future values of the maximum/minimum temperatures and vapour pressure are known to use in the forecasting model; thus it is a post hoc analysis.
 
 ### Benchmark Methods {#sec-benchmark}
 
 In addition to our proposed SMI model, we also evaluate three benchmark models for comparison purposes.
 
-The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. Once the optimal model is obtained, the final model is re-fitted for the entire data set combining training and validation sets. 
-
-\todo[inline]{Is this the only method that has used the validation set?}
-\todo[inline]{**Comment addressed**}
+The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. Once the optimal model is obtained, the final model is re-fitted for the entire data set combining training and validation sets.
 
 The second benchmark is a ***Group-wise Additive Index Model (GAIM)***, which can be written in the form
 $$
@@ -605,10 +599,7 @@ Finally, a calendar variable, *day of the year (DOY)* is incorporated into the m
 
 The lags of solar intensity, and the lags of weather variables are considered as predictors that may enter indices. The Fourier terms capturing the day of the year effect are included into the model as linear variables (so that they are not part of the indices).
 
-We considered the number of pairs of Fourier terms ($K$) from $K = 1$ to $K = 10$, and used the SMI model with "Linear" initialisation to determine the number of pairs that best captures the day of the year effect, based on validation set MSE. (i.e. Multiple SMI models were fitted using different numbers of pairs Fourier terms, and the number of pairs of Fourier terms corresponding to the model that resulted in the lowest validation set MSE was selected.) The SMI model (with "Linear" initialisation) estimated with $K = 8$ resulted in the lowest validation set MSE, and hence $K = 8$ was taken as the number of pairs of Fourier terms in estimating all the SMI models and benchmark models. 
-
-\todo[inline]{Did you use the test set data when choosing K?}
-\todo[inline]{**Corrected**}
+We considered the number of pairs of Fourier terms ($K$) from $K = 1$ to $K = 10$, and used the SMI model with "Linear" initialisation to determine the number of pairs that best captures the day of the year effect, based on validation set MSE. (i.e. Multiple SMI models were fitted using different numbers of pairs Fourier terms, and the number of pairs of Fourier terms corresponding to the model that resulted in the lowest validation set MSE was selected.) The SMI model (with "Linear" initialisation) estimated with $K = 8$ resulted in the lowest validation set MSE, and hence $K = 8$ was taken as the number of pairs of Fourier terms in estimating all the SMI models and benchmark models.
 
 Hence, the relevant SMI model can be written as
 $$
@@ -628,9 +619,6 @@ where
 
 The data from February 2006 to October 2012 are used as the training set to estimate the model, while the data from November and December 2012 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models as well as selecting the best number of pairs of Fourier terms to be used for the variable *DOY* in this application. Once the tuning for the two penalty parameters and the selection of the Fourier terms are completed, the models are re-fitted for the entire data set combining training and validation sets. The data of January and February 2013 comprise the test set to evaluate the forecasting performance of the estimated models.
 
-\todo[inline]{Same question as in application 1.}
-\todo[inline]{**Comment addressed**}
-
 The forecasting accuracy of the estimated models on the test set is evaluated using MSE and MAE. We assumed that the future values of the weather variables are known; thus it is a post hoc analysis.
 
 ### Results
@@ -641,7 +629,7 @@ The penalty parameter combination $(\lambda_{0} = 1, \lambda_{2} = 0)$ was selec
 
 @tbl-solar presents the MSE and MAE values for the estimated SMI models on the test set. The results indicate that the SMI model estimated with "PPR" initialisation, ***SMI Model (1, 0) - PPR***, shows the best forecasting performance among the three estimated SMI models.
 
-We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model. \todo[inline]{Just to double check, did you also use Fourier terms to allow for seasonal patterns in all benchmark methods? - \textbf{Yes, used Fourier terms in GAIM and backward elimination, but not in PPR because it is impossible to include separate linear terms in stats::ppr().}}
+We also present forecasting errors of the three benchmark models in @tbl-solar, to compare with the estimated SMI models. Here, the GAIM is fitted by grouping the lags of each weather variable into distinct group, resulting in six indices. The number of indices of the PPR model was taken as six, matching the number of indices estimated by the GAIM. Note that here, the calendar variable *DOY* was excluded when estimating the PPR model because including separate linear terms is not feasible in a PPR model.
 
 ```{r}
 #| label: tbl-solar
@@ -662,10 +650,7 @@ kable(results_solar,
   column_spec(5, bold = if_else(results_solar$MAE == min(results_solar$MAE), TRUE, FALSE))
 ```
 
-@tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - PPR*** is lower than the backward elimination and GAIM models. However, the ***SMI Model (1, 0) - PPR*** is unable to outperform the PPR model, which has resulted in the best forecasting accuracy in this case. 
-
-\todo[inline]{Is it because Backward Elimination method has used the validation set to evaluate out-of-sample performance in the modelling process?} 
-\todo[inline]{**Comment addressed**}
+@tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - PPR*** is lower than the backward elimination and GAIM models. However, the ***SMI Model (1, 0) - PPR*** is unable to outperform the PPR model, which has resulted in the best forecasting accuracy in this case.
 
 Here, it is worth considering the differences between the SMI model and the PPR model that shows superior forecasting performance. When estimating a PPR model, both the number of indices and the predictors within each index (each index includes all provided predictors that are entering indices) are pre-determined. In contrast, the SMI model takes a more general and objective approach, where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
 
