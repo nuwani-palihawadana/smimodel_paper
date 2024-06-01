@@ -2,7 +2,7 @@
 
 Code for the paper titled "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting".
 
-## Description for files
+## Description
 
 - [`codes`](codes): Code files to reproduce the results presented in the paper.
   - [`simulation.R`](codes/simulation.R): Code to generate simulation data and perform the simulation experiment.
