@@ -1,7 +1,7 @@
 ---
 title: "Sparse Multiple Index Models for High-dimensional Nonparametric Forecasting"
 author:
-- name: Nuwani Palihawadana
+- name: Nuwani K Palihawadana
   affiliations:
     - name: Monash University
       department: Department of Econometrics & Business Statistics
