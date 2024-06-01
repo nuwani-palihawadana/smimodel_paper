@@ -1,6 +1,6 @@
 # Note: The estimation of SMI Models were conducted in MonARCH (Monash Advanced
 # Research Computing Hybrid) HPC Cluster. The codes used to fit (in HPC)
-# multiple SMI models with linear initialisatrion to select fourier terms (in
+# multiple SMI models with linear initialisation to select fourier terms (in
 # the folder "codes/solar_HPC_fourier_tune"), comparing the models fitted using
 # different number of fourier terms to select the best model (file
 # codes/solar_fourier_tune_outputCombine.R"), and fit final SMI models (in HPC)
