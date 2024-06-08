@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{3 June 2024}
+\date{8 June 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 3 June 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 8 June 2024}
 
 % Keywords
 
@@ -485,6 +485,17 @@ applications of additive models in environmental data, with a special
 focus on air pollution, climate change, and human health related
 studies.
 
+While nonparametric/semi-parametric additive models have been used to
+address problems from diverse application areas, there are several
+unresolved issues in their implementation. First, the estimation of the
+model is challenging in high-dimensional settings due to the large
+number of nonparametric components to be estimated. Second, there is a
+noticeable subjectivity in selecting predictor variables (from the
+available predictors) for the model, and in identifying which terms
+should be grouped together to model interactions. In most of the
+applications discussed above, the choices are based on empirical
+explorations or domain expertise.
+
 In this paper, we are interested in high-dimensional applications that
 exhibit complicated interactions among predictors, particularly in the
 presence of a large number of lagged variables and correlated errors. In
@@ -493,21 +504,10 @@ flexibility of the broader class of nonparametric additive models
 \autocite{Radchenko2015}, while mitigating the difficulty of estimating
 a nonparametric component for each individual predictor.
 
-While index models have been used to address problems from diverse
-application areas, there are several unresolved issues in their
-implementation. In this paper, we attempt to address two of those
-issues. First, the estimation of the model is challenging in
-high-dimensional settings due to the large number of nonparametric
-components to be estimated. Second, there is a noticeable subjectivity
-in selecting predictor variables (from the available predictors) for the
-model, and in identifying which terms should be grouped together to
-model interactions. In most of the applications discussed above, the
-choices are based on empirical explorations or domain expertise.
-
-We propose to address these issues using a \textbf{\emph{Sparse Multiple
-Index}} (SMI) model with automatic variable selection and grouping. This
-semi-parametric model can be written as
-\begin{equation}\phantomsection\label{eq-semipara}{
+Therefore, we propose to address the above mentioned issues using a
+\textbf{\emph{Sparse Multiple Index}} (SMI) model with automatic
+variable selection and grouping. This semi-parametric model can be
+written as \begin{equation}\phantomsection\label{eq-semipara}{
   y_{i} = \beta_{0} + \sum_{j = 1}^{p}g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \sum_{k = 1}^{d}f_{k}(w_{ik}) + \bm{\theta}^{T}\bm{u}_{i} + \varepsilon_{i}, \quad i = 1, \dots, n,
 }\end{equation} where \(y_{i}\) is the univariate response,
 \(\beta_{0}\) is the model intercept,
