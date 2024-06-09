@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{8 June 2024}
+\date{9 June 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 8 June 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 9 June 2024}
 
 % Keywords
 
@@ -476,11 +476,15 @@ predictor variables are captured by the sums
 \(\sum_{k=0}^{K} f_{2}(p_{t-k}, k)\) and
 \(\sum_{k=0}^{K} f_{3}(o_{t-k}, w_{t-k}, k)\) respectively.
 
-Further examples include \textcite{Ho2020}, who used semi-parametric
-additive models to estimate ground-level \(\text{PM}_{2.5}\)
-concentrations in Taiwan, while nonparametric additive models were
-utilised by \textcite{Ibrahim2023} for predicting census survey response
-rates. \textcite{Ravindra2019} provided a comprehensive review of the
+Further examples include \textcite{Ho2020} and \textcite{Du2012}, who
+used semi-parametric additive models to estimate ground-level
+\(\text{PM}_{2.5}\) concentrations in Taiwan, and logarithm of total
+distance driven by each household as a proxy for household gasoline
+consumption in Canada, respectively. Moreover, median housing prices in
+Boston were analysed by \textcite{Boente2023} using semi-parametric
+additive models, while nonparametric additive models were utilised by
+\textcite{Ibrahim2023} for predicting census survey response rates.
+\textcite{Ravindra2019} provided a comprehensive review of the
 applications of additive models in environmental data, with a special
 focus on air pollution, climate change, and human health related
 studies.
@@ -1263,10 +1267,10 @@ pre-specified non-overlapping subsets of \(\bm{x}_{i}\), and
 \(\bm{\alpha}_j\) are the corresponding index coefficients, \(g_{j}\) is
 an unknown (possibly nonlinear) component function, and
 \(\varepsilon_{i}\) is the random error, which is independent of
-\(\bm{x}_{i}\) \autocite{Wang2015-mp,Masselot2022}. For this model,
-death lags, maximum temperature lags, minimum temperature lags, and
-vapour pressure lags are intuitively categorised into four separate
-groups, with an index estimated for each group.
+\(\bm{x}_{i}\) \autocite{Wang2015,Masselot2022}. For this model, death
+lags, maximum temperature lags, minimum temperature lags, and vapour
+pressure lags are intuitively categorised into four separate groups,
+with an index estimated for each group.
 
 The third benchmark is a \textbf{\emph{Projection Pursuit Regression
 (PPR)}} model \autocite{Friedman1981} given by \[
