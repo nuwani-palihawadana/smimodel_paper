@@ -265,7 +265,7 @@ In the simulation experiment, we did not perform any tuning for the penalty para
 #| label: tbl-simulation
 #| tbl-cap: Simulation experiment results.
 #| tbl-pos: "!h"
-results_sim <- readr::read_csv(here::here("results/simulation_table_final_corrected.csv"))
+results_sim <- readr::read_csv("results/simulation_table_final_corrected.csv")
 results_sim <- results_sim[seq(2, NROW(results_sim), by = 2), ]
 kable(results_sim,
   format = "latex",
