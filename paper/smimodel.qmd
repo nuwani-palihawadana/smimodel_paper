@@ -70,7 +70,7 @@ Forecasts are often contingent on a very long history of predictors, which are n
 These examples suggest a possible nonlinear "*transfer function*" model of the form
 $$
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
-$$ {#eq-transferfun}
+$$
 where $y_{t}$ is the observation of the response variable at time $t$, $\bm{x}_{t}$ is a vector of predictors at time $t$, and $\varepsilon_{t}$ is an i.i.d. random error. By including lagged values of $y_{t}$ along with the lagged predictors, the model is able to capture the serial correlation that is present in the data.
 
 The form of $f$ is typically nonlinear and involves complicated interactions with a high value of $p$ (and possibly also a large $k$). It is infeasible to estimate $f$ in high-dimensional settings (where $p$ is large) due to the curse of dimensionality [@Bellman57; @Stone82]. Instead, we normally impose some form of additivity constraint, and ignore interactions of more than two or three variables. There are also numerous ad hoc model choices in selecting the appropriate predictors to include.
@@ -78,7 +78,7 @@ The form of $f$ is typically nonlinear and involves complicated interactions wit
 For example, @FH2012 proposed a ***semi-parametric additive model*** to obtain short-term forecasts of the half-hourly electricity demand for power systems in the Australian National Electricity Market. In this model, $f$ is assumed to be fully additive, and is used to capture the effects of recent predictor values on the demand. The main objective is to allow nonparametric components in a regression-based modelling framework, particularly to address serially correlated errors. The model fitted for each half-hourly period ($q$) can be written as
 $$
  \log(y_{t,q}) = h_{q}(t) + f_{q}(\bm{w}_{1,t},\bm{w}_{2,t}) + \sum_{j=1}^k a_{q,j}(y_{t-j}) + \varepsilon_{t}.
-$$ {#eq-FH}
+$$
 The term $h_{q}(t)$ models several calendar effects as either linear or smooth terms. Temperature effects are modelled using the nonparametric component $f_{q}(\bm{w}_{1,t},\bm{w}_{2,t})$, where $\bm{w}_{i,t} = [w_{i,t},\dots,w_{i,t-p}]'$ is a vector of lagged temperatures at site $i$. The terms $a_{q,j}(y_{t-j})$ capture the lagged effects of the response. Note that the error term $\varepsilon_{t}$ is serially uncorrelated within each half-hourly model, because the serial correlation is eliminated by the inclusion of lagged responses in the model. However, some correlation may still exist between residuals from various half-hourly models [@FH2012].
 
 Similarly, a ***distributed lag model*** was proposed by @Wood2017 to forecast daily death rates in Chicago using measurements of several air pollutants. The response variable is modelled via a sum of smooth functions of lagged predictor variables, which is quite similar to the semi-parametric additive model used by @FH2012. However, unlike in @FH2012, @Wood2017 suggested allowing the smooth functions for lags of the same covariate to vary smoothly over lags, preventing large differences in estimated effects between adjacent lags. Thus, the model is of the form
@@ -388,7 +388,7 @@ Finally, a couple of calendar variables (*day of the season (DOS)* and *Year*) a
 Death lags, maximum temperature lags, minimum temperature lags, and vapour pressure lags are predictors that may enter indices. The two calendar variables, *DOS* and *Year*, are included in the model as separate nonparametric components that do not enter any of the indices. Hence, the relevant SMI model can be written as
 $$
   \textbf{Deaths} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
-$$ {#eq-heat}
+$$
 where
 
 - $\textbf{Deaths}$ is the vector containing daily deaths observations;
@@ -601,7 +601,7 @@ We considered the number of pairs of Fourier terms ($K$) from $K = 1$ to $K = 10
 Hence, the relevant SMI model can be written as
 $$
   \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \sum_{k = 1}^{8}(\theta_{k}\textbf{DOY}\_\textbf{S}_{\bm{k}} + \delta_{k}\textbf{DOY}\_\textbf{C}_{\bm{k}}) + \bm{\varepsilon},
-$$ {#eq-solar}
+$$
 where
 
 - $\textbf{Solar}$ is the vector containing daily observations of solar intensity;

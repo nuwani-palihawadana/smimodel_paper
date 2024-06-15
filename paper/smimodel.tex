@@ -417,13 +417,13 @@ result \autocite{Peterson2014,Bakker2019,Rajaee2019} due to the complex
 nonlinear flow dynamics of rainfall into aquifers.
 
 These examples suggest a possible nonlinear ``\emph{transfer function}''
-model of the form \begin{equation}\phantomsection\label{eq-transferfun}{
+model of the form \[
  y_t = f(\bm{x}_{t}, \bm{x}_{t-1}, \dots,\bm{x}_{t-p}, y_{t-1},\dots,y_{t-k}) + \varepsilon_{t},
-}\end{equation} where \(y_{t}\) is the observation of the response
-variable at time \(t\), \(\bm{x}_{t}\) is a vector of predictors at time
-\(t\), and \(\varepsilon_{t}\) is an i.i.d. random error. By including
-lagged values of \(y_{t}\) along with the lagged predictors, the model
-is able to capture the serial correlation that is present in the data.
+\] where \(y_{t}\) is the observation of the response variable at time
+\(t\), \(\bm{x}_{t}\) is a vector of predictors at time \(t\), and
+\(\varepsilon_{t}\) is an i.i.d. random error. By including lagged
+values of \(y_{t}\) along with the lagged predictors, the model is able
+to capture the serial correlation that is present in the data.
 
 The form of \(f\) is typically nonlinear and involves complicated
 interactions with a high value of \(p\) (and possibly also a large
@@ -442,11 +442,11 @@ additive, and is used to capture the effects of recent predictor values
 on the demand. The main objective is to allow nonparametric components
 in a regression-based modelling framework, particularly to address
 serially correlated errors. The model fitted for each half-hourly period
-(\(q\)) can be written as \begin{equation}\phantomsection\label{eq-FH}{
+(\(q\)) can be written as \[
  \log(y_{t,q}) = h_{q}(t) + f_{q}(\bm{w}_{1,t},\bm{w}_{2,t}) + \sum_{j=1}^k a_{q,j}(y_{t-j}) + \varepsilon_{t}.
-}\end{equation} The term \(h_{q}(t)\) models several calendar effects as
-either linear or smooth terms. Temperature effects are modelled using
-the nonparametric component \(f_{q}(\bm{w}_{1,t},\bm{w}_{2,t})\), where
+\] The term \(h_{q}(t)\) models several calendar effects as either
+linear or smooth terms. Temperature effects are modelled using the
+nonparametric component \(f_{q}(\bm{w}_{1,t},\bm{w}_{2,t})\), where
 \(\bm{w}_{i,t} = [w_{i,t},\dots,w_{i,t-p}]'\) is a vector of lagged
 temperatures at site \(i\). The terms \(a_{q,j}(y_{t-j})\) capture the
 lagged effects of the response. Note that the error term
@@ -1197,10 +1197,9 @@ Death lags, maximum temperature lags, minimum temperature lags, and
 vapour pressure lags are predictors that may enter indices. The two
 calendar variables, \emph{DOS} and \emph{Year}, are included in the
 model as separate nonparametric components that do not enter any of the
-indices. Hence, the relevant SMI model can be written as
-\begin{equation}\phantomsection\label{eq-heat}{
+indices. Hence, the relevant SMI model can be written as \[
   \textbf{Deaths} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + f_{1}(\textbf{DOS}) + f_{2}(\textbf{Year})+ \bm{\varepsilon},
-}\end{equation} where
+\] where
 
 \begin{itemize}
 \tightlist
@@ -1470,10 +1469,9 @@ the lowest validation set MSE, and hence \(K = 8\) was taken as the
 number of pairs of Fourier terms in estimating all the SMI models and
 benchmark models.
 
-Hence, the relevant SMI model can be written as
-\begin{equation}\phantomsection\label{eq-solar}{
+Hence, the relevant SMI model can be written as \[
   \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \sum_{k = 1}^{8}(\theta_{k}\textbf{DOY}\_\textbf{S}_{\bm{k}} + \delta_{k}\textbf{DOY}\_\textbf{C}_{\bm{k}}) + \bm{\varepsilon},
-}\end{equation} where
+\] where
 
 \begin{itemize}
 \tightlist
