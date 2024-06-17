@@ -165,9 +165,9 @@ Based on several experiments, we propose four alternative methods for initialisi
 
 4. **Multiple: Picking One From Multiple Initialisations**
 
-    The final optimised SMI model may change depending on the initialisation provided to the algorithm. Hence, we also consider using several different models as initialisations, optimise the SMI model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem.
+    The final optimised SMI model may change depending on the initialisation provided to the algorithm. Hence, we also consider using several different models as initialisations, optimising the SMI model for each of them, and picking the initial model that results in the lowest loss for the MIQP problem.
 
-Of course, it is also possible for a user to specify an initialisation, based on their own domain expertise or prior knowledge in initialising the algorithm. In each of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficients for each index are scaled to have unit norm to ensure identifiability.
+Of course, it is also possible for a user to specify an initialisation, based on their own domain expertise or prior knowledge in, initialising the algorithm. In each of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficients for each index are scaled to have unit norm to ensure identifiability.
 
 ### Estimating Nonlinear Functions {#sec-step2}
 
@@ -208,11 +208,11 @@ The following algorithm summarises the key steps of the SMI Modelling algorithm.
 2. Estimate $g_{j}$, $j=1,\dots,p$, using a GAM taking $y_{i}$ as the response and $\hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$ as predictors.
 3. Update $\bm{\alpha}$ through the MIQP in @eq-smi-update, and scale each $\hat{\bm{\alpha}}_{j}$ to have a unit norm.
 4. Iterate steps 2 and 3 until convergence, loss increases for three consecutive iterations, or reaching the maximum iterations.
-5. If there are no dropped predictors, stop. Otherwise include a new index consisting of dropped predictors, and repeat step 4.
+5. If there are no dropped predictors, stop. Otherwise, include a new index consisting of dropped predictors, and repeat step 4.
 6. Increase $p$ by one in each iteration of step 5 until meeting one of the termination criteria below.
    - The number of indices in the iteration reaches $q$; select the final fitted model as output.
-   - Loss increases after the increment; select previous iteration model as the final SMI model.
-   - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with smaller loss as the final SMI model.
+   - Loss increases after the increment; select the previous iteration model as the final SMI model.
+   - The solution maintains the same number of indices as the previous iteration, and the absolute difference of index coefficients between two successive iterations is not larger than a pre-specified tolerance; select the model with a smaller loss as the final SMI model.
 
 Throughout the experiments in the paper, we use $M = 10$, a convergence tolerance of $0.001$, and a maximum of $50$ iterations in step 4 of Algorithm 1, and a convergence tolerance of $0.001$ for coefficients in step 6 of Algorithm 1.
 
@@ -224,7 +224,7 @@ This section presents the results of a simulation experiment designed to demonst
 
 **Generating predictor variables:**
 
-First, we generate two time series, each of length 1205: $x_{0}$ from a uniform distribution on the interval $[0, 1]$, and $z_{0}$ from a normal distribution $N(5, 4)$. Next, we construct lagged series of both $x_{0}$ and $z_{0}$, where $x_i$ denotes the $i^{th}$ lag of $x_{0}$, and $z_i$ denotes the $i^{th}$ lag of $z_{0}$. Then $\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}$, and $\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}$) are taken as predictors in the simulation experiment.
+First, we generate two time series, each of length 1205: $x_{0}$ from a uniform distribution on the interval $[0, 1]$, and $z_{0}$ from a normal distribution $N(5, 4)$. Next, we construct lagged series of both $x_{0}$ and $z_{0}$, where $x_i$ denotes the $i^{th}$ lag of $x_{0}$, and $z_i$ denotes the $i^{th}$ lag of $z_{0}$. Then $\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}$, and $\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}$ are taken as predictors in the simulation experiment.
 
 **Generating response variables:**
 
@@ -258,7 +258,7 @@ We apply the proposed SMI Modelling algorithm with each of the above predictor c
 
 We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the predictor grouping among indices) estimated by the proposed algorithm under each of the initialisation options, i.e., "PPR", "Additive", "Linear", and "Multiple". This is detailed for each combination explored, considering response, input predictors, and noise levels.
 
-In the simulation experiment, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$. Our experiments indicated that, for this simple example, different values of penalty parameters have a negligible impact on the estimated models. The default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ were used in estimating all the models presented in @tbl-simulation.
+Our experiments indicated that, for this simple example, different values of penalty parameters have a negligible impact on the estimated models. Thus, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ in the simulation experiment. The default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ were used in estimating all the models presented in @tbl-simulation.
 
 ```{r}
 #| label: tbl-simulation
@@ -283,19 +283,21 @@ kable(results_sim,
   row_spec(0, bold = TRUE)
 ```
 
+\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE?}
+
 At a low noise level, in both cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all initialisations enable the algorithm to estimate the correct index structure for both $y_{1}$ and $y_{2}$, with an exception in the "Linear" option for $y_{2}$. The "Linear" option for $y_{2}$ selects the correct variables, but fails to identify the two-index structure. This suggests that initialising the algorithm with a higher number of indices might be more effective than with a lower number. In the case of "some $\bm{x}$ + all $\bm{z}$", for both $y_{1}$ and $y_{2}$, the models estimated under all initialisations include some noise variables. This indicates that when the available predictors are insufficient to capture the data signal, the algorithm might select irrelevant variables to make up for the missing signal.
 
 When the fitted models are evaluated for $y_{1}$, in both cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all initialisations result in a test set Mean Squared Error (MSE) of $\approx 0.01$, which corresponds to the variance of the true model error. This confirms the accuracy with which the SMI Modelling algorithm estimates the index structure for $y_{1}$. For $y_{2}$, all the estimated models result in a test set MSE of $\approx 0.16$. This is an interesting result as the test set MSE of an estimated model with incorrect index structure, but with correct predictors ("Linear") is similar to the models with correct index structure ("PPR", "Additive", and "Multiple"). This suggests that the selection of the predictor variables is more important than determining the index structure of the model in this case. For both $y_{1}$ and $y_{2}$, in the case of "some $\bm{x}$ + all $\bm{z}$", MSE on the test set increases in comparison to the above cases, probably due to the inclusion of the noise variables.
 
 Moreover, in contrast to $y_{1}$, the test set MSE values for $y_{2}$ are higher than the variance of the true model error. Intuitively, the complexity of the model $y_{2}$ is higher than $y_{1}$, where the total estimation error of two nonlinear functions (corresponding to the two indices) for $y_{2}$, might be higher than the error of estimating a single nonlinear function for $y_{1}$.
 
-As expected, the accuracy with which the SMI Modelling algorithm estimates the index structure is in general lower with the high noise level than with the low noise level. For both $y_{1}$ and $y_{2}$, most of the estimated models have selected irrelevant variables. In both the cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the models estimated for $y_{1}$ (except for the "Additive" option in the "all $\bm{x}$" case) result in a test set MSE of $\approx 0.23$ (which is slightly lower than the variance of the true model error) irrespective of the fact that in the "all $\bm{x}$" case, "PPR" option, and in the "all $\bm{x}$ + all $\bm{z}$" case, "Additive" and "Multiple" options include irrelevant variables. This suggests over-fitting when there is low signal-to-noise ratio in the data. The result is the same for $y_{2}$, where irrespective of the different index structures and predictor choices, the estimated models in the above two predictor combinations produce similar MSE values on the test set.
+As expected, the SMI Modelling algorithm's accuracy in estimating the index structure is generally lower with the high noise level than with the low noise level. At a high noise level, most of the estimated models have selected irrelevant variables for both $y_{1}$ and $y_{2}$. In both the cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all the models estimated for $y_{1}$ (except for the "Additive" option in the "all $\bm{x}$" case) result in a test set MSE of $\approx 0.23$, which is slightly lower than the variance of the true model error. This occurs irrespective of the inclusion of irrelevant variables in "PPR" option for the "all $\bm{x}$" case, and in the "Additive" and "Multiple" options for the "all $\bm{x}$ + all $\bm{z}$" case. This suggests over-fitting when there is a low signal-to-noise ratio in the data. The same result is observed for $y_{2}$, where, irrespective of the different index structures and predictor choices, the estimated models in the above two predictor combinations produce similar MSE values on the test set.
 
-Similar to the previous case of low noise level, when only a part of $\bm{x}$ variables are provided, the test set MSE values increase for both $y_{1}$ and $y_{2}$, where the estimated models for $y_{2}$ produce higher test MSE values in comparison to the models for $y_{1}$.
+Similar to the previous case with a low noise level, when only a part of $\bm{x}$ variables are provided, the test set MSE values increase for both $y_{1}$ and $y_{2}$, where the estimated models for $y_{2}$ produce higher test MSE values compared to those for $y_{1}$.
 
-It is worth mentioning here that in real-world forecasting problems, the true data generating process (DGP) is unknown, and we do not expect an estimated model to precisely capture the true DGP. Therefore, as long as the estimated model demonstrates good forecasting accuracy, the index structure of the estimated model is less important.
+It is worth mentioning here that in real-world forecasting problems, the true data generating process (DGP) is unknown, and we do not expect an estimated model to precisely capture the true DGP. Therefore, as long as the estimated model demonstrates good forecasting accuracy, the exact index structure of the model is less important.
 
-Finally, the simulation study indicates that the choice of the initialisation depends on the data and application. Thus, users are encouraged to follow a trial-and-error procedure to determine the most suitable initial model for a given application.
+Finally, the simulation study indicates that the choice of the initialisation depends on the specific data and application. Thus, users are encouraged to follow a trial-and-error procedure to determine the most suitable initial model for a given application.
 
 # Empirical Applications {#sec-application}
 
