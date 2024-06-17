@@ -1004,7 +1004,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 
 \end{table}%
 
-\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE?}
+\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE? I believe it will make the result analysis easier to read.}
 
 At a low noise level, in both cases of ``all \(\bm{x}\)'' and ``all
 \(\bm{x}\) + all \(\bm{z}\)'', all initialisations enable the algorithm
@@ -1628,10 +1628,18 @@ intensity from ``SMI Model (1, 0) - PPR'' and benchmark models.}
 \subsection{Software}\label{software}
 
 These two empirical applications were performed using the R statistical
-software \autocite{Rcore}. We used the commercial MIP solver
-\textbf{\emph{Gurobi}} \autocite{gurobi2023} to solve the MIQPs related
-to the proposed SMI Modelling algorithm, through the
-\textbf{\emph{Gurobi plug-in}}
+software \autocite{Rcore}. We developed the \textbf{\emph{smimodel}}
+package for R, available at
+\url{https://github.com/nuwani-palihawadana/smimodel}, to implement the
+proposed SMI modelling algorithm. All the data and code to reproduce the
+experiments are made available at
+\url{https://github.com/nuwani-palihawadana/smimodel_paper}.
+
+\todo[inline]{Make the links public once we decide to submit the paper.}
+
+Moreover, We used the commercial MIP solver \textbf{\emph{Gurobi}}
+\autocite{gurobi2023} to solve the MIQPs related to the proposed SMI
+Modelling algorithm, through the \textbf{\emph{Gurobi plug-in}}
 \autocite[ROI.plugin.gurobi,][]{Schwendinger2023} available from the
 \textbf{\emph{R Optimization Infrastructure}}
 \autocites[ROI,][]{Hornik2023,Theusl2020} package. Furthermore, the GAMs
@@ -1671,7 +1679,7 @@ input information provided to the algorithm, the estimation of a SMI
 model is a challenging problem.
 
 In both of the empirical applications presented above, the SMI model
-estimated with ``PPR'' initialisation resulted in best forecasting
+estimated with ``PPR'' initialisation resulted in the best forecasting
 performance out of the three different SMI models estimated, indicating
 that ``PPR'' initialisation might be a more viable option. However, just
 these two examples are not sufficient to establish a universally
@@ -1689,7 +1697,7 @@ work well across various applications.
 This study should be viewed as a first attempt to develop a more
 objective methodology for variable selection and model estimation in the
 broader class of nonparametric additive models for forecasting. An
-important future research problem is therefore, to assess the
+important future research problem is, therefore, to assess the
 performance of the proposed SMI Modelling algorithm across various data
 sets with diverse properties, identifying scenarios where it outperforms
 other benchmark methods.

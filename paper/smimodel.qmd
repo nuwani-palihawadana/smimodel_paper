@@ -283,7 +283,7 @@ kable(results_sim,
   row_spec(0, bold = TRUE)
 ```
 
-\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE?}
+\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE? I believe it will make the result analysis easier to read.}
 
 At a low noise level, in both cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all initialisations enable the algorithm to estimate the correct index structure for both $y_{1}$ and $y_{2}$, with an exception in the "Linear" option for $y_{2}$. The "Linear" option for $y_{2}$ selects the correct variables, but fails to identify the two-index structure. This suggests that initialising the algorithm with a higher number of indices might be more effective than with a lower number. In the case of "some $\bm{x}$ + all $\bm{z}$", for both $y_{1}$ and $y_{2}$, the models estimated under all initialisations include some noise variables. This indicates that when the available predictors are insufficient to capture the data signal, the algorithm might select irrelevant variables to make up for the missing signal.
 
@@ -303,7 +303,7 @@ Finally, the simulation study indicates that the choice of the initialisation de
 
 ## Forecasting Daily Mortality {#sec-mortality}
 
-We apply the SMI Modelling algorithm to a data set used in @Masselot2022, to forecast daily mortality based on heat exposure. Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions on human health, is of significant importance in environmental epidemiology. 
+We apply the SMI Modelling algorithm to a data set used in @Masselot2022, to forecast daily mortality based on heat exposure. Studying the effects of various environmental exposures such as weather related variables, pollutants and man-made environmental conditions on human health, is of significant importance in environmental epidemiology.
 
 ### Description of the Data
 
@@ -323,7 +323,8 @@ dataHeat |>
   geom_point(colour = "grey40", size = 0.5) +
   facet_wrap(vars(Year), scales = "free_x", ncol = 1, strip.position = "left") +
   scale_x_datetime(date_breaks = "1 month") +
-  labs(x = "Date", y = "Number of Deaths", title = "")
+  labs(x = "Date", y = "Number of Deaths", title = "") +
+  theme_bw()
 ```
 
 Maximum temperature, minimum temperature, and vapour pressure (to represent the level of humidity) are considered as predictors in this empirical study. The number of daily deaths is plotted against each of these predictors in Figures [-@fig-Tmax]--[-@fig-Vp], respectively, where we can observe that the relationships between these predictors and the response are slightly nonlinear.
@@ -339,7 +340,8 @@ dataHeat |>
     x = "Maximum Temperature (Degrees Celsius)",
     y = "Number of Deaths",
     title = ""
-  )
+  ) +
+  theme_bw()
 ```
 
 ```{r}
@@ -353,7 +355,8 @@ dataHeat |>
     x = "Minimum Temperature (Degrees Celsius)",
     y = "Number of Deaths",
     title = ""
-  )
+  ) +
+  theme_bw()
 ```
 
 ```{r}
@@ -362,7 +365,8 @@ dataHeat |>
 dataHeat |>
   ggplot(aes(x = Vp_lag_000, y = Death_lag_000)) +
   geom_point(colour = "grey40", alpha = 0.5) +
-  labs(x = "Vapour Pressure", y = "Number of Deaths", title = "")
+  labs(x = "Vapour Pressure", y = "Number of Deaths", title = "") +
+  theme_bw()
 ```
 
 \pagebreak[3]
@@ -487,7 +491,8 @@ readr::read_csv("results/heat_predictions_correct.csv") |>
   theme(
     legend.position = "bottom",
     legend.box = "vertical"
-  )
+  ) +
+  theme_bw()
 ```
 
 ## Forecasting Daily Solar Intensity {#sec-solar}
@@ -511,7 +516,8 @@ dataSolar |>
   ggplot(aes(x = Date, y = Solar_lag_000)) +
   geom_line(colour = "grey40") +
   scale_x_date(date_breaks = "1 year") +
-  labs(title = "", y = "Solar Intensity (Watts per square metre)")
+  labs(title = "", y = "Solar Intensity (Watts per square metre)") +
+  theme_bw()
 ```
 
 In @fig-preds, the daily solar intensity is plotted against each of the predictors: temperature, dew point, wind, rain and humidity. We can observe that the relationships between these predictors and the response are nonlinear.
@@ -530,7 +536,8 @@ p1 <- dataSolar |>
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
-  )
+  ) +
+  theme_bw()
 
 p2 <- dataSolar |>
   ggplot(aes(x = Dewpt_lag_000, y = Solar_lag_000)) +
@@ -542,7 +549,8 @@ p2 <- dataSolar |>
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
-  )
+  ) +
+  theme_bw()
 
 p3 <- dataSolar |>
   ggplot(aes(x = Wind_lag_000, y = Solar_lag_000)) +
@@ -553,7 +561,8 @@ p3 <- dataSolar |>
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
-  )
+  ) +
+  theme_bw()
 
 p4 <- dataSolar |>
   ggplot(aes(x = Rain_lag_000, y = Solar_lag_000)) +
@@ -564,7 +573,8 @@ p4 <- dataSolar |>
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
-  )
+  ) +
+  theme_bw()
 
 p5 <- dataSolar |>
   ggplot(aes(x = Humid_lag_000, y = Solar_lag_000)) +
@@ -575,7 +585,8 @@ p5 <- dataSolar |>
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
-  )
+  ) +
+  theme_bw()
 
 grid.arrange(p1, p2, p3, p4, p5, nrow = 3, ncol = 2)
 ```
@@ -651,7 +662,7 @@ kable(results_solar,
 
 @tbl-solar shows that the forecasting errors of ***SMI Model (1, 0) - PPR*** is lower than the backward elimination and GAIM models. However, the ***SMI Model (1, 0) - PPR*** is unable to outperform the PPR model, which has resulted in the best forecasting accuracy in this case.
 
-Here, it is worth considering the differences between the SMI model and the PPR model that shows superior forecasting performance. When estimating a PPR model, both the number of indices and the predictors within each index (each index includes all provided predictors that are entering indices) are pre-determined. In contrast, the SMI model takes a more general and objective approach, where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure. 
+Here, it is worth considering the differences between the SMI model and the PPR model that shows superior forecasting performance. When estimating a PPR model, both the number of indices and the predictors within each index (each index includes all provided predictors that are entering indices) are pre-determined. In contrast, the SMI model takes a more general and objective approach, where the number of indices as well as predictors within each index are automatically determined through the proposed algorithm. Thus, the SMI model faces a more challenging estimation task due to the limited prior information provided regarding the model structure.
 
 The actual solar intensity and the predicted values from the  ***SMI Model (1, 0) - PPR*** and benchmark models are plotted in @fig-solarPred for further comparison.
 
@@ -683,12 +694,17 @@ SolarPreds |>
   theme(
     legend.position = "bottom",
     legend.box = "vertical"
-  )
+  ) +
+  theme_bw()
 ```
 
 ## Software
 
-These two empirical applications were performed using the R statistical software [@Rcore]. We used the commercial MIP solver ***Gurobi*** [@gurobi2023] to solve the MIQPs related to the proposed SMI Modelling algorithm, through the ***Gurobi plug-in*** [ROI.plugin.gurobi, @Schwendinger2023] available from the ***R Optimization Infrastructure*** [ROI, @Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** [@mgcv;@Wood2011].
+These two empirical applications were performed using the R statistical software [@Rcore]. We developed the ***smimodel*** package for R, available at <https://github.com/nuwani-palihawadana/smimodel>, to implement the proposed SMI modelling algorithm. All the data and code to reproduce the experiments are made available at <https://github.com/nuwani-palihawadana/smimodel_paper>.
+
+\todo[inline]{Make the links public once we decide to submit the paper.}
+
+Moreover, We used the commercial MIP solver ***Gurobi*** [@gurobi2023] to solve the MIQPs related to the proposed SMI Modelling algorithm, through the ***Gurobi plug-in*** [ROI.plugin.gurobi, @Schwendinger2023] available from the ***R Optimization Infrastructure*** [ROI, @Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** [@mgcv;@Wood2011].
 
 # Conclusions and Further Research {#sec-conclusion}
 
@@ -696,13 +712,13 @@ In this paper, we presented a novel algorithm for estimating a nonparametric/sem
 
 The proposed SMI Modelling algorithm has a number of key features: 1) It performs automatic selection of both the number of indices and the predictor grouping when estimating the nonparametric additive index model. Users need to input the set of predictors entering indices and a starting model (index structure and a set of index coefficients) to initiate the algorithm. 2) It performs automatic variable selection, which is particularly beneficial in high-dimensional settings. This feature contributes to an objective and principled estimation, reducing subjectivity across different users. 3) It is capable of estimating a wide spectrum of models, from single index models (one index) to additive models (number of indices equals the number of predictors entering indices). Hence, the SMI Modelling algorithm is a more general estimation tool for nonparametric additive models. 4) It provides the flexibility to include separate nonlinear and linear predictors in the model that are not entering any indices, allowing the estimation of semi-parametric additive models.
 
-We demonstrated the performance of the proposed algorithm through a simulation study and two empirical applications. Due to the limited input information provided to the algorithm, the estimation of a SMI model is a challenging problem.  
+We demonstrated the performance of the proposed algorithm through a simulation study and two empirical applications. Due to the limited input information provided to the algorithm, the estimation of a SMI model is a challenging problem.
 
-In both of the empirical applications presented above, the SMI model estimated with "PPR" initialisation resulted in best forecasting performance out of the three different SMI models estimated, indicating that "PPR" initialisation might be a more viable option. However, just these two examples are not sufficient to establish a universally applicable initialisation option for the SMI model across various scenarios. Hence, as mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
+In both of the empirical applications presented above, the SMI model estimated with "PPR" initialisation resulted in the best forecasting performance out of the three different SMI models estimated, indicating that "PPR" initialisation might be a more viable option. However, just these two examples are not sufficient to establish a universally applicable initialisation option for the SMI model across various scenarios. Hence, as mentioned in @sec-simulation, we encourage users to follow a trial-and-error procedure to identify the most effective initialisation option for their specific application.
 
 Since the difficulty of specifying an initialisation that works in general is a limitation of the proposed algorithm, an interesting future research problem would be to explore the potential for determining a generalised initialisation for the SMI Modelling algorithm that will work well across various applications.
 
-This study should be viewed as a first attempt to develop a more objective methodology for variable selection and model estimation in the broader class of nonparametric additive models for forecasting. An important future research problem is therefore, to assess the performance of the proposed SMI Modelling algorithm across various data sets with diverse properties, identifying scenarios where it outperforms other benchmark methods.
+This study should be viewed as a first attempt to develop a more objective methodology for variable selection and model estimation in the broader class of nonparametric additive models for forecasting. An important future research problem is, therefore, to assess the performance of the proposed SMI Modelling algorithm across various data sets with diverse properties, identifying scenarios where it outperforms other benchmark methods.
 
 Furthermore, the MIQP in the algorithm is somewhat analogous to the *best subset selection* method frequently used in least squares problems. Thus, another limitation of the proposed algorithm is the increase in computational time as the number of predictors and the number of indices increase. Therefore, it would be an interesting research to obtain further insights regarding the algorithm to see what improvements can be made to the algorithm design to reduce the computational cost in a high-dimensional context.
 
