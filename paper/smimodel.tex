@@ -254,7 +254,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{15 June 2024}
+\date{17 June 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +364,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 15 June 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 17 June 2024}
 
 % Keywords
 
@@ -487,7 +487,7 @@ environmental data, with a special focus on studies related to air
 pollution, climate change, and human health.
 
 While nonparametric and semi-parametric additive models have been used
-to diverse application problems, there are several unresolved issues in
+in diverse application problems, there are several unresolved issues in
 their implementation. First, estimating these models in high-dimensional
 settings is challenging due to the large number of nonparametric
 components to be estimated. Second, there is noticeable subjectivity in
@@ -644,7 +644,7 @@ structure (i.e.~the number of indices \(p\) and the grouping of
 predictors among indices) as well as for the index coefficients
 (\(\bm{\alpha}\)) of the model.
 
-Based on several experiments, we propose three alternative methods for
+Based on several experiments, we propose four alternative methods for
 initialising the SMI model as follows.
 
 \begin{enumerate}
@@ -839,7 +839,7 @@ Algorithm}
   Equation~\ref{eq-smi-update}, and scale each \(\hat{\bm{\alpha}}_{j}\)
   to have a unit norm.
 \item
-  Iterate steps 2 and 3 until convergence, loss increase for three
+  Iterate steps 2 and 3 until convergence, loss increases for three
   consecutive iterations, or reaching the maximum iterations.
 \item
   If there are no dropped predictors, stop. Otherwise include a new

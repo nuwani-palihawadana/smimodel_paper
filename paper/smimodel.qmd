@@ -89,7 +89,7 @@ where $y_{t}$ is the death rate at day $t$, $f_{1}$ is a nonparametric term to c
 
 Further examples include @Boente2023, @Du2012, and @Ho2020, who applied semi-parametric additive models to predict housing prices, household gasoline consumption, and ground-level $\text{PM}_{2.5}$ concentrations, respectively. @Ibrahim2023 considered nonparametric additive models to predict census survey response rates. Additionally, @Ravindra2019 provided a comprehensive review of the applications of additive models in environmental data, with a special focus on studies related to air pollution, climate change, and human health.
 
-While nonparametric and semi-parametric additive models have been used to diverse application problems, there are several unresolved issues in their implementation. First, estimating these models in high-dimensional settings is challenging due to the large number of nonparametric components to be estimated. Second, there is noticeable subjectivity in selecting predictor variables (from the available predictors) and identifying which terms should be grouped together to model interactions. In most of the applications discussed above, the choices are based on empirical explorations or domain expertise.
+While nonparametric and semi-parametric additive models have been used in diverse application problems, there are several unresolved issues in their implementation. First, estimating these models in high-dimensional settings is challenging due to the large number of nonparametric components to be estimated. Second, there is noticeable subjectivity in selecting predictor variables (from the available predictors) and identifying which terms should be grouped together to model interactions. In most of the applications discussed above, the choices are based on empirical explorations or domain expertise.
 
 In this paper, we are interested in high-dimensional applications that exhibit complicated interactions among predictors, particularly in the presence of a large number of lagged variables and correlated errors. In such situations, *index models* prove beneficial in improving the flexibility of the broader class of nonparametric additive models [@Radchenko2015], while mitigating the difficulty of estimating a nonparametric component for each individual predictor.
 
@@ -140,7 +140,7 @@ We now show how to efficiently find a minimiser for the problem given in @eq-smi
 
 We first need to provide a feasible initialisation for the index structure (i.e. the number of indices $p$ and the grouping of predictors among indices) as well as for the index coefficients ($\bm{\alpha}$) of the model.
 
-Based on several experiments, we propose three alternative methods for initialising the SMI model as follows.
+Based on several experiments, we propose four alternative methods for initialising the SMI model as follows.
 
 1.  **PPR: Projection Pursuit Regression Based Initialisation**
 
@@ -207,7 +207,7 @@ The following algorithm summarises the key steps of the SMI Modelling algorithm.
 1. Initialise $p$, the predictor grouping among indices, and obtain the initial estimate of $\bm{\alpha}$ using one of the options in @sec-step1. Then scale each $\hat{\bm{\alpha}}_{j}$, $j=1,\dots,p$, to have a unit norm.
 2. Estimate $g_{j}$, $j=1,\dots,p$, using a GAM taking $y_{i}$ as the response and $\hat{\bm{\alpha}}_{j}^{T}\bm{x}_{i}$ as predictors.
 3. Update $\bm{\alpha}$ through the MIQP in @eq-smi-update, and scale each $\hat{\bm{\alpha}}_{j}$ to have a unit norm.
-4. Iterate steps 2 and 3 until convergence, loss increase for three consecutive iterations, or reaching the maximum iterations.
+4. Iterate steps 2 and 3 until convergence, loss increases for three consecutive iterations, or reaching the maximum iterations.
 5. If there are no dropped predictors, stop. Otherwise include a new index consisting of dropped predictors, and repeat step 4.
 6. Increase $p$ by one in each iteration of step 5 until meeting one of the termination criteria below.
    - The number of indices in the iteration reaches $q$; select the final fitted model as output.
