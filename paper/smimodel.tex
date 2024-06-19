@@ -957,7 +957,7 @@ Table~\ref{tbl-simulation}. In the columns, we indicate the index
 structure (i.e.~the predictor grouping among indices) estimated by the
 proposed algorithm under each of the initialisation options, i.e.,
 ``PPR'', ``Additive'', ``Linear'', and ``Multiple''. The numbers stated
-(in parantheses) below the index sturctures are the test MSE values for
+(in parantheses) below the index sturctures are the test MSE values of
 the corresponding estimated models. This is detailed for each
 combination explored, considering response, input predictors, and noise
 levels.
@@ -971,7 +971,9 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 
 \begin{table}[!h]
 
-\caption{\label{tbl-simulation}Simulation experiment results.}
+\caption{\label{tbl-simulation}Simulation experiment results - Index
+structures and test MSEs of the estimated SMI models for each
+combination of response, input predictors, and noise levels.}
 
 \centering{
 
@@ -1017,8 +1019,6 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 }
 
 \end{table}%
-
-\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE? I believe it will make the result analysis easier to read.}
 
 At a low noise level, in both cases of ``all \(\bm{x}\)'' and ``all
 \(\bm{x}\) + all \(\bm{z}\)'', all initialisations enable the algorithm

@@ -256,13 +256,13 @@ We apply the proposed SMI Modelling algorithm with each of the above predictor c
 
 ## Results {#sec-sim-results}
 
-We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the predictor grouping among indices) estimated by the proposed algorithm under each of the initialisation options, i.e., "PPR", "Additive", "Linear", and "Multiple". The numbers stated (in parantheses) below the index sturctures are the test MSE values for the corresponding estimated models. This is detailed for each combination explored, considering response, input predictors, and noise levels.
+We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the predictor grouping among indices) estimated by the proposed algorithm under each of the initialisation options, i.e., "PPR", "Additive", "Linear", and "Multiple". The numbers stated (in parantheses) below the index sturctures are the test MSE values of the corresponding estimated models. This is detailed for each combination explored, considering response, input predictors, and noise levels.
 
 Our experiments indicated that, for this simple example, different values of penalty parameters have a negligible impact on the estimated models. Thus, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ in the simulation experiment. The default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ were used in estimating all the models presented in @tbl-simulation.
 
 ```{r}
 #| label: tbl-simulation
-#| tbl-cap: Simulation experiment results.
+#| tbl-cap: Simulation experiment results - Index structures and test MSEs of the estimated SMI models for each combination of response, input predictors, and noise levels.
 #| tbl-pos: "!h"
 results_sim <- readr::read_csv("results/simulation_table_final_modified.csv")
 kable(results_sim,
@@ -281,8 +281,6 @@ kable(results_sim,
   kable_styling(latex_options = c("repeat_header", "scale_down")) |>
   row_spec(0, bold = TRUE)
 ```
-
-\todo[inline]{Could you add a table with the same column and row names as Table 1 to show the test set MSE? I believe it will make the result analysis easier to read.}
 
 At a low noise level, in both cases of "all $\bm{x}$" and "all $\bm{x}$ + all $\bm{z}$", all initialisations enable the algorithm to estimate the correct index structure for both $y_{1}$ and $y_{2}$, with an exception in the "Linear" option for $y_{2}$. The "Linear" option for $y_{2}$ selects the correct variables, but fails to identify the two-index structure. This suggests that initialising the algorithm with a higher number of indices might be more effective than with a lower number. In the case of "some $\bm{x}$ + all $\bm{z}$", for both $y_{1}$ and $y_{2}$, the models estimated under all initialisations include some noise variables. This indicates that when the available predictors are insufficient to capture the data signal, the algorithm might select irrelevant variables to make up for the missing signal.
 
