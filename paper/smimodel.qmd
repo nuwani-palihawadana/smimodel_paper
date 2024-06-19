@@ -256,7 +256,7 @@ We apply the proposed SMI Modelling algorithm with each of the above predictor c
 
 ## Results {#sec-sim-results}
 
-We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the predictor grouping among indices) estimated by the proposed algorithm under each of the initialisation options, i.e., "PPR", "Additive", "Linear", and "Multiple". This is detailed for each combination explored, considering response, input predictors, and noise levels.
+We summarise the results of the simulation experiment in @tbl-simulation. In the columns, we indicate the index structure (i.e. the predictor grouping among indices) estimated by the proposed algorithm under each of the initialisation options, i.e., "PPR", "Additive", "Linear", and "Multiple". The numbers stated (in parantheses) below the index sturctures are the test MSE values for the corresponding estimated models. This is detailed for each combination explored, considering response, input predictors, and noise levels.
 
 Our experiments indicated that, for this simple example, different values of penalty parameters have a negligible impact on the estimated models. Thus, we did not perform any tuning for the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ in the simulation experiment. The default values $\lambda_{0} = 1$ and $\lambda_{2} = 1$ were used in estimating all the models presented in @tbl-simulation.
 
@@ -264,8 +264,7 @@ Our experiments indicated that, for this simple example, different values of pen
 #| label: tbl-simulation
 #| tbl-cap: Simulation experiment results.
 #| tbl-pos: "!h"
-results_sim <- readr::read_csv("results/simulation_table_final_corrected.csv")
-results_sim <- results_sim[seq(2, NROW(results_sim), by = 2), ]
+results_sim <- readr::read_csv("results/simulation_table_final_modified.csv")
 kable(results_sim,
   format = "latex",
   booktabs = TRUE,
@@ -274,11 +273,11 @@ kable(results_sim,
   col.names = c("True Model", "Predictors", "PPR", "Additive", "Linear", "Multiple")
 ) |>
   pack_rows(
-    index = c("Low noise level" = 6, "High noise level" = 6),
+    index = c("Low noise level" = 12, "High noise level" = 12),
     latex_gap_space = "0.6em"
   ) |>
-  row_spec(row = 3, extra_latex_after = "[0.4em]") |>
-  row_spec(row = 9, extra_latex_after = "[0.4em]") |>
+  row_spec(row = 6, extra_latex_after = "[1.6em]") |>
+  row_spec(row = 18, extra_latex_after = "[1.6em]") |>
   kable_styling(latex_options = c("repeat_header", "scale_down")) |>
   row_spec(0, bold = TRUE)
 ```

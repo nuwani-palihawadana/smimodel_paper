@@ -2,7 +2,6 @@
 library(dplyr)
 library(fabletools)
 library(ROI)
-library(ROI.plugin.gurobi)
 library(smimodel)
 library(tibble)
 library(tidyr)
