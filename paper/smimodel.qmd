@@ -699,8 +699,6 @@ SolarPreds |>
 
 These two empirical applications were performed using the R statistical software [@Rcore]. We developed the ***smimodel*** package for R, available at <https://github.com/nuwani-palihawadana/smimodel>, to implement the proposed SMI modelling algorithm. All the data and code to reproduce the experiments are made available at <https://github.com/nuwani-palihawadana/smimodel_paper>.
 
-\todo[inline]{Make the links public once we decide to submit the paper.}
-
 Moreover, We used the commercial MIP solver ***Gurobi*** [@gurobi2023] to solve the MIQPs related to the proposed SMI Modelling algorithm, through the ***Gurobi plug-in*** [ROI.plugin.gurobi, @Schwendinger2023] available from the ***R Optimization Infrastructure*** [ROI, @Hornik2023; @Theusl2020] package. Furthermore, the GAMs were fitted using the R package ***mgcv*** [@mgcv;@Wood2011].
 
 # Conclusions and Further Research {#sec-conclusion}
