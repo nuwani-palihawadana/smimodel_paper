@@ -129,6 +129,7 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -243,7 +244,8 @@ reduction, Predictor grouping, Mixed integer programming},
 %% PAGE BREAKING to avoid widows and orphans
 \clubpenalty = 10000
 \widowpenalty = 10000
-\usepackage{microtype}% Placement of logos
+\usepackage{microtype}
+% Placement of logos
 
 \RequirePackage[absolute,overlay]{textpos}
 \setlength{\TPHorizModule}{1cm}
@@ -254,7 +256,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{20 June 2024}
+\date{24 June 2024}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -364,7 +366,7 @@ Forecasting}
       \\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 20 June 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 24 June 2024}
 
 % Keywords
 
@@ -378,7 +380,7 @@ Forecasting}
 \maketitle
 
 \begin{abstract}
-Forecasting often involves high-dimensional predictors, which have
+Forecasting often involves high-dimensional predictors which have
 nonlinear relationships with the outcome of interest. Nonparametric
 additive index models can capture these relationships, while addressing
 the curse of dimensionality. This paper introduces a new algorithm,
@@ -400,6 +402,7 @@ intensity.
 reduction; Predictor grouping; 
   Mixed integer programming.
 \end{keywords}
+
 
 \setstretch{1.5}
 \section{Introduction}\label{sec-introduction}
@@ -612,7 +615,7 @@ big-\(M\) based \textbf{\emph{Mixed Integer Quadratic Programming}}
   & z_{jm} \in \{0, 1\},
 \end{aligned}
 }\end{equation} where \(j = 1, \dots, p\), and \(m = 1, \dots, q\). We
-have introduced here binary variables
+have introduced binary variables
 \(z_{jm} = \mathbb{1}(\alpha_{jm} \neq 0)\) to indicate in which index
 (if any) each predictor enters. The pre-specified \emph{big-\(M\)
 parameter} is denoted by \(M < \infty\), and it should be sufficiently
@@ -644,7 +647,7 @@ structure (i.e.~the number of indices \(p\) and the grouping of
 predictors among indices) as well as for the index coefficients
 (\(\bm{\alpha}\)) of the model.
 
-Based on several experiments, we propose four alternative methods for
+Based on several experiments, we propose four possible methods for
 initialising the SMI model as follows.
 
 \begin{enumerate}
@@ -712,6 +715,8 @@ initialising the SMI model as follows.
   using several different models as initialisations, optimising the SMI
   model for each of them, and picking the initial model that results in
   the lowest loss for the MIQP problem.
+
+  \todo[inline]{The last method needs more details. Do you use methods 1--3 and choose the best?}
 \end{enumerate}
 
 Of course, it is also possible for a user to specify an initialisation,
@@ -748,7 +753,7 @@ through a MIQP: \begin{equation}\phantomsection\label{eq-smi-update}{
 \(z_{jm}^{\text{new}}\) are the updated set of binary variables to be
 estimated, and \(\bm{V}\) is the matrix of partial derivatives of the
 right hand side of Equation~\ref{eq-semipara} with respect to
-\(\bm{\alpha}_{j}\). The \(i^{th}\) line of \(\bm{V}\) contains
+\(\bm{\alpha}_{j}\). The \(i^{th}\) row of \(\bm{V}\) contains
 \([ \bm{v}_{i1}, \dots, \bm{v}_{ip}]\), where
 \(\bm{v}_{ij} = \bm{x}_{i}g_{j}'(h_{ij})\). The current residual vector,
 which contains
@@ -866,8 +871,8 @@ Algorithm}
 \end{enumerate}
 
 Throughout the experiments in the paper, we use \(M = 10\), a
-convergence tolerance of \(0.001\), and a maximum of \(50\) iterations
-in step 4 of Algorithm 1, and a convergence tolerance of \(0.001\) for
+convergence tolerance of \(0.001\), a maximum of \(50\) iterations in
+step 4 of Algorithm 1; and a convergence tolerance of \(0.001\) for
 coefficients in step 6 of Algorithm 1.
 
 \section{Simulation Experiment}\label{sec-simulation}
@@ -881,39 +886,40 @@ model varies depending on the initialisation used.
 
 \textbf{Generating predictor variables:}
 
-First, we generate two time series, each of length 1205: \(x_{0}\) from
-a uniform distribution on the interval \([0, 1]\), and \(z_{0}\) from a
-normal distribution \(N(5, 4)\). Next, we construct lagged series of
-both \(x_{0}\) and \(z_{0}\), where \(x_i\) denotes the \(i^{th}\) lag
-of \(x_{0}\), and \(z_i\) denotes the \(i^{th}\) lag of \(z_{0}\). Then
-\(\bm{x} = \{x_{0}, x_{1}, \dots, x_{5}\}\), and
-\(\bm{z} = \{z_{0}, z_{1}, \dots, z_{5}\}\) are taken as predictors in
-the simulation experiment.
+First, we generate two time series, each of length 1205: \(x_{t,0}\)
+from a uniform distribution on the interval \([0, 1]\), and \(z_{t,0}\)
+from a normal distribution \(N(5, 4)\). Next, we construct lagged series
+of both \(x_{t,0}\) and \(z_{t,0}\), where \(x_{t,i}\) denotes the
+\(i^{th}\) lag of \(x_{t,0}\), and \(z_{t,i}\) denotes the \(i^{th}\)
+lag of \(z_{t,0}\). Then
+\(\bm{x}_t = \{x_{t,0}, x_{t,1}, \dots, x_{t,5}\}\), and
+\(\bm{z}_t = \{z_{t,0}, z_{t,1}, \dots, z_{t,5}\}\) are taken as
+predictors in the simulation experiment.
 
 \textbf{Generating response variables:}
 
-We generate two response variables \(y_{1}\) and \(y_{2}\), using two
+We generate two response variables \(y_{t}\) and \(w_{t}\), using two
 different index structures and a normally distributed white noise
 component with two different variances as follows:
 
 \begin{itemize}
 \item
   Low noise level - \(N(\mu = 0, \sigma^2 = 0.01)\):\\
-  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)\\
-  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)
+  \(y_{t} = (0.9*x_{t,0} + 0.6*x_{1,t} + 0.45*x_{3,t})^3 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)\\
+  \(w_{t} = (0.9*x_{t,0} + 0.6*x_{1,t} + 0.45*x_{3,t})^3 + (0.35*x_{2,t} + 0.7*x_{5,t})^2 + \epsilon, \quad \epsilon\sim N(0, 0.01)\)
 \item
   High noise level - \(N(\mu = 0, \sigma^2 = 0.25)\):\\
-  \(y_{1} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)\\
-  \(y_{2} = (0.9*x_{0} + 0.6*x_{1} + 0.45*x_{3})^3 + (0.35*x_{2} + 0.7*x_{5})^2 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)
+  \(y_{t} = (0.9*x_{t,0} + 0.6*x_{1,t} + 0.45*x_{3,t})^3 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)\\
+  \(w_{t} = (0.9*x_{t,0} + 0.6*x_{1,t} + 0.45*x_{3,t})^3 + (0.35*x_{2,t} + 0.7*x_{5,t})^2 + \epsilon, \quad \epsilon\sim N(0, 0.25)\)
 \end{itemize}
 
-Hence, the response \(y_{1}\) is constructed using a single index
-consisting of the predictor variables \(x_{0}, x_{1}\), and \(x_{3}\),
-whereas the other response \(y_{2}\) is constructed using two indices,
-where the first index consists of the predictors \(x_{0}, x_{1}\), and
-\(x_{3}\), and the second index consists of \(x_{2}\) and \(x_{5}\).
-Neither the variable \(x_{4}\) nor any of the \(z\) variables are used
-in generating \(y_{1}\) and \(y_{2}\).
+Hence, the response \(y_{t}\) is constructed using a single index
+consisting of the predictor variables \(x_{t,0}, x_{t,1}\), and
+\(x_{t,3}\), whereas the other response \(w_{t}\) is constructed using
+two indices, where the first index consists of the predictors
+\(x_{t,0}, x_{t,1}\), and \(x_{t,3}\), and the second index consists of
+\(x_{t,2}\) and \(x_{t,5}\). Neither the variable \(x_{t,4}\) nor any of
+the \(z\) variables are used in generating \(y_{t}\) and \(w_{t}\).
 
 Once the data set is generated, the first five observations are
 discarded due to the missing values introduced by lagged variables,
@@ -940,9 +946,9 @@ The three different sets of predictors considered are as follows:
   All \(\bm{x}\) variables and all \(\bm{z}\) variables (denoted as
   ``all \(\bm{x}\) + all \(\bm{z}\)'');
 \item
-  The first three \(\bm{x}\) variables (i.e.~\(x_{0}, x_{1}\) and
-  \(x_{2}\)) and all \(\bm{z}\) variables (denoted as ``some \(\bm{x}\)
-  + all \(\bm{z}\)'').
+  The first three \(\bm{x}\) variables (i.e.~\(x_{0,t}, x_{1,t}\) and
+  \(x_{2,t}\)) and all \(\bm{z}\) variables (denoted as ``some
+  \(\bm{x}\) + all \(\bm{z}\)'').
 \end{enumerate}
 
 We apply the proposed SMI Modelling algorithm with each of the above
@@ -957,7 +963,7 @@ Table~\ref{tbl-simulation}. In the columns, we indicate the index
 structure (i.e.~the predictor grouping among indices) estimated by the
 proposed algorithm under each of the initialisation options, i.e.,
 ``PPR'', ``Additive'', ``Linear'', and ``Multiple''. The numbers stated
-(in parantheses) below the index sturctures are the test MSE values of
+(in parentheses) below the index structures are the test MSE values of
 the corresponding estimated models. This is detailed for each
 combination explored, considering response, input predictors, and noise
 levels.
@@ -971,7 +977,7 @@ estimating all the models presented in Table~\ref{tbl-simulation}.
 
 \begin{table}[!h]
 
-\caption{\label{tbl-simulation}Simulation experiment results - Index
+\caption{\label{tbl-simulation}Simulation experiment results: Index
 structures and test MSEs of the estimated SMI models for each
 combination of response, input predictors, and noise levels.}
 
@@ -981,37 +987,37 @@ combination of response, input predictors, and noise levels.}
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
-\textbf{True Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
+\textbf{Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
 \midrule
 \addlinespace[0.6em]
 \multicolumn{6}{l}{\textbf{Low noise level}}\\
-\hspace{1em}$y_{1}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+\hspace{1em}$y_{t}$ & all $\bm{x}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$)\\
 \hspace{1em} &  & ($0.009$) & ($0.009$) & ($0.009$) & \vphantom{1} ($0.009$)\\
-\hspace{1em}$y_{1}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+\hspace{1em}$y_{t}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$)\\
 \hspace{1em} &  & ($0.009$) & ($0.009$) & ($0.009$) & ($0.009$)\\
-\hspace{1em}$y_{1}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{4}$) ($z_{1}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$)\\
+\hspace{1em}$y_{t}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, z_{2,t}, z_{4,t}$) & ($x_{0,t}, x_{1,t}$) ($z_{4,t}$) ($z_{1,t}$) & ($x_{0,t}, x_{1,t}, z_{2,t}, z_{4,t}$) & ($x_{0,t}, x_{1,t}, z_{2,t}, z_{4,t}$)\\
 \hspace{1em} &  & ($0.233$) & ($0.235$) & ($0.233$) & ($0.233$)\\
 [1.6em]
-\hspace{1em}$y_{2}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+\hspace{1em}$w_{t}$ & all $\bm{x}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, x_{3,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$)\\
 \hspace{1em} &  & ($0.157$) & ($0.157$) & ($0.158$) & \vphantom{1} ($0.157$)\\
-\hspace{1em}$y_{2}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+\hspace{1em}$w_{t}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, x_{3,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$)\\
 \hspace{1em} &  & ($0.157$) & ($0.157$) & ($0.158$) & ($0.157$)\\
-\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}$) ($x_{2}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{2}$) & ($x_{0}, x_{1}$) ($x_{2}, z_{2}, z_{3}$)\\
+\hspace{1em}$w_{t}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}$) ($x_{2,t}$) ($z_{4,t}$) & ($x_{0,t}, x_{1,t}, z_{4,t}$) ($x_{2,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, z_{2,t}$) & ($x_{0,t}, x_{1,t}$) ($x_{2,t}, z_{2,t}, z_{3,t}$)\\
 \hspace{1em} &  & ($0.340$) & ($0.340$) & ($0.336$) & ($0.345$)\\
 \addlinespace[0.6em]
 \multicolumn{6}{l}{\textbf{High noise level}}\\
-\hspace{1em}$y_{1}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{4}, x_{5}$) & ($x_{0}, x_{1}$) ($x_{3}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$)\\
+\hspace{1em}$y_{t}$ & all $\bm{x}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{4,t}, x_{5,t}$) & ($x_{0,t}, x_{1,t}$) ($x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$)\\
 \hspace{1em} &  & ($0.235$) & ($0.274$) & ($0.233$) & ($0.233$)\\
-\hspace{1em}$y_{1}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$) & ($x_{0}, x_{1}, x_{3}$) & ($x_{0}, x_{1}, x_{3}$) ($z_{0}$)\\
+\hspace{1em}$y_{t}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($z_{0,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($z_{0,t}$)\\
 \hspace{1em} &  & ($0.233$) & ($0.232$) & ($0.233$) & ($0.232$)\\
-\hspace{1em}$y_{1}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}$) ($z_{1}$) ($z_{4}$) & ($x_{0}, x_{1}, z_{2}, z_{4}$) & ($x_{0}, x_{1}$) ($z_{0}, z_{4}$) ($z_{1}$)\\
+\hspace{1em}$y_{t}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}$) ($z_{1,t}$) ($z_{4,t}$) & ($x_{0,t}, x_{1,t}$) ($z_{1,t}$) ($z_{4,t}$) & ($x_{0,t}, x_{1,t}, z_{2,t}, z_{4,t}$) & ($x_{0,t}, x_{1,t}$) ($z_{0,t}, z_{4,t}$) ($z_{1,t}$)\\
 \hspace{1em} &  & ($0.476$) & ($0.476$) & ($0.474$) & ($0.475$)\\
 [1.6em]
-\hspace{1em}$y_{2}$ & all $\bm{x}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}$) ($x_{4}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$) ($x_{4}$)\\
+\hspace{1em}$w_{t}$ & all $\bm{x}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) ($x_{4,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) ($x_{4,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, x_{3,t}, x_{5,t}$) ($x_{4,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$) ($x_{4,t}$)\\
 \hspace{1em} &  & ($0.359$) & ($0.359$) & ($0.379$) & ($0.359$)\\
-\hspace{1em}$y_{2}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, x_{3}$) ($x_{5}, z_{1}$) ($x_{2}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}, z_{1}$) & ($x_{0}, x_{1}, x_{2}, x_{3}, x_{5}, z_{0}$) & ($x_{0}, x_{1}, x_{3}$) ($x_{2}, x_{5}$)\\
+\hspace{1em}$w_{t}$ & all $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{5,t}, z_{1,t}$) ($x_{2,t}, z_{0,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}, z_{1,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, x_{3,t}, x_{5,t}, z_{0,t}$) & ($x_{0,t}, x_{1,t}, x_{3,t}$) ($x_{2,t}, x_{5,t}$)\\
 \hspace{1em} &  & ($0.354$) & ($0.358$) & ($0.380$) & ($0.361$)\\
-\hspace{1em}$y_{2}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0}, x_{1}, z_{0}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$) & ($x_{0}, x_{1}, x_{2}, z_{0}, z_{3}, z_{4}$) & ($x_{0}, x_{1}, z_{0}, z_{1}, z_{3}, z_{4}$) ($x_{2}$)\\
+\hspace{1em}$w_{t}$ & some $\bm{x}$ + all $\bm{z}$ & ($x_{0,t}, x_{1,t}, z_{0,t}, z_{3,t}, z_{4,t}$) ($x_{2,t}$) & ($x_{0,t}, x_{1,t}, z_{0,t}, z_{1,t}, z_{3,t}, z_{4,t}$) ($x_{2,t}$) & ($x_{0,t}, x_{1,t}, x_{2,t}, z_{0,t}, z_{3,t}, z_{4,t}$) & ($x_{0,t}, x_{1,t}, z_{0,t}, z_{1,t}, z_{3,t}, z_{4,t}$) ($x_{2,t}$)\\
 \hspace{1em} &  & ($0.582$) & ($0.576$) & ($0.575$) & ($0.575$)\\
 \bottomrule
 \end{tabular}}
@@ -1022,48 +1028,48 @@ combination of response, input predictors, and noise levels.}
 
 At a low noise level, in both cases of ``all \(\bm{x}\)'' and ``all
 \(\bm{x}\) + all \(\bm{z}\)'', all initialisations enable the algorithm
-to estimate the correct index structure for both \(y_{1}\) and
-\(y_{2}\), with an exception in the ``Linear'' option for \(y_{2}\). The
-``Linear'' option for \(y_{2}\) selects the correct variables, but fails
+to estimate the correct index structure for both \(y_{t}\) and
+\(w_{t}\), with an exception in the ``Linear'' option for \(w_{t}\). The
+``Linear'' option for \(w_{t}\) selects the correct variables, but fails
 to identify the two-index structure. This suggests that initialising the
 algorithm with a higher number of indices might be more effective than
 with a lower number. In the case of ``some \(\bm{x}\) + all
-\(\bm{z}\)'', for both \(y_{1}\) and \(y_{2}\), the models estimated
+\(\bm{z}\)'', for both \(y_{t}\) and \(w_{t}\), the models estimated
 under all initialisations include some noise variables. This indicates
 that when the available predictors are insufficient to capture the data
 signal, the algorithm might select irrelevant variables to make up for
 the missing signal.
 
-When the fitted models are evaluated for \(y_{1}\), in both cases of
+When the fitted models are evaluated for \(y_{t}\), in both cases of
 ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all \(\bm{z}\)'', all
 initialisations result in a test set Mean Squared Error (MSE) of
 \(\approx 0.01\), which corresponds to the variance of the true model
 error. This confirms the accuracy with which the SMI Modelling algorithm
-estimates the index structure for \(y_{1}\). For \(y_{2}\), all the
+estimates the index structure for \(y_{t}\). For \(w_{t}\), all the
 estimated models result in a test set MSE of \(\approx 0.16\). This is
 an interesting result as the test set MSE of an estimated model with
 incorrect index structure, but with correct predictors (``Linear'') is
 similar to the models with correct index structure (``PPR'',
 ``Additive'', and ``Multiple''). This suggests that the selection of the
 predictor variables is more important than determining the index
-structure of the model in this case. For both \(y_{1}\) and \(y_{2}\),
+structure of the model in this case. For both \(y_{t}\) and \(w_{t}\),
 in the case of ``some \(\bm{x}\) + all \(\bm{z}\)'', MSE on the test set
 increases in comparison to the above cases, probably due to the
 inclusion of the noise variables.
 
-Moreover, in contrast to \(y_{1}\), the test set MSE values for
-\(y_{2}\) are higher than the variance of the true model error.
-Intuitively, the complexity of the model \(y_{2}\) is higher than
-\(y_{1}\), where the total estimation error of two nonlinear functions
-(corresponding to the two indices) for \(y_{2}\), might be higher than
-the error of estimating a single nonlinear function for \(y_{1}\).
+Moreover, in contrast to \(y_{t}\), the test set MSE values for
+\(w_{t}\) are higher than the variance of the true model error.
+Intuitively, the complexity of the model \(w_{t}\) is higher than
+\(y_{t}\), where the total estimation error of two nonlinear functions
+(corresponding to the two indices) for \(w_{t}\), might be higher than
+the error of estimating a single nonlinear function for \(y_{t}\).
 
 As expected, the SMI Modelling algorithm's accuracy in estimating the
 index structure is generally lower with the high noise level than with
 the low noise level. At a high noise level, most of the estimated models
-have selected irrelevant variables for both \(y_{1}\) and \(y_{2}\). In
+have selected irrelevant variables for both \(y_{t}\) and \(w_{t}\). In
 both the cases of ``all \(\bm{x}\)'' and ``all \(\bm{x}\) + all
-\(\bm{z}\)'', all the models estimated for \(y_{1}\) (except for the
+\(\bm{z}\)'', all the models estimated for \(y_{t}\) (except for the
 ``Additive'' option in the ``all \(\bm{x}\)'' case) result in a test set
 MSE of \(\approx 0.23\), which is slightly lower than the variance of
 the true model error. This occurs irrespective of the inclusion of
@@ -1071,14 +1077,14 @@ irrelevant variables in ``PPR'' option for the ``all \(\bm{x}\)'' case,
 and in the ``Additive'' and ``Multiple'' options for the ``all
 \(\bm{x}\) + all \(\bm{z}\)'' case. This suggests over-fitting when
 there is a low signal-to-noise ratio in the data. The same result is
-observed for \(y_{2}\), where, irrespective of the different index
+observed for \(w_{t}\), where, irrespective of the different index
 structures and predictor choices, the estimated models in the above two
 predictor combinations produce similar MSE values on the test set.
 
 Similar to the previous case with a low noise level, when only a part of
 \(\bm{x}\) variables are provided, the test set MSE values increase for
-both \(y_{1}\) and \(y_{2}\), where the estimated models for \(y_{2}\)
-produce higher test MSE values compared to those for \(y_{1}\).
+both \(y_{t}\) and \(w_{t}\), where the estimated models for \(w_{t}\)
+produce higher test MSE values compared to those for \(y_{t}\).
 
 It is worth mentioning here that in real-world forecasting problems, the
 true data generating process (DGP) is unknown, and we do not expect an
@@ -1108,9 +1114,9 @@ For this analysis, we consider daily mortality and heat exposure data
 for the Metropolitan Area of Montreal, Québec, Canada, from 1990 to
 2014, for the months June, July, and August (i.e.~summer). The daily
 all-cause mortality data were obtained from the National Institute of
-Public Health, Québec, while \emph{DayMet}, a \(1km \times 1km\) grid
-data set \autocite{Thornton2021}, was used to extract daily temperature
-and humidity data.
+Public Health, Québec, while \emph{DayMet}, a
+\(1\text{km} \times 1\text{km}\) grid data set \autocite{Thornton2021},
+was used to extract daily temperature and humidity data.
 
 Figure~\ref{fig-deaths} shows the time plots of daily deaths during the
 summer for the years from 1990 to 1993. The series for each of the four
@@ -1132,9 +1138,9 @@ from 1990 to 1993.}
 Maximum temperature, minimum temperature, and vapour pressure (to
 represent the level of humidity) are considered as predictors in this
 empirical study. The number of daily deaths is plotted against each of
-these predictors in Figures \ref{fig-Tmax}--\ref{fig-Vp}, respectively,
-where we can observe that the relationships between these predictors and
-the response are slightly nonlinear.
+these predictors in Figure~\ref{fig-Tmax}, where we can observe that the
+relationships between these predictors and the response are slightly
+nonlinear.
 
 \begin{figure}
 
@@ -1145,33 +1151,8 @@ the response are slightly nonlinear.
 }
 
 \caption{\label{fig-Tmax}Daily mortality in summer (from 1990 to 2014)
-plotted against maximum temperature.}
-
-\end{figure}%
-
-\begin{figure}
-
-\centering{
-
-\includegraphics{smimodel_files/figure-pdf/fig-Tmin-1.pdf}
-
-}
-
-\caption{\label{fig-Tmin}Daily mortality in summer (from 1990 to 2014)
-plotted against minimum temperature.}
-
-\end{figure}%
-
-\begin{figure}
-
-\centering{
-
-\includegraphics{smimodel_files/figure-pdf/fig-Vp-1.pdf}
-
-}
-
-\caption{\label{fig-Vp}Daily mortality in summer (from 1990 to 2014)
-plotted against vapour pressure.}
+plotted against maximum temperature, minimum temperature and vapor
+pressure.}
 
 \end{figure}%
 
@@ -1269,7 +1250,7 @@ validation sets.
 
 The second benchmark is a \textbf{\emph{Group-wise Additive Index Model
 (GAIM)}}, which can be written in the form \[
-  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i}, 
+  y_{i} = \sum_{j = 1}^{p} g_{j}(\bm{\alpha}_{j}^{T}\bm{x}_{ij}) + \varepsilon_{i},
 \] where \(y_{i}\) is the univariate response,
 \(\bm{x}_{ij} \in \mathbb{R}^{l{j}}\), \(j = 1, \dots, p\) are
 pre-specified non-overlapping subsets of \(\bm{x}_{i}\), and
@@ -1297,6 +1278,8 @@ Since a validation set is not used in estimating the two benchmark
 models \emph{GAIM} and \emph{PPR}, these two models are estimated on the
 entire data set combining training and validation sets.
 
+\todo[inline]{Didn't we decide to use the same training data for all models?}
+
 \subsubsection{Results}\label{results}
 
 We estimated SMI models for the mortality data using three different
@@ -1319,6 +1302,8 @@ dropped). The model estimated with ``Linear'' initialisation selected
 \((\lambda_{0} = 6, \lambda_{2} = 11)\) (\textbf{\emph{SMI Model (6, 11)
 - Linear}}), and resulted in two indices, without dropping any of the
 index variables.
+
+\todo[inline]{Explain notation SMI Model (a,b)}
 
 We evaluated forecasting errors of the estimated models using two
 subsets of the original test set:
@@ -1372,24 +1357,6 @@ PPR}} outperforms all three benchmark models in terms of forecasting
 accuracy, for both \emph{Test Set 1} and \emph{Test Set 2}. However, the
 SMI models estimated using ``Additive'' or ``Linear'' initialisations
 have inferior forecasting performance compared to GAIM and PPR models.
-The actual number of deaths and the predicted values from the
-\textbf{\emph{SMI Model (5, 12) - PPR}} and benchmark models on
-\emph{Test Set 2} are plotted in Figure~\ref{fig-heatPred} for further
-comparison.
-
-\begin{figure}
-
-\centering{
-
-\includegraphics{smimodel_files/figure-pdf/fig-heatPred-1.pdf}
-
-}
-
-\caption{\label{fig-heatPred}Actual number of deaths vs.~predicted
-number of deaths from ``SMI Model (5, 12) - PPR'' and benchmark models
-for Test Set 2.}
-
-\end{figure}%
 
 \subsection{Forecasting Daily Solar Intensity}\label{sec-solar}
 
@@ -1400,11 +1367,11 @@ intensity, using other weather conditions.
 
 We use solar intensity and other weather variables measured at the Davis
 weather station in Amherst, Massachusetts, obtained from the \emph{UMass
-Trace Repository} \autocite{Umass2023}. The data was recorded at every
-five minutes, from 24 February 2006 to 27 February 2013, using sensors
-for measuring temperature, wind chill, humidity, dew point, wind speed,
-wind direction, rain, pressure, solar intensity, and UV. We converted
-the five minutes data to daily data by averaging each variable.
+Trace Repository} \autocite{Umass2023}. The data was recorded every five
+minutes from 24 February 2006 to 27 February 2013, using sensors for
+measuring temperature, wind chill, humidity, dew point, wind speed, wind
+direction, rain, pressure, solar intensity, and UV. We converted the
+five-minute data to daily data by averaging each variable over each day.
 
 Figure~\ref{fig-solar} shows the time plot of daily solar intensity for
 the entire period, which clearly depicts the annual seasonality in the
@@ -1461,9 +1428,9 @@ forecasting model.
 \paragraph{3) Calendar effects:}\label{calendar-effects-1}
 
 Finally, a calendar variable, \emph{day of the year (DOY)} is
-incorporated into the model as a smooth function through Fourier terms
-to capture annual seasonality, and also to control the autocorrelation
-in residuals.
+incorporated into the model as a smooth function using Fourier terms to
+capture annual seasonality, and also to control the autocorrelation in
+residuals.
 
 \subsubsection{Modelling Framework}\label{modelling-framework-1}
 
@@ -1475,14 +1442,14 @@ linear variables (so that they are not part of the indices).
 We considered the number of pairs of Fourier terms (\(K\)) from
 \(K = 1\) to \(K = 10\), and used the SMI model with ``Linear''
 initialisation to determine the number of pairs that best captures the
-day of the year effect, based on validation set MSE. (i.e.~Multiple SMI
-models were fitted using different numbers of pairs Fourier terms, and
-the number of pairs of Fourier terms corresponding to the model that
-resulted in the lowest validation set MSE was selected.) The SMI model
-(with ``Linear'' initialisation) estimated with \(K = 8\) resulted in
-the lowest validation set MSE, and hence \(K = 8\) was taken as the
-number of pairs of Fourier terms in estimating all the SMI models and
-benchmark models.
+day of the year effect, based on the validation set MSE. (That is,
+multiple SMI models were fitted using different numbers of pairs Fourier
+terms, and the number of pairs of Fourier terms corresponding to the
+model that resulted in the lowest validation set MSE was selected.) The
+SMI model (with ``Linear'' initialisation) estimated with \(K = 8\)
+resulted in the lowest validation set MSE, and hence \(K = 8\) was taken
+as the number of pairs of Fourier terms in estimating all the SMI models
+and benchmark models.
 
 Hence, the relevant SMI model can be written as \[
   \textbf{Solar} = \beta_{0} + \sum_{j = 1}^{p}{g_{j}(\bm{X}\bm{\alpha}_{j})} + \sum_{k = 1}^{8}(\theta_{k}\textbf{DOY}\_\textbf{S}_{\bm{k}} + \delta_{k}\textbf{DOY}\_\textbf{C}_{\bm{k}}) + \bm{\varepsilon},
@@ -1622,23 +1589,6 @@ proposed algorithm. Thus, the SMI model faces a more challenging
 estimation task due to the limited prior information provided regarding
 the model structure.
 
-The actual solar intensity and the predicted values from the
-\textbf{\emph{SMI Model (1, 0) - PPR}} and benchmark models are plotted
-in Figure~\ref{fig-solarPred} for further comparison.
-
-\begin{figure}
-
-\centering{
-
-\includegraphics{smimodel_files/figure-pdf/fig-solarPred-1.pdf}
-
-}
-
-\caption{\label{fig-solarPred}Actual solar intensity vs.~predicted solar
-intensity from ``SMI Model (1, 0) - PPR'' and benchmark models.}
-
-\end{figure}%
-
 \subsection{Software}\label{software}
 
 These two empirical applications were performed using the R statistical
@@ -1649,18 +1599,17 @@ proposed SMI modelling algorithm. All the data and code to reproduce the
 experiments are made available at
 \url{https://github.com/nuwani-palihawadana/smimodel_paper}.
 
-Moreover, We used the commercial MIP solver \textbf{\emph{Gurobi}}
+We used the commercial MIP solver \textbf{\emph{Gurobi}}
 \autocite{gurobi2023} to solve the MIQPs related to the proposed SMI
 Modelling algorithm, through the \textbf{\emph{Gurobi plug-in}}
 \autocite[ROI.plugin.gurobi,][]{Schwendinger2023} available from the
 \textbf{\emph{R Optimization Infrastructure}}
-\autocites[ROI,][]{Hornik2023,Theusl2020} package. Furthermore, the GAMs
-were fitted using the R package \textbf{\emph{mgcv}}
-\autocite{mgcv,Wood2011}.
+\autocites[ROI,][]{Hornik2023,Theusl2020} package. The GAMs were fitted
+using the R package \textbf{\emph{mgcv}} \autocite{mgcv,Wood2011}.
 
 \section{Conclusions and Further Research}\label{sec-conclusion}
 
-In this paper, we presented a novel algorithm for estimating a
+In this paper, we have presented a novel algorithm for estimating a
 nonparametric/semi-parametric additive index model with optimal
 predictor selection and predictor grouping, which we refer to as Sparse
 Multiple Index (SMI) Model. The SMI Modelling algorithm is an iterative
@@ -1673,7 +1622,7 @@ performs automatic selection of both the number of indices and the
 predictor grouping when estimating the nonparametric additive index
 model. Users need to input the set of predictors entering indices and a
 starting model (index structure and a set of index coefficients) to
-initiate the algorithm. 2) It performs automatic variable selection,
+initialise the algorithm. 2) It performs automatic variable selection,
 which is particularly beneficial in high-dimensional settings. This
 feature contributes to an objective and principled estimation, reducing
 subjectivity across different users. 3) It is capable of estimating a
@@ -1690,15 +1639,15 @@ simulation study and two empirical applications. Due to the limited
 input information provided to the algorithm, the estimation of a SMI
 model is a challenging problem.
 
-In both of the empirical applications presented above, the SMI model
-estimated with ``PPR'' initialisation resulted in the best forecasting
-performance out of the three different SMI models estimated, indicating
-that ``PPR'' initialisation might be a more viable option. However, just
-these two examples are not sufficient to establish a universally
-applicable initialisation option for the SMI model across various
-scenarios. Hence, as mentioned in Section~\ref{sec-simulation}, we
-encourage users to follow a trial-and-error procedure to identify the
-most effective initialisation option for their specific application.
+In both of the empirical applications presented, the SMI model estimated
+with ``PPR'' initialisation resulted in the best forecasting performance
+out of the three different SMI models estimated, indicating that ``PPR''
+initialisation might be a more viable option. However, these two
+examples are insufficient to establish a universally applicable
+initialisation option for the SMI model across various scenarios. Hence,
+as mentioned in Section~\ref{sec-simulation}, we encourage users to
+follow a trial-and-error procedure to identify the most effective
+initialisation option for their specific application.
 
 Since the difficulty of specifying an initialisation that works in
 general is a limitation of the proposed algorithm, an interesting future
@@ -1714,14 +1663,14 @@ performance of the proposed SMI Modelling algorithm across various data
 sets with diverse properties, identifying scenarios where it outperforms
 other benchmark methods.
 
-Furthermore, the MIQP in the algorithm is somewhat analogous to the
-\emph{best subset selection} method frequently used in least squares
-problems. Thus, another limitation of the proposed algorithm is the
-increase in computational time as the number of predictors and the
-number of indices increase. Therefore, it would be an interesting
-research to obtain further insights regarding the algorithm to see what
-improvements can be made to the algorithm design to reduce the
-computational cost in a high-dimensional context.
+The MIQP in the algorithm is somewhat analogous to the \emph{best subset
+selection} method frequently used in least squares problems. Thus,
+another limitation of the proposed algorithm is the increase in
+computational time as the number of predictors and the number of indices
+increase. Therefore, it would be an interesting research exercise to
+obtain further insights regarding the algorithm to see what improvements
+can be made to the algorithm design to reduce the computational cost in
+a high-dimensional context.
 
 \section*{Acknowledgements}\label{acknowledgements}
 \addcontentsline{toc}{section}{Acknowledgements}
@@ -1730,15 +1679,15 @@ We thank Professor Louise Ryan for useful discussions during the initial
 stage of the project, and for her valuable comments and feedback on this
 research work.
 
-Furthermore, this research is partially supported by the Monash
-eResearch Centre through the use of the MonARCH (Monash Advanced
-Research Computing Hybrid) HPC Cluster, and by the Australian Research
-Council Industrial Transformation Training Centre in Optimisation
-Technologies, Integrated Methodologies, and Applications (OPTIMA),
-Project ID IC200100009.
+This research is partially supported by the Monash eResearch Centre
+through the use of the MonARCH (Monash Advanced Research Computing
+Hybrid) HPC Cluster, and by the Australian Research Council Industrial
+Transformation Training Centre in Optimisation Technologies, Integrated
+Methodologies, and Applications (OPTIMA), Project ID IC200100009.
 
 
 \printbibliography
+
 
 
 \end{document}
