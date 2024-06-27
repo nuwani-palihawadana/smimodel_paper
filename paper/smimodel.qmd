@@ -165,10 +165,8 @@ Based on several experiments, we propose four possible methods for initialising 
 
 4. **Multiple: Picking One From Multiple Initialisations**
 
-    The final optimised SMI model may change depending on the initialisation provided to the algorithm. Hence, we also consider using several different models as initialisations, optimising the SMI model for each of them, and picking the initial model that results in the lowest loss for the MIQP problem.
-
-    \todo[inline]{The last method needs more details. Do you use methods 1--3 and choose the best?}
-
+    We use multiple random instances of a model (i.e. predictor assignment to indices and initial index coefficients are generated randomly) with a user specified number of indices as initial models, optimise the SMI model for each of them, and pick the initial model that results in the lowest loss for the MIQP problem. The number of random instances of the model to be evaluated is also decided by the user. 
+    
 Of course, it is also possible for a user to specify an initialisation, based on their own domain expertise or prior knowledge in, initialising the algorithm. In each of the above initialisation options, once the estimate for $\bm{\alpha}$ is obtained, the estimated initial index coefficients for each index are scaled to have unit norm to ensure identifiability.
 
 ### Estimating Nonlinear Functions {#sec-step2}
@@ -407,7 +405,7 @@ where
 - $g_{1}, \dots,g_p$, $f_{1}$, and $f_{2}$ are unknown nonparametric functions; and
 - $\bm{\varepsilon}$ is the error term.
 
-The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models. Here, once the tuning for the two penalty parameters is completed, the models are re-fitted for the entire data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
+The data from 1990 to 2012 are used as the training set to estimate the model, while the data from the three summer months of year 2013 are kept aside as a validation set. This validation set is used to perform the penalty parameter tuning of the SMI models. Here, once the tuning for the two penalty parameters is completed, the models are re-fitted for the data set combining training and validation sets. The data of year 2014 are used as the test set for evaluating forecasting performance.
 
 The forecasting accuracy on the test set is evaluated using MSE and Mean Absolute Error (MAE). We assume that the future values of the maximum/minimum temperatures and vapour pressure are known to use in the forecasting model; thus it is a post hoc analysis.
 
@@ -415,7 +413,7 @@ The forecasting accuracy on the test set is evaluated using MSE and Mean Absolut
 
 In addition to our proposed SMI model, we also evaluate three benchmark models for comparison purposes.
 
-The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. Once the optimal model is obtained, the final model is re-fitted for the entire data set combining training and validation sets.
+The first benchmark is a nonparametric additive model formulated through ***Backward Elimination***, as proposed by @FH2012. The process starts with all variables included in an additive model, and variables are progressively omitted until the optimal model is obtained based on the validation set. Once the optimal model is obtained, the final model is re-fitted for the data set combining training and validation sets.
 
 The second benchmark is a ***Group-wise Additive Index Model (GAIM)***, which can be written in the form
 $$
@@ -429,17 +427,13 @@ $$
 $$
 where $y_{i}$ is the response, $\bm{x}_{i}$ is the $q$-dimensional predictor vector, $\bm{\alpha}_{j} = ( \alpha_{j1}, \dots, \alpha_{jp} )^{T}$, $j = 1, \dots, p$ are $q$-dimensional projection vectors (or vectors of "index coefficients"), $g_{j}$'s are unknown nonlinear functions, and $\varepsilon_{i}$ is the random error. The number of indices in the PPR model was taken as four, matching the number of indices estimated by the GAIM.
 
-Since a validation set is not used in estimating the two benchmark models *GAIM* and *PPR*, these two models are estimated on the entire data set combining training and validation sets.
-
-\todo[inline]{Didn't we decide to use the same training data for all models?}
+Here, no parameter tuning or variable/model selection is involved in the two benchmark models *GAIM* and *PPR*. Hence, these models are directly estimated on the data set combining the original training and validation sets to ensure legitimate comparison of forecasting performance among models. 
 
 ### Results
 
-We estimated SMI models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ over ranges of integers from 1 to 12, and 0 to 12 respectively, based on validation set MSE. Here, a greedy search is used instead of a grid search to reduce computational time.
+We estimated SMI models for the mortality data using three different initialisation options: "PPR", "Additive" and "Linear", for comparison purposes. We tuned the penalty parameters $\lambda_{0}$ and $\lambda_{2}$ over ranges of integers from 1 to 12, and 0 to 12 respectively, based on validation set MSE. Here, a greedy search is used instead of a grid search to reduce computational time. (We introduce the notation ***SMI Model (a, b)*** to indicate that the penalty parameter combination used in an estimated SMI model is $(\lambda_{0} = a, \lambda_{2} = b)$.)
 
 The penalty parameter combination $(\lambda_{0} = 5, \lambda_{2} = 12)$ was selected for the model fitted with "PPR" initialisation. The estimated model, ***SMI Model (5, 12) - PPR***, resulted in seven indices without dropping any of the index variables. The optimal penalty parameter combination for the model initiated with "Additive" was $(\lambda_{0} = 1, \lambda_{2} = 0)$, resulting in the ***SMI Model (1, 0) - Additive***, equivalent to a nonparametric additive model (no index variables or indices were dropped). The model estimated with "Linear" initialisation selected $(\lambda_{0} = 6, \lambda_{2} = 11)$ (***SMI Model (6, 11) - Linear***), and resulted in two indices, without dropping any of the index variables.
-
-\todo[inline]{Explain notation SMI Model (a,b)}
 
 We evaluated forecasting errors of the estimated models using two subsets of the original test set:
 
