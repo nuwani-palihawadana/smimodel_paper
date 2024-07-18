@@ -444,7 +444,7 @@ The MSE and MAE values on the two different test sets for the estimated SMI mode
 
 ```{r}
 #| label: tbl-heat
-#| tbl-cap: Daily mortality forecasting - Out-of-sample point forecast results.
+#| tbl-cap: "Forecasting daily mortality in summer - Out-of-sample point forecast results: The columns *Model*, *Predictors* and *Indices* indicate the name of the fitted model, number of predictor variables used/selected (if predictor selection is performed in the respective model) by the fitted model, and the number of indices estimated by the fitted model, respectively."
 #| tbl-pos: "!hb"
 results_heat <- readr::read_csv("results/heat_results_correct.csv")
 kable(results_heat,
@@ -529,14 +529,15 @@ In @fig-preds, the daily solar intensity is plotted against each of the predicto
 ```{r}
 #| label: fig-preds
 #| fig-height: 8
-#| fig-cap: Daily solar intensity against other weather variables.
+#| fig-cap: Daily solar intensity (from February 2006 to February 2013) plotted against temperature, dew point, wind speed, rain and humidity.
+
 p1 <- dataSolar |>
   ggplot(aes(x = Temp_lag_000, y = Solar_lag_000)) +
   geom_point(colour = "grey40", alpha = 0.5, size = 0.3) +
   xlim(c(-25, 90)) +
   xlab("Temperature (Degrees Fahrenheit)") +
   ylab("Solar Intensity") +
-  ggtitle("Solar Intensity against Temperature") +
+  #ggtitle("Solar Intensity against Temperature") +
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
@@ -549,7 +550,7 @@ p2 <- dataSolar |>
   xlim(c(-25, 90)) +
   xlab("Dew Point (Degrees Fahrenheit)") +
   ylab("Solar Intensity") +
-  ggtitle("Solar Intensity against Dew Point") +
+  #ggtitle("Solar Intensity against Dew Point") +
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
@@ -561,7 +562,7 @@ p3 <- dataSolar |>
   geom_point(colour = "grey40", alpha = 0.5, size = 0.3) +
   xlab("Wind Speed (Miles per hour)") +
   ylab("Solar Intensity") +
-  ggtitle("Solar Intensity against Wind Speed") +
+  #ggtitle("Solar Intensity against Wind Speed") +
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
@@ -573,7 +574,7 @@ p4 <- dataSolar |>
   geom_point(colour = "grey40", alpha = 0.5, size = 0.3) +
   xlab("Rain (Inches)") +
   ylab("Solar Intensity") +
-  ggtitle("Solar Intensity against Rain") +
+  #ggtitle("Solar Intensity against Rain") +
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
@@ -585,7 +586,7 @@ p5 <- dataSolar |>
   geom_point(colour = "grey40", alpha = 0.5, size = 0.3) +
   xlab("Humidity (Percentage)") +
   ylab("Solar Intensity") +
-  ggtitle("Solar Intensity against Humidity") +
+  #ggtitle("Solar Intensity against Humidity") +
   theme(
     axis.title = element_text(size = 8),
     plot.title = element_text(size = 9)
@@ -647,7 +648,7 @@ We also present forecasting errors of the three benchmark models in @tbl-solar, 
 
 ```{r}
 #| label: tbl-solar
-#| tbl-cap: Daily solar intensity forecasting - Out-of-sample point forecast results.
+#| tbl-cap: "Forecasting daily solar intensity - Out-of-sample point forecast results: The columns *Model*, *Predictors* and *Indices* indicate the name of the fitted model, number of predictor variables used/selected (if predictor selection is performed in the respective model) by the fitted model, and the number of indices estimated by the fitted model, respectively."
 results_solar <- readr::read_csv("results/solar_results_fourier8.csv")
 kable(results_solar,
   format = "latex",
