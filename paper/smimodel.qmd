@@ -8,7 +8,7 @@ author:
       city: Clayton VIC
       country: Australia
       postal-code: 3800
-  email: nuwani.kodikarapalihawadana@monash.edu
+  email: nuwani.kodikarapalihawadana1@monash.edu
 - name: Rob J Hyndman
   affiliations:
     - name: Monash University
@@ -26,7 +26,7 @@ author:
       postal-code: 3800
   email: xiaoqian.wang@monash.edu
   corresponding: true
-abstract: Forecasting often involves high-dimensional predictors which have nonlinear relationships with the outcome of interest. Nonparametric additive index models can capture these relationships, while addressing the curse of dimensionality. This paper introduces a new algorithm, ***S***parse ***M***ultiple ***I***ndex (***SMI***) ***Modelling***, tailored for estimating high-dimensional nonparametric/semi-parametric additive index models, while limiting the number of parameters to estimate, by optimising predictor selection and predictor grouping. The SMI Modelling algorithm uses an iterative approach based on mixed integer programming to solve an $\ell_{0}$-regularised nonlinear least squares optimisation problem with linear constraints. We demonstrate the performance of the proposed algorithm through a simulation study, along with two empirical applications to forecast heat-related daily mortality and daily solar intensity.
+abstract: Forecasting often involves high-dimensional predictors that have non-linear relationships with the outcome of interest. Nonparametric additive index models can capture these relationships while addressing the curse of dimensionality. This chapter introduces a new algorithm, ***S***parse ***M***ultiple ***I***ndex (***SMI***) ***Modelling***, tailored for estimating high-dimensional nonparametric/semiparametric additive index models while limiting the number of parameters to be estimated by optimising predictor selection and predictor grouping. The SMI Modelling algorithm uses an iterative approach based on mixed integer programming to solve an $\ell_{0}$- and $\ell_{2}$-regularised non-linear least squares optimisation problem with linear constraints. The performance of the proposed algorithm is demonstrated through a simulation study and two empirical applications---forecasting heat exposure-related daily mortality and daily solar intensity.
 keywords: [Additive index models, Variable selection, Dimension reduction, Predictor grouping, Mixed integer programming]
 bibliography: references.bib
 wpnumber: no/yr

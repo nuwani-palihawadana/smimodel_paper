@@ -129,6 +129,7 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -243,7 +244,8 @@ reduction, Predictor grouping, Mixed integer programming},
 %% PAGE BREAKING to avoid widows and orphans
 \clubpenalty = 10000
 \widowpenalty = 10000
-\usepackage{microtype}% Placement of logos
+\usepackage{microtype}
+% Placement of logos
 
 \RequirePackage[absolute,overlay]{textpos}
 \setlength{\TPHorizModule}{1cm}
@@ -254,7 +256,7 @@ reduction, Predictor grouping, Mixed integer programming},
 
 \title{Sparse Multiple Index Models for High-dimensional Nonparametric
 Forecasting}
-\date{20 July 2024}
+\date{30 August 2026}
 
 \def\Date{\number\day}
 \def\Month{\ifcase\month\or
@@ -340,7 +342,7 @@ Forecasting}
         Clayton VIC 3800\\%
         Australia\\%
       %
-      {Email: nuwani.kodikarapalihawadana@monash.edu}\\%
+      {Email: nuwani.kodikarapalihawadana1@monash.edu}\\%
       \\[0.5cm]%
    %
       \textbf{Rob J Hyndman}\\%
@@ -364,7 +366,7 @@ Forecasting}
       \textit{Corresponding author}\\[0.5cm]%
    %
    }%
-   \lfoot{\sf Palihawadana, Hyndman, Wang: 20 July 2024}
+   \lfoot{\sf Palihawadana, Hyndman, Wang: 30 August 2026}
 
 % Keywords
 
@@ -378,21 +380,21 @@ Forecasting}
 \maketitle
 
 \begin{abstract}
-Forecasting often involves high-dimensional predictors which have
-nonlinear relationships with the outcome of interest. Nonparametric
-additive index models can capture these relationships, while addressing
-the curse of dimensionality. This paper introduces a new algorithm,
+Forecasting often involves high-dimensional predictors that have
+non-linear relationships with the outcome of interest. Nonparametric
+additive index models can capture these relationships while addressing
+the curse of dimensionality. This chapter introduces a new algorithm,
 \textbf{\emph{S}}parse \textbf{\emph{M}}ultiple \textbf{\emph{I}}ndex
 (\textbf{\emph{SMI}}) \textbf{\emph{Modelling}}, tailored for estimating
-high-dimensional nonparametric/semi-parametric additive index models,
-while limiting the number of parameters to estimate, by optimising
+high-dimensional nonparametric/semiparametric additive index models
+while limiting the number of parameters to be estimated by optimising
 predictor selection and predictor grouping. The SMI Modelling algorithm
 uses an iterative approach based on mixed integer programming to solve
-an \(\ell_{0}\)-regularised nonlinear least squares optimisation problem
-with linear constraints. We demonstrate the performance of the proposed
-algorithm through a simulation study, along with two empirical
-applications to forecast heat-related daily mortality and daily solar
-intensity.
+an \(\ell_{0}\)- and \(\ell_{2}\)-regularised non-linear least squares
+optimisation problem with linear constraints. The performance of the
+proposed algorithm is demonstrated through a simulation study and two
+empirical applications---forecasting heat exposure-related daily
+mortality and daily solar intensity.
 \end{abstract}
 
 \begin{keywords}
@@ -400,6 +402,7 @@ intensity.
 reduction; Predictor grouping; 
   Mixed integer programming.
 \end{keywords}
+
 
 \setstretch{1.5}
 \section{Introduction}\label{sec-introduction}
@@ -983,7 +986,7 @@ of response, input predictors, and noise levels.}
 \centering{
 
 \centering
-\resizebox{\linewidth}{!}{
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \begin{tabular}{llllll}
 \toprule
 \textbf{Model} & \textbf{Predictors} & \textbf{PPR} & \textbf{Additive} & \textbf{Linear} & \textbf{Multiple}\\
@@ -1687,6 +1690,7 @@ Methodologies, and Applications (OPTIMA), Project ID IC200100009.
 
 
 \printbibliography
+
 
 
 \end{document}
